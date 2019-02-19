@@ -19,6 +19,8 @@ namespace LogViewer.Server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            services.AddSingleton<ILogParser, LogParser>();
         }
 
         public void Configure(IApplicationBuilder app)
@@ -31,24 +33,6 @@ namespace LogViewer.Server
             app.UseDeveloperExceptionPage();
             app.UseMvc(); // WebAPI MVC Routing
  
-            //app.Run(async (context) =>
-            //{
-            //    context.Response.ContentType = "text/html";
-            //    await context.Response
-            //        .WriteAsync("<!DOCTYPE html><html lang=\"en\"><head>" +
-            //            "<title></title></head><body><p>Hosted by Kestrel</p>");
-
-            //    if (serverAddressesFeature != null)
-            //    {
-            //        await context.Response
-            //            .WriteAsync("<p>Listening on the following addresses: " +
-            //                string.Join(", ", serverAddressesFeature.Addresses) +
-            //                "</p>");
-            //    }
-
-            //    await context.Response.WriteAsync("<p>Request URL: " +
-            //        $"{context.Request.GetDisplayUrl()}<p>");
-            //});
         }
     }
 }
