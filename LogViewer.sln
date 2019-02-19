@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.421
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogViewer.Server", "LogViewer.Server\LogViewer.Server.csproj", "{86426E21-A4BA-4715-AA82-676F5AD3B638}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TempWebApp", "TempWebApp\TempWebApp.csproj", "{5763B49A-BD2E-4606-B642-2B0921D420A7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{86426E21-A4BA-4715-AA82-676F5AD3B638}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86426E21-A4BA-4715-AA82-676F5AD3B638}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86426E21-A4BA-4715-AA82-676F5AD3B638}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5763B49A-BD2E-4606-B642-2B0921D420A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5763B49A-BD2E-4606-B642-2B0921D420A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5763B49A-BD2E-4606-B642-2B0921D420A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5763B49A-BD2E-4606-B642-2B0921D420A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
