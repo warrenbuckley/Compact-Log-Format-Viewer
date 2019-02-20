@@ -1,0 +1,16 @@
+{
+  "name": "logviewer.client",
+  "version": "1.0.0",
+  "description": "The Electron UI layer for LogViewer",
+  "main": "dist/main.js",
+  "scripts": {
+    "start": "electron .",
+    "watch": "tsc --watch"
+  },
+  "author": "Warren Buckley",
+  "license": "ISC",
+  "private": true,
+  "devDependencies": {
+    "electron": "^4.0.5"
+  }
+}
