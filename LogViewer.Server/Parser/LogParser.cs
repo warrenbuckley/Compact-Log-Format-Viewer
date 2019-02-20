@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using LogViewer.Server.Extensions;
 using LogViewer.Server.Models;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Serilog.Filters.Expressions;
 using Serilog.Formatting.Compact.Reader;
 
 
@@ -15,8 +17,9 @@ namespace LogViewer.Server
     {
         private List<LogEvent> _logItems;
         private string _logFilePath;
-
         public bool LogIsOpen { get; set; }
+
+        private const string ExpressionOperators = "()+=*<>%-";
 
         public LogParser()
         {
@@ -97,8 +100,7 @@ namespace LogViewer.Server
             }
         }
 
-        private const string ExpressionOperators = "()+=*<>%-";
-        private Func<LogEvent, bool> _filter;
+        
 
         public PagedResult<LogMessage> Search(int pageNumber = 1, int pageSize = 100, string filterExpression = null)
         {
@@ -125,8 +127,49 @@ namespace LogViewer.Server
                 };
             }
 
-            return null;
-        }        
+
+            Func<LogEvent, bool> filter;
+
+            // If the expression is one word and doesn't contain a serilog operator then we can perform a like search
+            if (!filterExpression.Contains(" ") && !filterExpression.ContainsAny(ExpressionOperators.Select(c => c)))
+            {
+                filter = PerformMessageLikeFilter(filterExpression);
+            }
+            else // check if it's a valid expression
+            {
+                // If the expression evaluates then make it into a filter
+                if (FilterLanguage.TryCreateFilter(filterExpression, out var eval, out _))
+                {
+                    filter = evt => true.Equals(eval(evt));
+                }
+                else
+                {
+                    //Assume the expression was a search string and make a Like filter from that
+                    filter = PerformMessageLikeFilter(filterExpression);
+                }
+            }
+
+            //Apply the filter to the collection
+            var filteredLogs = _logItems.Where(filter);
+            var filteredTotal = filteredLogs.Count();
+            var logItems = filteredLogs
+                    .Skip(pageSize * (pageNumber - 1))
+                    .Take(pageSize)
+                    .Select(x => new LogMessage
+                    {
+                        Timestamp = x.Timestamp,
+                        Level = x.Level,
+                        MessageTemplateText = x.MessageTemplate.Text,
+                        Exception = x.Exception?.ToString(),
+                        Properties = x.Properties,
+                        RenderedMessage = x.RenderMessage()
+                    });
+
+            return new PagedResult<LogMessage>(filteredTotal, pageNumber, pageSize)
+            {
+                Items = logItems
+            };
+        }
 
         public List<LogTemplate> GetMessageTemplates()
         {
@@ -140,6 +183,17 @@ namespace LogViewer.Server
                 .OrderByDescending(x => x.Count);
 
             return templates.ToList();
+        }
+
+        private Func<LogEvent, bool> PerformMessageLikeFilter(string filterExpression)
+        {
+            var filterSearch = $"@Message like '%{FilterLanguage.EscapeLikeExpressionContent(filterExpression)}%'";
+            if (FilterLanguage.TryCreateFilter(filterSearch, out var eval, out _))
+            {
+                return evt => true.Equals(eval(evt));
+            }
+
+            return null;
         }
     }
 }
