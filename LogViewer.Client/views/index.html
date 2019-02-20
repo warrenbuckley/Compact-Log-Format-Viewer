@@ -3,11 +3,44 @@
   <head>
     <meta charset="UTF-8">
     <title>Log Viewer</title>
+
+
+    <!-- BootStrap Dist CSS -->
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Our CSS -->
+    <link rel="stylesheet" href="../styles/app.css" type="text/css"/>
+
   </head>
   <body>
+
+    <!-- No Log File is Open (Empty State) -->
+    <div id="empty-state">
+        <button type="button" id="open-file" class="btn btn-primary">Select or Drop a NuCache file</button>
+    </div>
+
+    <!-- Loader SVG animation -->
+
+
+    <!-- Log Is Open -->
+    <div id="log-viewer">
+
+        <div id="error-count">
+            0
+        </div>
+
+    </div>
+
+    <script>
+        require('../dist/renderer/app.js');
+        require('../dist/renderer/listen-events.js');
+    </script>
+
+<!--
     <h1>Hello World!</h1>
     We are using node <script>document.write(process.versions.node)</script>,
     Chrome <script>document.write(process.versions.chrome)</script>,
     and Electron <script>document.write(process.versions.electron)</script>.
+-->
   </body>
 </html>

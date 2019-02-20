@@ -3,6 +3,9 @@ import * as child from 'child_process';
 import * as path from 'path';
 import * as os from 'os';
 
+import './events';
+
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win: BrowserWindow | null;
@@ -11,12 +14,12 @@ let apiProcess: child.ChildProcess | null;
 function createWindow(){
 
     win = new BrowserWindow({
-        width:800,
-        height:600,
+        width:1300,
+        height:800,
         show:false,
         center:true,
-        minWidth: 800,
-        minHeight:600
+        minWidth: 1300,
+        minHeight:800
     });
 
     // and load the index.html of the app.
@@ -65,9 +68,9 @@ app.on('quit', () => {
 });
 
 function startServer() {
-  var apipath = path.join(__dirname, '..\\..\\LogViewer.Server\\bin\\dist\\win\\LogViewer.Server.exe');
+  var apipath = path.join(__dirname, '..\\..\\..\\LogViewer.Server\\bin\\dist\\win\\LogViewer.Server.exe');
   if (os.platform() === 'darwin') {
-    apipath = path.join(__dirname, '..//..//LogViewer.Server//bin//dist//osx//LogViewer.Server');
+    apipath = path.join(__dirname, '..//..//..//LogViewer.Server//bin//dist//osx//LogViewer.Server');
   }
 
   //Spin up the exe or OSX excutable - self hosted x-plat .NET Core WebAPI

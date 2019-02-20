@@ -1,0 +1,19 @@
+body {
+    background-color:#eee;
+}
+
+#empty-state {
+    margin:10px;
+    border:4px dashed #bbb;
+    padding:20px;
+    background:#fff;
+    text-align: center;
+    height:calc(100vh - 20px);
+}
+
+
+#error-count {
+    background:#f26666;
+    color:#a52020;
+}
+
