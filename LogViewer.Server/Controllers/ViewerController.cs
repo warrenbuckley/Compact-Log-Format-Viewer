@@ -1,10 +1,8 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
 using System.IO;
 using LogViewer.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Serilog;
-using Serilog.Formatting.Display;
 
 namespace LogViewer.Server.Controllers
 {
@@ -42,11 +40,8 @@ namespace LogViewer.Server.Controllers
                 var message = $"The file {filePath} is not a compatabile log file. Can only open .json, .txt or .clef files";
                 return BadRequest(message);
             }
-
-            var logs = _logParser.ReadLogs(filePath);
-
-            //TODO: What about malformed JSON - catch error & report
-
+            
+            var logs = _logParser.ReadLogs(filePath);            
             return $"Log contains {logs.Count}"; //TODO: Return something like 'all is OK' message - so subsquent requests can be made?
 
         }
@@ -70,26 +65,35 @@ namespace LogViewer.Server.Controllers
         }
 
         [HttpGet("export")]
-        public ActionResult<string> Export(string messageTemplate, string newFileName)
+        public ActionResult Export(string messageTemplate, string newFileName)
         {
             if (_logParser.LogIsOpen == false)
                 return BadRequest("No logfile has been opened yet");
 
             if (string.IsNullOrEmpty(newFileName))
-            {
-                return BadRequest("Missing filename to export as");
-            }
+                return BadRequest("Missing filename to export the JSON log file");
 
             _logParser.ExportTextFile(messageTemplate, newFileName);
             return Ok(); //TODO: Maybe return something useful in response - stream file or ...?! GUI can show loader?!
         }
         
-        // * FUTURE - Maybe File Watch it - so be notified of updates (so we can push realtime updates with SignalR?)
-        // * FUTURE - Or do you opt in with a button to re-parse & call this method again?!
+        [HttpGet("messagetemplates")]
+        public ActionResult<List<LogTemplate>> MessageTemplates()
+        {
+            if (_logParser.LogIsOpen == false)
+                return BadRequest("No logfile has been opened yet");
 
-        
-        // * A list of log items (paged)
-        // * A total number of logs (so can use in paging)
-        
+            return _logParser.GetMessageTemplates();
+            
+        }
+
+        [HttpGet("search")]
+        public ActionResult<PagedResult<LogMessage>> Search(int pageNumber = 1, int pageSize = 100, string filterExpression = null)
+        {
+            if (_logParser.LogIsOpen == false)
+                return BadRequest("No logfile has been opened yet");
+
+            return _logParser.Search(pageNumber, pageSize, filterExpression);
+        }       
     }
 }

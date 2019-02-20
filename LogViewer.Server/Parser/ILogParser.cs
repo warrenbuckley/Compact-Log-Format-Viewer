@@ -16,5 +16,9 @@ namespace LogViewer.Server
         int TotalErrors();
 
         void ExportTextFile(string messageTemplate, string newFileName);
+
+        PagedResult<LogMessage> Search(int pageNumber = 1, int pageSize = 100, string filterExpression = null);
+
+        List<LogTemplate> GetMessageTemplates();
     }
 }
