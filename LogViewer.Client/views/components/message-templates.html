@@ -1,0 +1,19 @@
+<div id="message-templates" class="card">
+    <div class="card-body">
+        <h5 class="card-title">Message Templates</h5>
+        <table class="table">
+        <thead class="thead-dark">
+            <tr>
+            <th scope="col">Template</th>
+            <th scope="col">Count</th>
+            </tr>
+        </thead>
+        <tbody id="templates-table">
+            <tr ng-repeat="template in $ctrl.templates | limitTo: 5">
+                <td>{{ template.messageTemplate }}</td>
+                <td>{{ template.count }}</td>
+            </tr>
+        </tbody>
+        </table>
+    </div>
+</div>

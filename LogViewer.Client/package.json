@@ -15,8 +15,10 @@
     "electron": "^4.0.5"
   },
   "dependencies": {
+    "@types/angular": "^1.6.54",
     "@types/chart.js": "^2.7.45",
     "@types/request": "^2.48.1",
+    "angular": "^1.7.7",
     "bootstrap": "^4.3.1",
     "chart.js": "^2.7.3",
     "request": "^2.88.0"

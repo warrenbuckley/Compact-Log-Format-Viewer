@@ -1,18 +1,9 @@
 import { ipcRenderer } from "electron";
 
-const emptyState: HTMLElement|null = document.getElementById('empty-state');
-const openButton: HTMLElement|null = document.getElementById('open-file');
+function DropZoneController($scope, $element, $attrs) {
+    var ctrl = this;
 
-// Open button inside empty state to open a file dialog
-if(openButton){
-    openButton.onclick = function(){
-        //Go & tell the renderer whos listening for 'logviewer.open-file-dialog'
-        ipcRenderer.send('logviewer.open-file-dialog');
-    }
-}
-
-// Setup JS event listeners for Drag & Drop file to open
-if(emptyState){
+    var emptyState = $element[0];
 
     emptyState.ondragover = function(ev){
         ev.preventDefault();
@@ -74,3 +65,6 @@ if(emptyState){
 
 }
 
+angular.module("logViewerApp").component("dropZone", {
+    controller: DropZoneController
+});

@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="logViewerApp">
   <head>
     <meta charset="UTF-8">
     <title>Log Viewer</title>
-
 
     <!-- BootStrap Dist CSS -->
     <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" />
@@ -14,119 +13,58 @@
   </head>
   <body>
 
-    <!-- No Log File is Open (Empty State) -->
-    <div id="empty-state">
-        <button type="button" id="open-file" class="btn btn-primary">Select or Drop a NuCache file</button>
-    </div>
+    <div ng-controller="LogViewerController as vm">
 
-    <!-- Loader SVG animation -->
-    <div id="loader" class="is-hidden">
-      <svg width="200px" height="200px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
-        <g transform="rotate(287.844 50 50)">
-          <path d="M50 15A35 35 0 1 0 74.787 25.213" fill="none" stroke="#bbb" stroke-width="12"></path>
-          <path d="M49 3L49 27L61 15L49 3" fill="#bbb"></path>
-          <animateTransform attributeName="transform" type="rotate" calcMode="linear" values="0 50 50;360 50 50" keyTimes="0;1" dur="1s" begin="0s" repeatCount="indefinite"></animateTransform>
-        </g>
-      </svg>
-      <div>Loading</div>
-    </div>
+      <!-- No Log File is Open (Empty State) -->
+      <drop-zone id="empty-state" ng-hide="vm.isLoading || vm.fileOpen">
+          <button type="button" id="open-file" class="btn btn-primary" ng-click="vm.openFile()">Select or Drop a NuCache file</button>
+      </drop-zone>
 
-    <!-- Log Is Open -->
-    <div id="log-viewer" class="is-hidden">
+      <!-- Loader SVG animation -->
+      <loader id="loader" ng-show="vm.isLoading"></loader>
 
-      <div class="container-fluid">
-        <!-- Top 2 COlumns -->
-        <div class="row d-flex justify-content-between">
+      <!-- Log Is Open -->
+      <div id="log-viewer" ng-show="vm.fileOpen">
 
-          <div class="col-sm">
-            <!-- Error Count -->
-            <div id="error-count-container" class="card">
-              <div class="card-body">
-                <h5 class="card-title">Errors</h5>
-                <h1 id="error-count">0</h1>
-              </div>
+        <div class="container-fluid">
+          <!-- Top 2 COlumns -->
+          <div class="row d-flex justify-content-between">
+
+            <div class="col-sm">
+              <!-- Error Count -->
+              <error-count errors="vm.errorCount"></error-count>
+
+              <!-- Common Templates -->
+              <message-templates templates="vm.messageTemplates"></message-templates>
             </div>
 
-            <!-- Common Templates -->
-            <div id="message-templates" class="card align-self-stretch">
-              <div class="card-body">
-                <h5 class="card-title">Message Templates</h5>
-                <table class="table">
-                  <thead class="thead-dark">
-                    <tr>
-                      <th scope="col">Template</th>
-                      <th scope="col">Count</th>
-                    </tr>
-                  </thead>
-                  <tbody id="templates-table">
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Chart JS of Log Types -->
-          <div id="log-types" class="col-sm card">
-            <div class="card-body">
-              <h5 class="card-title">Log Levels</h5>
-              <canvas id="chart-log-types"></canvas>
-              <div id="chart-log-types-legend">
-                <table class="table">
-                  <thead class="thead-dark">
-                    <tr>
-                      <th scope="col">Level</th>
-                      <th scope="col">Count</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><span class="square verbose"></span> Verbose</th>
-                      <td>##VerboseCount##</td>
-                    </tr>
-                    <tr>
-                      <td><span class="square debug"></span> Debug</th>
-                      <td>##DebugCount##</td>
-                    </tr>
-                    <tr>
-                      <td><span class="square info"></span> Information</th>
-                      <td>##InfoCount##</td>
-                    </tr>
-                    <tr>
-                      <td><span class="square warning"></span> Warning</th>
-                      <td>##WarningCount##</td>
-                    </tr>
-                    <tr>
-                      <td><span class="square error"></span> Error</th>
-                      <td>##ErrorCount##</td>
-                    </tr>
-                    <tr>
-                      <td><span class="square fatal"></span> Fatal</th>
-                      <td>##FatalCount##</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+            <div class="col-sm">
+              <!-- Log Types -->
+              <log-types logtypes="vm.logTypes"></log-types>
             </div>
           </div>
 
+          <!-- LogViewer Search Results -->
+          <div class="row d-flex justify-content-between">
+            <div class="card">
+              Search Results Here
+            </div>
+          </div>
         </div>
 
-        <!-- LogViewer Search Results -->
-        <div class="row d-flex justify-content-between">
-          <div class="card">
-            Search Results Here
-          </div>
-        </div>
       </div>
-
     </div>
 
     <script>
+        require('../node_modules/angular/angular.min.js');
         require('../node_modules/chart.js/dist/Chart.min.js');
 
-        require('../dist/renderer/app.js');
-        require('../dist/renderer/listen-events.js');
+        require('../dist/renderer/app-angular.js');
+        require('../dist/renderer/components/dropzone.js');
+        require('../dist/renderer/components/loader.js');
+        require('../dist/renderer/components/errorcount.js');
+        require('../dist/renderer/components/messagetemplates.js');
+        require('../dist/renderer/components/logtypes.js');
     </script>
 
   </body>

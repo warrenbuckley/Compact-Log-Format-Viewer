@@ -1,0 +1,44 @@
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Log Levels</h5>
+        <!-- Chart JS-->
+        <canvas id="chart-log-types"></canvas>
+
+        <div id="chart-log-types-legend">
+            <table class="table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Level</th>
+                        <th scope="col">Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="square verbose"></span> Verbose</th>
+                        <td>{{ $ctrl.logtypes.verbose }}</td>
+                    </tr>
+                    <tr>
+                        <td><span class="square debug"></span> Debug</th>
+                        <td>{{ $ctrl.logtypes.debug }}</td>
+                    </tr>
+                    <tr>
+                        <td><span class="square info"></span> Information</th>
+                        <td>{{ $ctrl.logtypes.information }}</td>
+                    </tr>
+                    <tr>
+                        <td><span class="square warning"></span> Warning</th>
+                        <td>{{ $ctrl.logtypes.warning }}</td>
+                    </tr>
+                    <tr>
+                        <td><span class="square error"></span> Error</th>
+                        <td>{{ $ctrl.logtypes.error }}</td>
+                    </tr>
+                    <tr>
+                        <td><span class="square fatal"></span> Fatal</th>
+                        <td>{{ $ctrl.logtypes.fatal }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
