@@ -1,0 +1,6 @@
+﻿OSX Example File Path
+== /Users/warrenbuckley/Projects/hello-world.rtf
+
+WebAPI Happy with finding & getting extension etc
+http://127.0.0.1:45678/api/viewer/open?filePath=/Users/warrenbuckley/Projects/hello-world.rtf
+
