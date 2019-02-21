@@ -29,6 +29,7 @@ export function openFile(filePath:string, focusedWindow:WebContents){
         getErrors(focusedWindow);
         getTotals(focusedWindow);
         getMessageTemplates(focusedWindow);
+        getLogs(focusedWindow, 1, "");
 
     });
 }
@@ -69,3 +70,16 @@ function getMessageTemplates(focusedWindow:WebContents){
         focusedWindow.send('logviewer.data-templates', body);
     });
 }
+
+function getLogs(focusedWindow:WebContents, pageNumber: number, filterExpression:string){
+
+    request(`${serverApiDomain}/search?pageNumber=${pageNumber}&filterExpression=${filterExpression}`, { json: true, }, (err, res, body) => {
+        if (err) {
+            focusedWindow.send('logviewer.error', err);
+            return console.log(err);
+        }
+
+        focusedWindow.send('logviewer.data-logs', body);
+    });
+}
+

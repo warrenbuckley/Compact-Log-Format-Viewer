@@ -1,4 +1,4 @@
-import { ipcMain, webContents, Event } from "electron";
+import { ipcMain, webContents } from "electron";
 import { openFileDialog } from "./file";
 import * as webapi from "./webapi";
 

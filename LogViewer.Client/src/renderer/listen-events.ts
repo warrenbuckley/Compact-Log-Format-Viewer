@@ -113,7 +113,9 @@ ipcRenderer.on("logviewer.data-templates", (event:any , arg:any) => {
         html += `<tr><td>${element.messageTemplate}</td><td>${element.count}</td></tr>`;
     });
 
-    console.log('html', html);
-
     messageTemplatesTable.innerHTML = html;
+});
+
+ipcRenderer.on("logviewer.data-logs", (event:any , arg:any) => {
+    console.log('logs', arg);
 });
