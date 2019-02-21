@@ -1,6 +1,6 @@
 import { ipcRenderer } from "electron";
 
-var logViewerApp = angular.module('logViewerApp',[]);
+var logViewerApp = angular.module('logViewerApp', ['chart.js']);
 logViewerApp.controller('LogViewerController', ['$scope', function($scope) {
     var vm = this;
     vm.isLoading = false;
