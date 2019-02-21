@@ -17,17 +17,18 @@ export function openFile(filePath:string, focusedWindow:WebContents){
             return console.log(err);
         }
 
-        console.log('body', body);
-
         //Add the file to a recent documents list
         //Lets assume the Electron API here deals with dupes etc
         app.addRecentDocument(filePath);
 
-        focusedWindow.send('logviewer.file.opened', body);
+        focusedWindow.send('logviewer.file-opened', body);
         focusedWindow.send('logviewer.loading', false);
 
         //Call Further Init API Endpoints
+        //Which in turn emit their data/JSON back to the RENDERER to listen for
         getErrors(focusedWindow);
+        getTotals(focusedWindow);
+        getMessageTemplates(focusedWindow);
 
     });
 }
@@ -40,11 +41,31 @@ function getErrors(focusedWindow:WebContents){
             return console.log(err);
         }
 
-        console.log('body', body);
-
-        focusedWindow.send('logviewer.errors.data', body);
-
+        focusedWindow.send('logviewer.data-errors', body);
     });
-
 }
 
+function getTotals(focusedWindow:WebContents){
+
+    request(`${serverApiDomain}/totals`, { json: true, }, (err, res, body) => {
+        if (err) {
+            focusedWindow.send('logviewer.error', err);
+            return console.log(err);
+        }
+
+        focusedWindow.send('logviewer.data-totals', body);
+    });
+}
+
+
+function getMessageTemplates(focusedWindow:WebContents){
+
+    request(`${serverApiDomain}/messagetemplates`, { json: true, }, (err, res, body) => {
+        if (err) {
+            focusedWindow.send('logviewer.error', err);
+            return console.log(err);
+        }
+
+        focusedWindow.send('logviewer.data-templates', body);
+    });
+}

@@ -20,14 +20,28 @@
     </div>
 
     <!-- Loader SVG animation -->
-
+    <div id="loader" class="is-hidden">
+      <svg width="200px" height="200px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
+        <g transform="rotate(287.844 50 50)">
+          <path d="M50 15A35 35 0 1 0 74.787 25.213" fill="none" stroke="#bbb" stroke-width="12"></path>
+          <path d="M49 3L49 27L61 15L49 3" fill="#bbb"></path>
+          <animateTransform attributeName="transform" type="rotate" calcMode="linear" values="0 50 50;360 50 50" keyTimes="0;1" dur="1s" begin="0s" repeatCount="indefinite"></animateTransform>
+        </g>
+      </svg>
+      <div>Loading</div>
+    </div>
 
     <!-- Log Is Open -->
-    <div id="log-viewer">
+    <div id="log-viewer" class="is-hidden">
 
-        <div id="error-count">
-            0
-        </div>
+        <!-- Error Count -->
+        <div id="error-count">0</div>
+
+        <!-- Chart JS of Log Types -->
+        <div id="log-types"></div>
+
+        <!-- Common Templates -->
+        <div id="message-templates"></div>
 
     </div>
 
@@ -36,11 +50,5 @@
         require('../dist/renderer/listen-events.js');
     </script>
 
-<!--
-    <h1>Hello World!</h1>
-    We are using node <script>document.write(process.versions.node)</script>,
-    Chrome <script>document.write(process.versions.chrome)</script>,
-    and Electron <script>document.write(process.versions.electron)</script>.
--->
   </body>
 </html>

@@ -3,17 +3,43 @@ body {
 }
 
 #empty-state {
+    border: 4px dashed #bbb;
+    background-color: #f6f6f6;
+    border-radius: 2px;
     margin:10px;
-    border:4px dashed #bbb;
     padding:20px;
-    background:#fff;
-    text-align: center;
-    height:calc(100vh - 20px);
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 20px);
+    box-sizing: border-box;
+    flex-direction: column;
 }
 
+#empty-state.is-dragover {
+    background-color: #e6e4e4;
+}
+
+.is-hidden {
+    display:none !important;
+}
+
+#loader {
+    background-color: #f6f6f6;
+    border-radius: 2px;
+    margin:10px;
+    padding:20px;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(100vh - 20px);
+    box-sizing: border-box;
+    flex-direction: column;
+}
 
 #error-count {
     background:#f26666;
     color:#a52020;
 }
+
 
