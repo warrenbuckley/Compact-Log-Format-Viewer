@@ -37,9 +37,45 @@ body {
     flex-direction: column;
 }
 
-#error-count {
+#log-viewer {
+    padding:10px 0;
+}
+
+#error-count-container {
     background:#f26666;
     color:#a52020;
+    text-align: center;
+    cursor: pointer;
 }
 
 
+.square {
+    height:12px;
+    width:12px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.square.verbose {
+    background-color:#6c757d;
+}
+
+.square.debug {
+    background-color:#20c997 ;
+}
+
+.square.info {
+    background-color:#17a2b8;
+}
+
+.square.warning {
+    background-color:#ffc107;
+}
+
+.square.error {
+    background-color:#fd7e14;
+}
+
+.square.fatal {
+    background-color:#dc3545;
+}

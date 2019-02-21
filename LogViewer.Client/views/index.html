@@ -34,18 +34,97 @@
     <!-- Log Is Open -->
     <div id="log-viewer" class="is-hidden">
 
-        <!-- Error Count -->
-        <div id="error-count">0</div>
+      <div class="container-fluid">
+        <!-- Top 2 COlumns -->
+        <div class="row d-flex justify-content-between">
 
-        <!-- Chart JS of Log Types -->
-        <div id="log-types"></div>
+          <div class="col-sm">
+            <!-- Error Count -->
+            <div id="error-count-container" class="card">
+              <div class="card-body">
+                <h5 class="card-title">Errors</h5>
+                <h1 id="error-count">0</h1>
+              </div>
+            </div>
 
-        <!-- Common Templates -->
-        <div id="message-templates"></div>
+            <!-- Common Templates -->
+            <div id="message-templates" class="card align-self-stretch">
+              <div class="card-body">
+                <h5 class="card-title">Message Templates</h5>
+                <table class="table">
+                  <thead class="thead-dark">
+                    <tr>
+                      <th scope="col">Template</th>
+                      <th scope="col">Count</th>
+                    </tr>
+                  </thead>
+                  <tbody id="templates-table">
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Chart JS of Log Types -->
+          <div id="log-types" class="col-sm card">
+            <div class="card-body">
+              <h5 class="card-title">Log Levels</h5>
+              <canvas id="chart-log-types"></canvas>
+              <div id="chart-log-types-legend">
+                <table class="table">
+                  <thead class="thead-dark">
+                    <tr>
+                      <th scope="col">Level</th>
+                      <th scope="col">Count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><span class="square verbose"></span> Verbose</th>
+                      <td>##VerboseCount##</td>
+                    </tr>
+                    <tr>
+                      <td><span class="square debug"></span> Debug</th>
+                      <td>##DebugCount##</td>
+                    </tr>
+                    <tr>
+                      <td><span class="square info"></span> Information</th>
+                      <td>##InfoCount##</td>
+                    </tr>
+                    <tr>
+                      <td><span class="square warning"></span> Warning</th>
+                      <td>##WarningCount##</td>
+                    </tr>
+                    <tr>
+                      <td><span class="square error"></span> Error</th>
+                      <td>##ErrorCount##</td>
+                    </tr>
+                    <tr>
+                      <td><span class="square fatal"></span> Fatal</th>
+                      <td>##FatalCount##</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- LogViewer Search Results -->
+        <div class="row d-flex justify-content-between">
+          <div class="card">
+            Search Results Here
+          </div>
+        </div>
+      </div>
 
     </div>
 
     <script>
+        require('../node_modules/chart.js/dist/Chart.min.js');
+
         require('../dist/renderer/app.js');
         require('../dist/renderer/listen-events.js');
     </script>
