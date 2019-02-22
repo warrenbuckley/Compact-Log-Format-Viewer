@@ -26,3 +26,13 @@ ipcMain.on('logviewer.dragged-file', (event:any, arg:any) => {
     //Call the Web API with the selected file
     webapi.openFile(filePath, currentWindow);
 });
+
+ipcMain.on('logviewer.get-logs', (event: any, arg:any) => {
+    //Get focused window
+    console.log('get logs', arg);
+    var allWindows = webContents.getAllWebContents();
+    var currentWindow = allWindows[0];
+
+    webapi.getLogs(currentWindow, arg.pageNumber, arg.filterExpression);
+
+});

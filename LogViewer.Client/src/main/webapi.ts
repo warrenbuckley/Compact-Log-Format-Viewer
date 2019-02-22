@@ -71,7 +71,7 @@ function getMessageTemplates(focusedWindow:WebContents){
     });
 }
 
-function getLogs(focusedWindow:WebContents, pageNumber: number, filterExpression:string){
+export function getLogs(focusedWindow:WebContents, pageNumber: number, filterExpression:string){
 
     request(`${serverApiDomain}/search?pageNumber=${pageNumber}&filterExpression=${filterExpression}`, { json: true, }, (err, res, body) => {
         if (err) {

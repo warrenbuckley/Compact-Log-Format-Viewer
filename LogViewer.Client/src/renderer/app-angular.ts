@@ -1,4 +1,5 @@
 import { ipcRenderer } from "electron";
+import * as angular from "angular";
 
 var logViewerApp = angular.module('logViewerApp', ['chart.js']);
 logViewerApp.controller('LogViewerController', ['$scope', function($scope) {
@@ -8,7 +9,12 @@ logViewerApp.controller('LogViewerController', ['$scope', function($scope) {
     vm.errorCount = 0;
     vm.messageTemplates = [];
     vm.logTypes = {};
+    vm.chartData = [];
+    vm.chartLabels = [ "Verbose", "Debug", "Information", "Warning", "Error", "Fatal" ];
+    vm.chartColors = [ "#6c757d", "#20c997", "#17a2b8", "#ffc107", "#fd7e14", "#dc3545" ];
     vm.logs = {};
+    vm.loadinglogs = false;
+
 
     vm.openFile = function(){
         //Go & tell the renderer whos listening for 'logviewer.open-file-dialog'
@@ -28,14 +34,20 @@ logViewerApp.controller('LogViewerController', ['$scope', function($scope) {
     });
 
     ipcRenderer.on("logviewer.data-errors", (event:any , arg:any) => {
-        console.log("erros", arg);
         vm.errorCount = arg;
         $scope.$applyAsync();
     });
 
     ipcRenderer.on("logviewer.data-totals", (event:any , arg:any) => {
-        console.log("log types", arg);
         vm.logTypes = arg;
+        vm.chartData = [
+            arg.verbose,
+            arg.debug,
+            arg.information,
+            arg.warning,
+            arg.error,
+            arg.fatal
+        ];
         $scope.$applyAsync();
     });
 

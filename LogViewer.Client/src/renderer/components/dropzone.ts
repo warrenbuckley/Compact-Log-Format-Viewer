@@ -1,4 +1,5 @@
 import { ipcRenderer } from "electron";
+import * as angular from "angular";
 
 function DropZoneController($scope, $element, $attrs) {
     var ctrl = this;

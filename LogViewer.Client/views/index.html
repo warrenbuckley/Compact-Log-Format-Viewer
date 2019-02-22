@@ -28,7 +28,7 @@
 
         <div class="container-fluid">
           <!-- Top 2 COlumns -->
-          <div class="row d-flex justify-content-between">
+          <div class="row d-flex justify-content-between mb-4">
 
             <div class="col-sm">
               <!-- Error Count -->
@@ -40,14 +40,15 @@
 
             <div class="col-sm">
               <!-- Log Types -->
-              <log-types logtypes="vm.logTypes"></log-types>
+              <log-types logtypes="vm.logTypes" chartdata="vm.chartData" chartlabels="vm.chartLabels" chartcolors="vm.chartColors"></log-types>
             </div>
           </div>
 
-          <!-- LogViewer Search Results -->
-          <div class="row d-flex justify-content-between">
-            <div class="card">
-              Search Results Here
+
+          <div class="row d-flex justify-content-between mb-4">
+            <div class="col-sm">
+              <!-- LogViewer Search Results -->
+              <log-items logitems="vm.logs"></log-items>
             </div>
           </div>
         </div>
@@ -66,6 +67,7 @@
         require('../dist/renderer/components/errorcount.js');
         require('../dist/renderer/components/messagetemplates.js');
         require('../dist/renderer/components/logtypes.js');
+        require('../dist/renderer/components/logitems.js');
     </script>
 
   </body>
