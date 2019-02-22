@@ -1,0 +1,18 @@
+<pre>{{ vm | json }}</pre>
+
+<nav aria-label="Page navigation example" ng-show="pagination.length > 1">
+    <ul class="pagination justify-content-center">
+        <li class="page-item" ng-class="{disabled:pageNumber <= 1}">
+            <a class="page-link" href="#" ng-click="prev()">Previous</a>
+        </li>
+
+        <li ng-repeat="pgn in pagination track by pgn.val" class="page-item" ng-class="{active:pgn.isActive}">
+            <a class="page-link" href="#" ng-click="goToPage(pgn.val - 1)" ng-bind="pgn.name ? pgn.name : pgn.val" ng-if="pgn.val != '...'"></a>
+            <span ng-bind="pgn.val" ng-if="pgn.val == '...'"></span>
+        </li>
+
+        <li class="page-item" ng-class="{disabled:pageNumber >= totalPages}">
+            <a class="page-link" href="#" ng-click="next()">Next</a>
+        </li>
+    </ul>
+</nav>

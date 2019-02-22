@@ -21,3 +21,14 @@ export function openFileDialog(focusedWindow:Electron.WebContents){
     });
 }
 
+export function saveDialog(focusedWindow:Electron.WebContents){
+    dialog.showSaveDialog({
+        title: 'Export as Text File',
+        filters: [{name: 'Text Log File', extensions: ['txt']}],
+    }, (fileName) => {
+
+        console.log('filename', fileName);
+        webapi.exportFile(focusedWindow, fileName);
+    });
+}
+

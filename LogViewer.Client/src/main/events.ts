@@ -1,4 +1,4 @@
-import { ipcMain, webContents } from "electron";
+import { ipcMain, webContents, dialog } from "electron";
 import { openFileDialog } from "./file";
 import * as webapi from "./webapi";
 
@@ -35,4 +35,11 @@ ipcMain.on('logviewer.get-logs', (event: any, arg:any) => {
 
     webapi.getLogs(currentWindow, arg.pageNumber, arg.filterExpression);
 
+});
+
+ipcMain.on('logviewer.export-done', (event: any, arg:any) => {
+    dialog.showMessageBox({
+        title:'File Saved',
+        message:`File sucessfully exported at ${arg.file}`
+    });
 });

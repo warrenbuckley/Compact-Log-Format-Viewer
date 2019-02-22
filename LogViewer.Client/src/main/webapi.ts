@@ -83,3 +83,16 @@ export function getLogs(focusedWindow:WebContents, pageNumber: number, filterExp
     });
 }
 
+export function exportFile(focusedWindow:WebContents, newFileName:string){
+
+    //TODO: At some point in future specify the mesaage template in the UI of app
+    //So it can be passed to the export API endpoint
+    request(`${serverApiDomain}/export?newFileName=${newFileName}`, { json: true, }, (err, res, body) => {
+        if (err) {
+            focusedWindow.send('logviewer.export-error', err);
+            return console.log(err);
+        }
+
+        focusedWindow.send('logviewer.export-done');
+    });
+}

@@ -33,6 +33,17 @@ logViewerApp.controller('LogViewerController', ['$scope', function($scope) {
         $scope.$applyAsync();
     });
 
+    ipcRenderer.on("logviewer.file-closed", (event:any , arg:any) => {
+        vm.fileOpen = false;
+        vm.errorCount = 0;
+        vm.messageTemplates = [];
+        vm.logTypes = {};
+        vm.chartData = [];
+        vm.logs = {};
+
+        $scope.$applyAsync();
+    });
+
     ipcRenderer.on("logviewer.data-errors", (event:any , arg:any) => {
         vm.errorCount = arg;
         $scope.$applyAsync();

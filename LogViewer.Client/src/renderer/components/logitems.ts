@@ -27,6 +27,8 @@ function getLogs(logOptions){
 }
 
 function changePageNumber(pageNumber) {
+    console.log('CHANGE PAGE NUMBER', pageNumber);
+
     this.logOptions.pageNumber = pageNumber;
     getLogs(this.logOptions);
 }
