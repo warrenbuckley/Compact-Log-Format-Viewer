@@ -10,7 +10,7 @@ namespace LogViewer.Server
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("Booting LogViewer.Server");
             CreateWebHostBuilder(args).Build().Run();
         }
 

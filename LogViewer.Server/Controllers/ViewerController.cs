@@ -10,8 +10,8 @@ namespace LogViewer.Server.Controllers
     [ApiController]
     public class ViewerController : ControllerBase
     {
-        private ILogger<ViewerController> _logger;
-        private ILogParser _logParser;
+        private readonly ILogger<ViewerController> _logger;
+        private readonly ILogParser _logParser;
 
         public ViewerController(ILogger<ViewerController> logger, ILogParser logParser)
         {
@@ -37,7 +37,7 @@ namespace LogViewer.Server.Controllers
             var extension = Path.GetExtension(filePath);
             if (extension != ".txt" && extension != ".json" && extension != ".clef")
             {
-                var message = $"The file {filePath} is not a compatabile log file. Can only open .json, .txt or .clef files";
+                var message = $"The file {filePath} is not a compatible log file. Can only open .json, .txt or .clef files";
                 return BadRequest(message);
             }
             
