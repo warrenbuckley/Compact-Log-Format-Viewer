@@ -2,6 +2,7 @@ import { app, BrowserWindow } from 'electron';
 import * as child from 'child_process';
 import * as path from 'path';
 import * as os from 'os';
+import isDev from 'electron-is-dev';
 
 import './events';
 import './appmenu';
