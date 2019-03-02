@@ -51,7 +51,7 @@ namespace LogViewer.Server
                             logItems.Add(evt);
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         throw;
                     }
