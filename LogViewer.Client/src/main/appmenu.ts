@@ -130,7 +130,7 @@ if (process.platform === "darwin") {
 const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
 
-function updateMenuEnabledState(menuId: string, enabledState: boolean) {
+export function updateMenuEnabledState(menuId: string, enabledState: boolean) {
     const menuToUpdate = menu.getMenuItemById(menuId);
 
     if (menuToUpdate) {

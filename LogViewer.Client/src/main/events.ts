@@ -1,4 +1,5 @@
 import { dialog, ipcMain, webContents } from "electron";
+import { updateMenuEnabledState } from "./appmenu";
 import { openFileDialog } from "./file";
 import * as webapi from "./webapi";
 
@@ -18,6 +19,11 @@ ipcMain.on("logviewer.dragged-file", (event: any, filePath: string) => {
     // Get focused window
     const allWindows = webContents.getAllWebContents();
     const currentWindow = allWindows[0];
+
+    // Disable the file open menu item & enable the close menu item
+    updateMenuEnabledState("logviewer.open", false);
+    updateMenuEnabledState("logviewer.close", true);
+    updateMenuEnabledState("logviewer.export", true);
 
     // Call the Web API with the selected file
     webapi.openFile(filePath, currentWindow);
