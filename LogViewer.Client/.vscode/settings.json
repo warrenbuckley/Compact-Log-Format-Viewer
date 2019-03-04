@@ -6,4 +6,5 @@
         "**/node_modules": true,
         "**/built": true,
     },
+    "typescript.tsdk": "node_modules\\typescript\\lib",
 }

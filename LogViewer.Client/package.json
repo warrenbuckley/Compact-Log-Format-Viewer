@@ -12,7 +12,9 @@
   "private": true,
   "devDependencies": {
     "devtron": "^1.4.0",
-    "electron": "^4.0.5"
+    "electron": "^4.0.5",
+    "tslint": "^5.13.1",
+    "typescript": "^3.3.3333"
   },
   "dependencies": {
     "@types/angular": "^1.6.54",
@@ -24,6 +26,7 @@
     "bootstrap": "^4.3.1",
     "chart.js": "^2.7.3",
     "electron-is-dev": "^1.0.1",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "typescript-tslint-plugin": "^0.3.1"
   }
 }
