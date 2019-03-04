@@ -8,8 +8,8 @@ import "./events";
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win: BrowserWindow | null;
-let apiProcess: child.ChildProcess | null;
+let win: BrowserWindow;
+let apiProcess: child.ChildProcess;
 
 function createWindow() {
 
