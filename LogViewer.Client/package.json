@@ -25,7 +25,7 @@
     "angular-chart.js": "^1.1.1",
     "bootstrap": "^4.3.1",
     "chart.js": "^2.7.3",
-    "electron-is-dev": "^1.0.1",
+    "electron-util": "^0.11.0",
     "request": "^2.88.0",
     "typescript-tslint-plugin": "^0.3.1"
   }
