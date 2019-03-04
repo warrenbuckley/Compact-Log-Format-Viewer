@@ -102,13 +102,14 @@ namespace LogViewer.Server
 
         
 
-        public PagedResult<LogMessage> Search(int pageNumber = 1, int pageSize = 100, string filterExpression = null)
+        public PagedResult<LogMessage> Search(int pageNumber = 1, int pageSize = 100, string filterExpression = null, SortOrder sort = SortOrder.Descending)
         {
             //If filter null - return a simple page of results
             if(filterExpression == null)
             {
                 var totalRecords = _logItems.Count;
-                var logMessages = _logItems                   
+                var logMessages = _logItems
+                    .OrderBy(x => x.Timestamp, sort)
                     .Skip(pageSize * (pageNumber - 1))
                     .Take(pageSize)
                     .Select(x => new LogMessage

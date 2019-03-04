@@ -42,7 +42,7 @@ namespace LogViewer.Server.Controllers
             }
             
             var logs = _logParser.ReadLogs(filePath);            
-            return $"Log contains {logs.Count}"; //TODO: Return something like 'all is OK' message - so subsquent requests can be made?
+            return $"Log contains {logs.Count}";
 
         }
 
@@ -88,12 +88,12 @@ namespace LogViewer.Server.Controllers
         }
 
         [HttpGet("search")]
-        public ActionResult<PagedResult<LogMessage>> Search(int pageNumber = 1, int pageSize = 100, string filterExpression = null)
+        public ActionResult<PagedResult<LogMessage>> Search(int pageNumber = 1, int pageSize = 100, string filterExpression = null, SortOrder sort = SortOrder.Descending)
         {
             if (_logParser.LogIsOpen == false)
                 return BadRequest("No logfile has been opened yet");
 
-            return _logParser.Search(pageNumber, pageSize, filterExpression);
+            return _logParser.Search(pageNumber, pageSize, filterExpression, sort);
         }       
     }
 }

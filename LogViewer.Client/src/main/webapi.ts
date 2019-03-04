@@ -70,9 +70,9 @@ function getMessageTemplates(focusedWindow: WebContents) {
     });
 }
 
-export function getLogs(focusedWindow: WebContents, pageNumber: number, filterExpression: string) {
+export function getLogs(focusedWindow: WebContents, pageNumber: number, filterExpression: string, sortOrder: SortOrder = SortOrder.Descending) {
 
-    request(`${serverApiDomain}/search?pageNumber=${pageNumber}&filterExpression=${filterExpression}`, { json: true }, (err, res, body) => {
+    request(`${serverApiDomain}/search?pageNumber=${pageNumber}&filterExpression=${filterExpression}&sort=${sortOrder}`, { json: true }, (err, res, body) => {
         if (err) {
             focusedWindow.send("logviewer.error", err);
             return console.log(err);
@@ -94,4 +94,9 @@ export function exportFile(focusedWindow: WebContents, newFileName: string) {
 
         focusedWindow.send("logviewer.export-done");
     });
+}
+
+enum SortOrder {
+    Ascending = "Ascending",
+    Descending = "Descending",
 }

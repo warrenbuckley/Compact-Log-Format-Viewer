@@ -8,6 +8,8 @@ angular.module("logViewerApp").component("logItems", {
     controllerAs: "vm",
     controller() {
         this.logOptions = {};
+        this.logOptions.filterExpression = "";
+        this.logOptions.sortOrder = "Descending";
         this.loadinglogs = false;
 
         // Functions

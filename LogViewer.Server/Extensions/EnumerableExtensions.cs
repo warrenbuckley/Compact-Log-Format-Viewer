@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LogViewer.Server.Models;
 
 namespace LogViewer.Server.Extensions
 {
@@ -16,6 +17,11 @@ namespace LogViewer.Server.Extensions
         public static bool ContainsAny<TSource>(this IEnumerable<TSource> source, IEnumerable<TSource> other)
         {
             return other.Any(source.Contains);
+        }
+
+        public static IOrderedEnumerable<TSource> OrderBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, SortOrder sortOrder)
+        {
+            return sortOrder == SortOrder.Ascending ? source.OrderBy(keySelector) : source.OrderByDescending(keySelector);
         }
     }
 }

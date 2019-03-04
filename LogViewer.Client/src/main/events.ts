@@ -35,7 +35,7 @@ ipcMain.on("logviewer.get-logs", (event: any, arg: any) => {
     const allWindows = webContents.getAllWebContents();
     const currentWindow = allWindows[0];
 
-    webapi.getLogs(currentWindow, arg.pageNumber, arg.filterExpression);
+    webapi.getLogs(currentWindow, arg.pageNumber, arg.filterExpression, arg.sortOrder);
 
 });
 

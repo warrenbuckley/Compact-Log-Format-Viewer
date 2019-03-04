@@ -7,6 +7,13 @@
             <button ng-click="vm.search(vm.logOptions)">Search</button>
         </div>
 
+        <div>
+            <select name="singleSelect" ng-model="vm.logOptions.sortOrder" ng-change="vm.search(vm.logOptions)">
+                <option value="Ascending">Ascending</option>
+                <option value="Descending">Descending</option>
+              </select>
+        </div>
+
         <!-- No Results -->
         <div ng-show="vm.logitems.totalItems === 0" class="text-center">
             No Results
