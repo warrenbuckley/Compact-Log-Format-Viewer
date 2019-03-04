@@ -15,10 +15,34 @@ logViewerApp.controller("LogViewerController", ["$scope", function($scope) {
     vm.logs = {};
     vm.loadinglogs = false;
 
+    vm.logOptions = {};
+    vm.logOptions.filterExpression = "";
+    vm.logOptions.sortOrder = "Descending";
+    vm.logOptions.pageNumber = 1;
+
+    vm.errorCountClick = () => {
+        // When we click error count - Update filter expression & do NEW search
+        vm.logOptions.filterExpression = "@Level='Error'";
+        vm.logOptions.pageNumber = 1;
+        vm.performSearch();
+    };
+
+    vm.messageTemplateClick = (template) => {
+        // When we click a message template - Update filter expression & do NEW search
+        vm.logOptions.filterExpression = `@MessageTemplate = '${template.messageTemplate}'`;
+        vm.logOptions.pageNumber = 1;
+        vm.performSearch();
+    };
+
     // Used by the button in the UI
-    vm.openFile = () => {
+    vm.openFileClick = () => {
         // Go & tell the renderer whos listening for 'logviewer.open-file-dialog'
         ipcRenderer.send("logviewer.open-file-dialog");
+    };
+
+    vm.performSearch = () => {
+        console.log("vm.logOptions we send to MAIN to perform API call", vm.logOptions);
+        ipcRenderer.send("logviewer.get-logs", vm.logOptions);
     };
 
     // Listen for events from RENDERER & update our VM

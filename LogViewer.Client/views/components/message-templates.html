@@ -9,7 +9,7 @@
             </tr>
         </thead>
         <tbody id="templates-table">
-            <tr ng-repeat="template in $ctrl.templates | limitTo: 5">
+            <tr ng-repeat="template in vm.templates | limitTo: 5" ng-click="vm.templateClick(template)">
                 <td>{{ template.messageTemplate }}</td>
                 <td>{{ template.count }}</td>
             </tr>

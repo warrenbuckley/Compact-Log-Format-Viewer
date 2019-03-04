@@ -17,7 +17,7 @@
 
       <!-- No Log File is Open (Empty State) -->
       <drop-zone id="empty-state" ng-hide="vm.isLoading || vm.fileOpen">
-          <button type="button" id="open-file" class="btn btn-primary" ng-click="vm.openFile()">Select or Drop a NuCache file</button>
+          <button type="button" id="open-file" class="btn btn-primary" ng-click="vm.openFileClick()">Select or Drop a NuCache file</button>
       </drop-zone>
 
       <!-- Loader SVG animation -->
@@ -32,10 +32,10 @@
 
             <div class="col-sm">
               <!-- Error Count -->
-              <error-count errors="vm.errorCount"></error-count>
+              <error-count errors="vm.errorCount" on-error-click="vm.errorCountClick()"></error-count>
 
               <!-- Common Templates -->
-              <message-templates templates="vm.messageTemplates"></message-templates>
+              <message-templates templates="vm.messageTemplates" on-template-click="vm.messageTemplateClick(template)"></message-templates>
             </div>
 
             <div class="col-sm">
@@ -48,7 +48,7 @@
           <div class="row d-flex justify-content-between mb-4">
             <div class="col-sm">
               <!-- LogViewer Search Results -->
-              <log-items logitems="vm.logs"></log-items>
+              <log-items logitems="vm.logs" log-options="vm.logOptions" on-perform-search="vm.performSearch()"></log-items>
             </div>
           </div>
         </div>

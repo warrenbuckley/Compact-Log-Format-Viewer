@@ -1,6 +1,6 @@
-<div id="error-count-container" class="card mb-4">
+<div id="error-count-container" class="card mb-4" ng-click="vm.onErrorClick()">
     <div class="card-body">
         <h5 class="card-title">Errors</h5>
-        <h1 id="error-count">{{$ctrl.errors}}</h1>
+        <h1 id="error-count">{{vm.errors}}</h1>
     </div>
 </div>

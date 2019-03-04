@@ -1,19 +1,16 @@
 import angular from "angular";
-import { ipcRenderer } from "electron";
 
 angular.module("logViewerApp").component("logItems", {
     bindings: {
         logitems: "=",
+        logOptions: "=",
+        onPerformSearch: "&",
     },
     controllerAs: "vm",
     controller() {
-        this.logOptions = {};
-        this.logOptions.filterExpression = "";
-        this.logOptions.sortOrder = "Descending";
         this.loadinglogs = false;
 
         // Functions
-        this.getLogs = getLogs;
         this.changePageNumber = changePageNumber;
         this.search = search;
         this.findItem = findItem;
@@ -21,24 +18,17 @@ angular.module("logViewerApp").component("logItems", {
     templateUrl: "components/log-items.html",
 });
 
-function getLogs(logOptions) {
-    // Emit data back to main
-    // It will ping us back with data that we listen for
-    // in app-angular 'logviewer.data-logs' event for the NEW data
-    ipcRenderer.send("logviewer.get-logs", logOptions);
-}
-
 function changePageNumber(pageNumber) {
     console.log("CHANGE PAGE NUMBER", pageNumber);
 
     this.logOptions.pageNumber = pageNumber;
-    getLogs(this.logOptions);
+    this.onPerformSearch();
 }
 
 function search(logOptions) {
     // Reset pagenumber back to 1
     logOptions.pageNumber = 1;
-    getLogs(logOptions);
+    this.onPerformSearch();
 }
 
 function findItem(key, value) {
@@ -48,5 +38,5 @@ function findItem(key, value) {
         this.logOptions.filterExpression = key + "=" + value;
     }
 
-    search(this.logOptions);
+    this.onPerformSearch();
 }
