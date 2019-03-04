@@ -5,7 +5,9 @@
     ],
     "jsRules": {},
     "rules": {
-        "no-console": true
+        "no-console": true,
+        "object-literal-sort-keys": false, //It's no big deal & sometimes easier to read if its not,
+        "max-line-length": [true, 150]
     },
     "rulesDirectory": []
 }
