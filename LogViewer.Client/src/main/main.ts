@@ -1,6 +1,6 @@
 import * as child from "child_process";
 import { app, BrowserWindow } from "electron";
-import isDev from "electron-is-dev";
+import { is } from "electron-util";
 import * as os from "os";
 import * as path from "path";
 import "./appmenu";
@@ -28,7 +28,7 @@ function createWindow() {
     const window = win;
     win.once("ready-to-show", () => {
 
-      if (isDev) {
+      if (is.development) {
         // Open DevTools in detach mode to help with dev & debugging
         win.webContents.openDevTools({ mode: "undocked" });
       }
