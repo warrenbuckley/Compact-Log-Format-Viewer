@@ -1,10 +1,10 @@
 angular.module("logViewerApp").component("logTypes", {
-    templateUrl: "components/log-types.html",
     bindings: {
-        logtypes: '=',
-        chartdata: '=',
-        chartlabels: '=',
-        chartcolors: '=',
+        chartcolors: "=",
+        chartdata: "=",
+        chartlabels: "=",
+        logtypes: "=",
     },
-    controllerAs: "vm"
+    controllerAs: "vm",
+    templateUrl: "components/log-types.html",
 });

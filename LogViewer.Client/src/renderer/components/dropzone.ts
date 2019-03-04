@@ -1,65 +1,63 @@
-import { ipcRenderer } from "electron";
 import * as angular from "angular";
+import { ipcRenderer } from "electron";
 
-function DropZoneController($scope, $element, $attrs) {
-    var ctrl = this;
+function DropZoneController($element) {
 
-    var emptyState = $element[0];
+    const emptyState = $element[0];
 
-    emptyState.ondragover = function(ev){
+    emptyState.ondragover = function(ev) {
         ev.preventDefault();
 
-        if(emptyState.classList.contains("is-dragover") === false){
+        if (emptyState.classList.contains("is-dragover") === false) {
             emptyState.classList.add("is-dragover");
         }
     };
 
-    emptyState.ondragenter = function(ev){
+    emptyState.ondragenter = function(ev) {
         ev.preventDefault();
 
-        if(emptyState.classList.contains("is-dragover") === false){
+        if (emptyState.classList.contains("is-dragover") === false) {
             emptyState.classList.add("is-dragover");
         }
     };
 
-    emptyState.ondrop = function(ev){
+    emptyState.ondrop = function(ev) {
         ev.preventDefault();
 
-        if(emptyState.classList.contains("is-dragover")){
+        if (emptyState.classList.contains("is-dragover")) {
             emptyState.classList.remove("is-dragover");
         }
 
-        var allFiles = ev.dataTransfer.files;
-        var firstFile = allFiles[0];
+        const allFiles = ev.dataTransfer.files;
+        const firstFile = allFiles[0];
 
-        //File name does not end with .db
-        if(firstFile.name.endsWith('.json') === false
-            && firstFile.name.endsWith('.txt') === false
-            && firstFile.name.endsWith('.clef') === false)
-        {
+        // File name does not end with .db
+        if (firstFile.name.endsWith(".json") === false
+            && firstFile.name.endsWith(".txt") === false
+            && firstFile.name.endsWith(".clef") === false) {
 
-            //Cancel
-            alert('File is not a .json, .txt or .clef file');
+            // Cancel
+            alert("File is not a .json, .txt or .clef file");
             return;
         }
 
-        //Emit an event to 'main'
-        ipcRenderer.send('logviewer.dragged-file', firstFile.path);
+        // Emit an event to 'main'
+        ipcRenderer.send("logviewer.dragged-file", firstFile.path);
 
     };
 
-    emptyState.ondragleave = function(ev){
+    emptyState.ondragleave = function(ev) {
         ev.preventDefault();
 
-        if(emptyState.classList.contains("is-dragover")){
+        if (emptyState.classList.contains("is-dragover")) {
             emptyState.classList.remove("is-dragover");
         }
     };
 
-    emptyState.ondragend = function(ev){
+    emptyState.ondragend = function(ev) {
         ev.preventDefault();
 
-        if(emptyState.classList.contains("is-dragover")){
+        if (emptyState.classList.contains("is-dragover")) {
             emptyState.classList.remove("is-dragover");
         }
     };
@@ -67,5 +65,5 @@ function DropZoneController($scope, $element, $attrs) {
 }
 
 angular.module("logViewerApp").component("dropZone", {
-    controller: DropZoneController
+    controller: DropZoneController,
 });
