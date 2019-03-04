@@ -29,6 +29,11 @@ function createWindow(){
 
     var window = win;
     win.once('ready-to-show', () => {
+      if(isDev){
+        //Open DevTools in detach mode to help with dev & debugging
+        win.webContents.openDevTools({ mode: "undocked" });
+      }
+
       window.show();
     });
 
