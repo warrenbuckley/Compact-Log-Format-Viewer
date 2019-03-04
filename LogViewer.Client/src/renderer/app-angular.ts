@@ -15,24 +15,25 @@ logViewerApp.controller("LogViewerController", ["$scope", function($scope) {
     vm.logs = {};
     vm.loadinglogs = false;
 
-    vm.openFile = function() {
+    // Used by the button in the UI
+    vm.openFile = () => {
         // Go & tell the renderer whos listening for 'logviewer.open-file-dialog'
         ipcRenderer.send("logviewer.open-file-dialog");
     };
 
     // Listen for events from RENDERER & update our VM
     // Which will flow down into our components
-    ipcRenderer.on("logviewer.loading", (event: any , arg: any) => {
-        vm.isLoading = arg;
+    ipcRenderer.on("logviewer.loading", (event: any , loading: boolean) => {
+        vm.isLoading = loading;
         $scope.$applyAsync();
     });
 
-    ipcRenderer.on("logviewer.file-opened", (event: any , arg: any) => {
+    ipcRenderer.on("logviewer.file-opened", () => {
         vm.fileOpen = true;
         $scope.$applyAsync();
     });
 
-    ipcRenderer.on("logviewer.file-closed", (event: any , arg: any) => {
+    ipcRenderer.on("logviewer.file-closed", () => {
         vm.fileOpen = false;
         vm.errorCount = 0;
         vm.messageTemplates = [];
@@ -43,8 +44,8 @@ logViewerApp.controller("LogViewerController", ["$scope", function($scope) {
         $scope.$applyAsync();
     });
 
-    ipcRenderer.on("logviewer.data-errors", (event: any , arg: any) => {
-        vm.errorCount = arg;
+    ipcRenderer.on("logviewer.data-errors", (event: any , errors: number) => {
+        vm.errorCount = errors;
         $scope.$applyAsync();
     });
 
@@ -72,8 +73,5 @@ logViewerApp.controller("LogViewerController", ["$scope", function($scope) {
         vm.logs = arg;
         $scope.$applyAsync();
     });
-
-    // Drag & Drop is done with its own component
-    // Binding to HTML JS drag event listeners
 
 }]);

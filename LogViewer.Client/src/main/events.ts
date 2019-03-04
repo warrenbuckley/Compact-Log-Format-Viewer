@@ -13,14 +13,11 @@ ipcMain.on("logviewer.open-file-dialog", () => {
     openFileDialog(currentWindow);
 });
 
-ipcMain.on("logviewer.dragged-file", (event: any, arg: any) => {
-    // arg contains the filepath to the dragged file
+ipcMain.on("logviewer.dragged-file", (event: any, filePath: string) => {
 
     // Get focused window
     const allWindows = webContents.getAllWebContents();
     const currentWindow = allWindows[0];
-
-    const filePath = arg;
 
     // Call the Web API with the selected file
     webapi.openFile(filePath, currentWindow);

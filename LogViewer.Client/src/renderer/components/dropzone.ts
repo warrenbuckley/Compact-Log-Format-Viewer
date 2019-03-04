@@ -5,7 +5,7 @@ function DropZoneController($element) {
 
     const emptyState = $element[0];
 
-    emptyState.ondragover = function(ev) {
+    emptyState.ondragover = (ev: DragEvent) => {
         ev.preventDefault();
 
         if (emptyState.classList.contains("is-dragover") === false) {
@@ -13,7 +13,7 @@ function DropZoneController($element) {
         }
     };
 
-    emptyState.ondragenter = function(ev) {
+    emptyState.ondragenter = (ev: DragEvent) => {
         ev.preventDefault();
 
         if (emptyState.classList.contains("is-dragover") === false) {
@@ -21,7 +21,7 @@ function DropZoneController($element) {
         }
     };
 
-    emptyState.ondrop = function(ev) {
+    emptyState.ondrop = (ev: DragEvent) => {
         ev.preventDefault();
 
         if (emptyState.classList.contains("is-dragover")) {
@@ -46,7 +46,7 @@ function DropZoneController($element) {
 
     };
 
-    emptyState.ondragleave = function(ev) {
+    emptyState.ondragleave = (ev: DragEvent) => {
         ev.preventDefault();
 
         if (emptyState.classList.contains("is-dragover")) {
@@ -54,7 +54,7 @@ function DropZoneController($element) {
         }
     };
 
-    emptyState.ondragend = function(ev) {
+    emptyState.ondragend = (ev: DragEvent) => {
         ev.preventDefault();
 
         if (emptyState.classList.contains("is-dragover")) {
