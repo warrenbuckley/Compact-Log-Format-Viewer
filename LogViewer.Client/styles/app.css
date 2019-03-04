@@ -45,6 +45,11 @@ body {
 }
 
 
+message-templates tr {
+    cursor:pointer;
+}
+
+
 .square {
     height:12px;
     width:12px;
