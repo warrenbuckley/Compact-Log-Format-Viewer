@@ -34,15 +34,22 @@ logViewerApp.controller("LogViewerController", ["$scope", function($scope) {
         vm.performSearch();
     };
 
-    // Used by the button in the UI
-    vm.openFileClick = () => {
-        // Go & tell the renderer whos listening for 'logviewer.open-file-dialog'
-        ipcRenderer.send("logviewer.open-file-dialog");
+    vm.logTypeClick = (logtype) => {
+         // When we click a message template - Update filter expression & do NEW search
+         vm.logOptions.filterExpression = `@Level = '${logtype}'`;
+         vm.logOptions.pageNumber = 1;
+         vm.performSearch();
     };
 
     vm.performSearch = () => {
         console.log("vm.logOptions we send to MAIN to perform API call", vm.logOptions);
         ipcRenderer.send("logviewer.get-logs", vm.logOptions);
+    };
+
+    // Used by the button in the UI
+    vm.openFileClick = () => {
+        // Go & tell the renderer whos listening for 'logviewer.open-file-dialog'
+        ipcRenderer.send("logviewer.open-file-dialog");
     };
 
     // Listen for events from RENDERER & update our VM

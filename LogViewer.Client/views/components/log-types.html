@@ -6,7 +6,7 @@
         <canvas id="doughnut" class="chart chart-doughnut" chart-data="vm.chartdata" chart-labels="vm.chartlabels" chart-colors="vm.chartcolors"></canvas>
 
         <div id="chart-log-types-legend" class="mt-4">
-            <table class="table">
+            <table class="table table-hover">
                 <thead class="thead-dark">
                     <tr>
                         <th scope="col">Level</th>
@@ -14,27 +14,27 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    <tr ng-click="vm.logTypeClick('Verbose')">
                         <td><span class="square verbose"></span> Verbose</td>
                         <td>{{ vm.logtypes.verbose }}</td>
                     </tr>
-                    <tr>
+                    <tr ng-click="vm.logTypeClick('Debug')">
                         <td><span class="square debug"></span> Debug</td>
                         <td>{{ vm.logtypes.debug }}</td>
                     </tr>
-                    <tr>
+                    <tr ng-click="vm.logTypeClick('Information')">
                         <td><span class="square info"></span> Information</td>
                         <td>{{ vm.logtypes.information }}</td>
                     </tr>
-                    <tr>
+                    <tr ng-click="vm.logTypeClick('Warning')">
                         <td><span class="square warning"></span> Warning</td>
                         <td>{{ vm.logtypes.warning }}</td>
                     </tr>
-                    <tr>
+                    <tr ng-click="vm.logTypeClick('Error')">
                         <td><span class="square error"></span> Error</td>
                         <td>{{ vm.logtypes.error }}</td>
                     </tr>
-                    <tr>
+                    <tr ng-click="vm.logTypeClick('Fatal')">
                         <td><span class="square fatal"></span> Fatal</td>
                         <td>{{ vm.logtypes.fatal }}</td>
                     </tr>
