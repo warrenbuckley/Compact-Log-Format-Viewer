@@ -5,6 +5,7 @@
   "main": "dist/main/main.js",
   "scripts": {
     "start": "electron .",
+    "tsc": "tsc",
     "watch": "tsc --watch"
   },
   "author": "Warren Buckley",
