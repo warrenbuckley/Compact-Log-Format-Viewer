@@ -25,3 +25,9 @@ https://visualstudio.microsoft.com/vs/
 - `npm run start` Will run the Electron app for development with Chrome DevTools open/launched
 
 >**Note:** If you `npm run start` before you have compiled the TypeScript files then Electron will complain about not finding the entry point file. Additionally if you have also not run `dotnet publish` then the underlying WebAPI which we communicate with will not be running.
+
+## 3rd Party Libraries
+This package uses the following libraries:
+- Serilog.Formatting.Compact.Reader
+- Serilog.Filters.Expressions
+- Serilog.Sinks.File
