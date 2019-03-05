@@ -154,6 +154,7 @@ namespace LogViewer.Server
             var filteredLogs = _logItems.Where(filter);
             var filteredTotal = filteredLogs.Count();
             var logItems = filteredLogs
+                    .OrderBy(x => x.Timestamp, sort)
                     .Skip(pageSize * (pageNumber - 1))
                     .Take(pageSize)
                     .Select(x => new LogMessage
