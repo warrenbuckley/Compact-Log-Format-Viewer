@@ -1,26 +1,106 @@
+﻿using System.IO;
+using System.Linq;
+using LogViewer.Server.Models;
 using NUnit.Framework;
 
 namespace LogViewer.Server.Tests
 {
     public class ServerTests
     {
+        const string _logfileName = "UmbracoTraceLog.UNITTEST.20181112.json";
+        private string _logfilePath;
+
         [SetUp]
         public void Setup()
         {
+            _logfilePath = Path.Combine(TestContext.CurrentContext.TestDirectory, _logfileName);
         }
-
-        //TEST IDEAS
-        //Get an error of no file open (if other API call is made before open one)
-
-        //Use test file
-        //Parse correct number of items (errors, info etc)
-
-        //Use some expressions with test file & ensure we have correct count of items
 
         [Test]
-        public void Test1()
+        public void Logs_Contain_Correct_Error_Count()
         {
-            Assert.Pass();
+            //Log Parser
+            var parser = new LogParser();
+            
+            //Open/parse the file into memory
+            parser.ReadLogs(_logfilePath);
+
+            //Once a file been read/open we can call further methods
+            var errors = parser.TotalErrors();
+
+            Assert.AreEqual(errors, 2);
         }
+
+        [Test]
+        public void Logs_Contain_Correct_Log_Level_Counts()
+        {
+            //Log Parser
+            var parser = new LogParser();
+
+            //Open/parse the file into memory
+            parser.ReadLogs(_logfilePath);
+
+            var logCounts = parser.TotalCounts();
+
+            Assert.AreEqual(385, logCounts.Verbose);
+            Assert.AreEqual(1954, logCounts.Debug);
+            Assert.AreEqual(62, logCounts.Information);
+            Assert.AreEqual(7, logCounts.Warning);
+            Assert.AreEqual(2, logCounts.Error);
+            Assert.AreEqual(0, logCounts.Fatal);
+        }
+
+        [Test]
+        public void Logs_Contains_Correct_Message_Templates()
+        {
+            //Log Parser
+            var parser = new LogParser();
+
+            //Open/parse the file into memory
+            parser.ReadLogs(_logfilePath);
+
+            //Once a file been read/open we can call further methods
+            var templates = parser.GetMessageTemplates();
+
+            //Count no of templates
+            Assert.AreEqual(43, templates.Count());
+
+            //Verify all templates & counts are unique
+            CollectionAssert.AllItemsAreUnique(templates);
+
+            //Ensure the collection contains LogTemplate objects
+            CollectionAssert.AllItemsAreInstancesOfType(templates, typeof(LogTemplate));
+
+            //Get first item & verify its template & count are what we expect
+            var popularTemplate = templates.FirstOrDefault();
+
+            Assert.IsNotNull(popularTemplate);
+            Assert.AreEqual("{LogPrefix} Task added {TaskType}", popularTemplate.MessageTemplate);
+            Assert.AreEqual(689, popularTemplate.Count);
+        }
+
+
+        [TestCase("", 2410)]
+        [TestCase("Has(@Exception)", 2)]
+        [TestCase("Has(Duration) and Duration > 1000", 13)]
+        [TestCase("Not(@Level = 'Verbose') and Not(@Level= 'Debug')", 71)]
+        [TestCase("StartsWith(SourceContext, 'Umbraco.Core')", 1183)]
+        [TestCase("@MessageTemplate = '{EndMessage} ({Duration}ms) [Timing {TimingId}]'", 622)]
+        [TestCase("SortedComponentTypes[?] = 'Umbraco.Web.Search.ExamineComponent'", 1)]
+        [TestCase("Contains(SortedComponentTypes[?], 'DatabaseServer')", 1)]
+        [Test]
+        public void Logs_Can_Query_With_Expressions(string queryToVerify, int expectedCount)
+        {
+            //Log Parser
+            var parser = new LogParser();
+
+            //Open/parse the file into memory
+            parser.ReadLogs(_logfilePath);
+
+            var testQuery = parser.Search(pageNumber: 1, filterExpression: queryToVerify);
+
+            Assert.AreEqual(expectedCount, testQuery.TotalItems);
+        }
+
     }
 }
