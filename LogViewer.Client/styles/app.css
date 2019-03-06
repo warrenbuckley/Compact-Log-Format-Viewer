@@ -44,6 +44,9 @@ body {
     cursor: pointer;
 }
 
+log-types tr {
+    cursor:pointer;
+}
 
 message-templates tr {
     cursor:pointer;
@@ -78,26 +81,26 @@ log-items .exception p {
     vertical-align: middle;
 }
 
-.square.verbose {
+.verbose {
     background-color:#6c757d;
 }
 
-.square.debug {
+.debug {
     background-color:#20c997 ;
 }
 
-.square.info {
+.information {
     background-color:#17a2b8;
 }
 
-.square.warning {
+.warning {
     background-color:#ffc107;
 }
 
-.square.error {
+.error {
     background-color:#fd7e14;
 }
 
-.square.fatal {
+.fatal {
     background-color:#dc3545;
 }
