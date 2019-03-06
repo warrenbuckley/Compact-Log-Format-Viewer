@@ -4,14 +4,16 @@
   "description": "The Electron UI layer for LogViewer",
   "homepage": "https://github.com/warrenbuckley/Compact-Log-Format-Viewer#readme",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/warrenbuckley/Compact-Log-Format-Viewer.git"
+    "type": "git",
+    "url": "https://github.com/warrenbuckley/Compact-Log-Format-Viewer.git"
   },
   "main": "dist/main/main.js",
   "scripts": {
     "start": "electron .",
     "tsc": "tsc --diagnostics",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "win": "electron-builder --win",
+    "dir": "electron-builder --dir"
   },
   "author": "Warren Buckley",
   "license": "ISC",
@@ -23,6 +25,7 @@
     "@types/request": "^2.48.1",
     "devtron": "^1.4.0",
     "electron": "^4.0.5",
+    "electron-builder": "^20.38.5",
     "tslint": "^5.13.1",
     "typescript": "^3.3.3333",
     "typescript-tslint-plugin": "^0.3.1"
@@ -33,6 +36,40 @@
     "bootstrap": "^4.3.1",
     "chart.js": "^2.7.3",
     "electron-util": "^0.11.0",
+    "jquery": "^3.3.1",
+    "popper.js": "^1.14.7",
     "request": "^2.88.0"
+  },
+  "build": {
+    "appId": "compact.logviewer",
+    "productName": "Compact Log Viewer",
+    "directories": {
+      "output": "../output"
+    },
+    "files": [
+      "!**/.vscode",
+      "!tsconfig.json",
+      "!tslint.json"
+    ],
+    "extraResources": {
+      "from": "../LogViewer.Server/bin/dist/",
+      "to": "LogViewer.Server/bin/dist/",
+      "filter": [
+        "**/*"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "deleteAppDataOnUninstall": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Compact Log Viewer",
+      "artifactName": "Compact.Log.Viewer.Setup.${version}.${ext}",
+      "uninstallDisplayName": "Compact Log Viewer (${version})"
+    }
   }
 }
