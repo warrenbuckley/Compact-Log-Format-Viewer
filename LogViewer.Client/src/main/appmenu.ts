@@ -1,4 +1,5 @@
 import { app, Menu, shell } from "electron";
+import { is } from "electron-util";
 import * as file from "./file";
 
 const template: Electron.MenuItemConstructorOptions[] = [
@@ -61,8 +62,6 @@ const template: Electron.MenuItemConstructorOptions[] = [
 {
     label: "View",
     submenu: [
-        { role: "reload" },
-        { role: "forcereload" },
         { role: "toggledevtools" },
         { type: "separator" },
         { role: "resetzoom" },
@@ -82,14 +81,14 @@ const template: Electron.MenuItemConstructorOptions[] = [
 {
     role: "help",
     submenu: [{
-        label: "Learn More",
+        label: "Github Repo",
         click() {
-            shell.openExternal("http://umbraco.com");
+            shell.openExternal("https://github.com/warrenbuckley/Compact-Log-Format-Viewer");
         },
     }],
 }];
 
-if (process.platform === "darwin") {
+if (is.macos) {
   template.unshift({
     label: app.getName(),
     submenu: [
