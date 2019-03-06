@@ -72,6 +72,11 @@ logViewerApp.controller("LogViewerController", ["$scope", function($scope) {
         vm.chartData = [];
         vm.logs = {};
 
+        vm.logOptions = {};
+        vm.logOptions.filterExpression = "";
+        vm.logOptions.sortOrder = "Descending";
+        vm.logOptions.pageNumber = 1;
+
         $scope.$applyAsync();
     });
 
