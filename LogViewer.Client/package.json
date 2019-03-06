@@ -2,6 +2,11 @@
   "name": "logviewer.client",
   "version": "1.0.0",
   "description": "The Electron UI layer for LogViewer",
+  "homepage": "https://github.com/warrenbuckley/Compact-Log-Format-Viewer#readme",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/warrenbuckley/Compact-Log-Format-Viewer.git"
+  },
   "main": "dist/main/main.js",
   "scripts": {
     "start": "electron .",
@@ -12,22 +17,22 @@
   "license": "ISC",
   "private": true,
   "devDependencies": {
-    "devtron": "^1.4.0",
-    "electron": "^4.0.5",
-    "tslint": "^5.13.1",
-    "typescript": "^3.3.3333"
-  },
-  "dependencies": {
     "@types/angular": "^1.6.54",
     "@types/chart.js": "^2.7.45",
     "@types/electron-is-dev": "^0.3.0",
     "@types/request": "^2.48.1",
+    "devtron": "^1.4.0",
+    "electron": "^4.0.5",
+    "tslint": "^5.13.1",
+    "typescript": "^3.3.3333",
+    "typescript-tslint-plugin": "^0.3.1"
+  },
+  "dependencies": {
     "angular": "^1.7.7",
     "angular-chart.js": "^1.1.1",
     "bootstrap": "^4.3.1",
     "chart.js": "^2.7.3",
     "electron-util": "^0.11.0",
-    "request": "^2.88.0",
-    "typescript-tslint-plugin": "^0.3.1"
+    "request": "^2.88.0"
   }
 }
