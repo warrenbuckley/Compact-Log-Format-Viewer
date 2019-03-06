@@ -49,6 +49,27 @@ message-templates tr {
     cursor:pointer;
 }
 
+log-items tr.item {
+    cursor:pointer;
+}
+
+log-items .details {
+
+}
+
+log-items .exception {
+    border-left: 3px solid #dc3545;
+    padding-left: 10px;
+}
+
+log-items .exception h3 {
+    color:#dc3545;
+}
+
+log-items .exception p {
+    white-space: pre-wrap;
+    font-family: monospace;
+}
 
 .square {
     height:12px;
