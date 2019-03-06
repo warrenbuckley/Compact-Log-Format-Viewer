@@ -1,4 +1,4 @@
-# LogViewer
+# Compact Log Format Viewer
 A cross platform tool to read &amp; query JSON aka CLEF log files created by Serilog
 
 ## Building
