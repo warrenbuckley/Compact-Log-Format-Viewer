@@ -56,8 +56,12 @@ log-items tr.item {
     cursor:pointer;
 }
 
-log-items .details {
+log-items tr.item.open {
+    background:rgba(0,0,0,0.075);
+}
 
+log-items .details {
+    background:rgba(0,0,0,0.075);
 }
 
 log-items .exception {

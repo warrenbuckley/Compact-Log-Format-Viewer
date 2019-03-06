@@ -28,7 +28,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat-start="log in vm.logitems.items" ng-click="log.open = !log.open" class="item">
+                <tr ng-repeat-start="log in vm.logitems.items" ng-click="log.open = !log.open" class="item" ng-class="{'open': log.open}">
                     <td>{{ log.timestamp | date:'medium' }}</td>
                     <td><span class="badge" ng-class="log.level | lowercase">{{ log.level }}</span></td>
                     <td>{{ log.renderedMessage }}</td>
