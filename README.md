@@ -11,7 +11,7 @@ For OSX & Windows you can download the SDK here or install Visual Studio for Mac
 https://dotnet.microsoft.com/download<br/>
 https://visualstudio.microsoft.com/vs/
 
-### Build Steps
+### Build Steps 🔨📐
 - Clone Repo
 - Open terminal in root of project
 - `dotnet restore` Will fetch the dependencies needed for the WebAPI
@@ -26,7 +26,7 @@ https://visualstudio.microsoft.com/vs/
 
 >**Note:** If you `npm run start` before you have compiled the TypeScript files then Electron will complain about not finding the entry point file. Additionally if you have also not run `dotnet publish` then the underlying WebAPI which we communicate with will not be running.
 
-## 3rd Party Libraries
+## 3rd Party Libraries 💖💖
 This package uses the following libraries:
 - Serilog.Formatting.Compact.Reader
 - Serilog.Filters.Expressions
