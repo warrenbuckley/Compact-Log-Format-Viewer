@@ -27,30 +27,31 @@
       <div id="log-viewer" ng-show="vm.fileOpen">
 
         <div class="container-fluid">
-          <!-- Top 2 COlumns -->
-          <div class="row d-flex justify-content-between mb-4">
-
-            <div class="col-sm">
-              <!-- Error Count -->
-              <error-count errors="vm.errorCount" on-error-click="vm.errorCountClick()"></error-count>
-
-              <!-- Common Templates -->
-              <message-templates templates="vm.messageTemplates" on-template-click="vm.messageTemplateClick(template)"></message-templates>
-            </div>
-
-            <div class="col-sm">
-              <!-- Log Types -->
-              <log-types logtypes="vm.logTypes" chartdata="vm.chartData" chartlabels="vm.chartLabels" chartcolors="vm.chartColors" on-log-type-click="vm.logTypeClick(logtype)"></log-types>
+          <div class="row">
+            <div class="col-md-12">
+              <!-- Search Box -->
+              <log-search log-options="vm.logOptions" on-perform-search="vm.performSearch()"></log-search>
             </div>
           </div>
 
+          <div class="row">
+              <div class="col-md-8">
+                <!-- LogViewer Search Results -->
+                <log-items logitems="vm.logs" log-options="vm.logOptions" on-perform-search="vm.performSearch()"></log-items>
+              </div>
 
-          <div class="row d-flex justify-content-between mb-4">
-            <div class="col-sm">
-              <!-- LogViewer Search Results -->
-              <log-items logitems="vm.logs" log-options="vm.logOptions" on-perform-search="vm.performSearch()"></log-items>
-            </div>
+              <div class="col-md-4">
+                <!-- Error Count -->
+                <error-count errors="vm.errorCount" on-error-click="vm.errorCountClick()"></error-count>
+
+                <!-- Log Types -->
+                <log-types logtypes="vm.logTypes" chartdata="vm.chartData" chartlabels="vm.chartLabels" chartcolors="vm.chartColors" on-log-type-click="vm.logTypeClick(logtype)"></log-types>
+
+                <!-- Common Templates -->
+                <message-templates templates="vm.messageTemplates" on-template-click="vm.messageTemplateClick(template)"></message-templates>
+              </div>
           </div>
+
         </div>
 
       </div>
@@ -67,6 +68,7 @@
         require('../dist/renderer/components/messagetemplates.js');
         require('../dist/renderer/components/logtypes.js');
         require('../dist/renderer/components/logitems.js');
+        require('../dist/renderer/components/logsearch.js');
         require('../dist/renderer/components/pagination.js');
     </script>
 

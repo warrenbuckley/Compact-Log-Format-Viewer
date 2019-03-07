@@ -11,6 +11,8 @@ import "./events";
 let win: BrowserWindow;
 let apiProcess: child.ChildProcess;
 
+app.setAppUserModelId("com.warrenbuckley.compact.logviewer");
+
 function createWindow() {
 
     win = new BrowserWindow({
