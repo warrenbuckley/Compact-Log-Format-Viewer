@@ -12,8 +12,7 @@
     "start": "electron .",
     "tsc": "tsc --diagnostics",
     "watch": "tsc --watch",
-    "win": "electron-builder --win",
-    "dir": "electron-builder --dir"
+    "win": "electron-builder --win --config ./electron-builder.json"
   },
   "author": "Warren Buckley",
   "license": "ISC",
@@ -39,38 +38,5 @@
     "jquery": "^3.3.1",
     "popper.js": "^1.14.7",
     "request": "^2.88.0"
-  },
-  "build": {
-    "appId": "compact.logviewer",
-    "productName": "Compact Log Viewer",
-    "directories": {
-      "output": "../output"
-    },
-    "files": [
-      "!**/.vscode",
-      "!tsconfig.json",
-      "!tslint.json"
-    ],
-    "extraResources": {
-      "from": "../LogViewer.Server/bin/dist/",
-      "to": "LogViewer.Server/bin/dist/",
-      "filter": [
-        "**/*"
-      ]
-    },
-    "win": {
-      "target": [
-        "nsis",
-        "appx"
-      ]
-    },
-    "nsis": {
-      "deleteAppDataOnUninstall": true,
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "shortcutName": "Compact Log Viewer",
-      "artifactName": "Compact.Log.Viewer.Setup.${version}.${ext}",
-      "uninstallDisplayName": "Compact Log Viewer (${version})"
-    }
   }
 }
