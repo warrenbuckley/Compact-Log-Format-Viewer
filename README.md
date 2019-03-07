@@ -1,6 +1,8 @@
 # Compact Log Format Viewer :mag: :chart_with_upwards_trend:
 A cross platform tool to read &amp; query JSON aka CLEF log files created by Serilog
 
+![Compact Log Format Viewer](https://raw.githubusercontent.com/warrenbuckley/Compact-Log-Format-Viewer/master/LogViewer.Client/assets/logo.png)
+
 ## Building
 
 You will need the following installed:
