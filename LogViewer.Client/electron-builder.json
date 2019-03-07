@@ -1,6 +1,7 @@
 {
     "appId": "com.warrenbuckley.compact.logviewer",
     "productName": "Compact Log Viewer",
+    "publish": "never",
     "directories": {
         "buildResources": "assets",
         "output": "../output"
