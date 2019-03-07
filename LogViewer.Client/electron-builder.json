@@ -22,11 +22,9 @@
             "nsis",
             "appx"
         ],
-        "icon": ""
+        "icon": "logo.png"
     },
     "nsis": {
-        //"installerIcon": "installerIcon.ico",
-        //"uninstallerIcon": "uninstallerIcon.ico",
         "deleteAppDataOnUninstall": true,
         "createDesktopShortcut": true,
         "createStartMenuShortcut": true,
@@ -35,8 +33,8 @@
         "uninstallDisplayName": "Compact Log Viewer (${version})"
     },
     "appx": {
-        "applicationId": "Compact Log Viewer",
-        "backgroundColor": "#464646",
+        "applicationId": "Compact.Log.Viewer",
+        "backgroundColor": "#3544b1",
         "displayName": "Compact Log Viewer",
         "identityName": "64819WarrenBuckley.CompactLogFormatViewer",
         "publisher": "CN=4629CEC3-93A2-4080-86C0-63487B897B1F",
