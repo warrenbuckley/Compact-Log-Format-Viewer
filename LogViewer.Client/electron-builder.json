@@ -26,10 +26,7 @@
     "mac": {
         "category": "public.app-category.developer-tools",
         "target": [
-            "dmg",
-            "pkg",
-            "mas",
-            "mas-dev"
+            "dmg"         
         ],
         "icon": "logo.png"
     },
@@ -50,6 +47,6 @@
         "publisherDisplayName": "Warren Buckley"
     },
     "dmg": {
-        "backgroundColor": "#3544b1"
+        "backgroundColor": "#f5c1bc"
     }
 }
