@@ -23,6 +23,16 @@
         ],
         "icon": "logo.png"
     },
+    "mac": {
+        "category": "public.app-category.developer-tools",
+        "target": [
+            "dmg",
+            "pkg",
+            "mas",
+            "mas-dev"
+        ],
+        "icon": "logo.png"
+    },
     "nsis": {
         "deleteAppDataOnUninstall": true,
         "createDesktopShortcut": true,
@@ -38,5 +48,8 @@
         "identityName": "64819WarrenBuckley.CompactLogFormatViewer",
         "publisher": "CN=4629CEC3-93A2-4080-86C0-63487B897B1F",
         "publisherDisplayName": "Warren Buckley"
+    },
+    "dmg": {
+        "backgroundColor": "#3544b1"
     }
 }
