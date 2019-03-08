@@ -6,7 +6,7 @@ angular.module("logViewerApp").component("messageTemplates", {
     controllerAs: "vm",
     controller() {
         this.templateClick = (template) => {
-            this.onTemplateClick({template: template});
+            this.onTemplateClick({template});
         };
     },
     templateUrl: "components/message-templates.html",

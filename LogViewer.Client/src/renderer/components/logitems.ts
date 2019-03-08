@@ -17,7 +17,6 @@ angular.module("logViewerApp").component("logItems", {
     templateUrl: "components/log-items.html",
 });
 
-
 function search(logOptions) {
     // Reset pagenumber back to 1
     logOptions.pageNumber = 1;

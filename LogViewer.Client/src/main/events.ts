@@ -1,9 +1,8 @@
 import { dialog, ipcMain, webContents } from "electron";
+import { activeWindow } from "electron-util";
 import { updateMenuEnabledState } from "./appmenu";
 import { openFileDialog } from "./file";
 import * as webapi from "./webapi";
-import { activeWindow } from "electron-util";
-
 
 // Listen for IPCEvents from the view/renderer
 ipcMain.on("logviewer.open-file-dialog", () => {

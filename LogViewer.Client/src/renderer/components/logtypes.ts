@@ -9,7 +9,7 @@ angular.module("logViewerApp").component("logTypes", {
     controllerAs: "vm",
     controller() {
         this.logTypeClick = (logtype) => {
-            this.onLogTypeClick({logtype: logtype});
+            this.onLogTypeClick({logtype});
         };
     },
     templateUrl: "components/log-types.html",
