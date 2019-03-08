@@ -41,6 +41,11 @@ logViewerApp.controller("LogViewerController", ["$scope", function($scope) {
          vm.performSearch();
     };
 
+    vm.changePageNumber = (pageNumber) => {
+        vm.logOptions.pageNumber = pageNumber;
+        vm.performSearch();
+    };
+
     vm.performSearch = () => {
         console.log("vm.logOptions we send to MAIN to perform API call", vm.logOptions);
         ipcRenderer.send("logviewer.get-logs", vm.logOptions);

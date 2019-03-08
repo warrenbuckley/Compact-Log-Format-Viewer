@@ -1,95 +1,108 @@
-angular.module("logViewerApp").component("pagination", {
+angular.module("logViewerApp").directive("pagination", () => {
 
-    bindings: {
-        onChange: "&",
-        onGoToPage: "=",
-        onNext: "=",
-        onPrev: "=",
-        pageNumber: "=",
-        totalPages: "=",
-    },
-    templateUrl: "components/pagination.html",
-    controllerAs: "vm",
-    controller() {
+    function paginationLink(scope) {
 
-        this.pagination = [];
-        let i = 0;
+        function activate() {
+            scope.pagination = [];
 
-        if (this.totalPages <= 10) {
-            for (i = 0; i < this.totalPages; i++) {
-                this.pagination.push(
-                    { val: (i + 1), isActive: this.pageNumber === (i + 1) },
-                );
-            }
-        } else {
-            // if there is more than 10 pages, we need to do some fancy bits
-            // get the max index to start
-            const maxIndex = this.totalPages - 10;
+            let i = 0;
 
-            // set the start, but it can't be below zero
-            let start = Math.max(this.pageNumber - 5, 0);
+            if (scope.totalPages <= 10) {
+                for (i = 0; i < scope.totalPages; i++) {
+                    scope.pagination.push({
+                        val: (i + 1),
+                        isActive: scope.pageNumber === (i + 1),
+                    });
+                }
+            } else {
+                // if there is more than 10 pages, we need to do some fancy bits
+                // get the max index to start
+                const maxIndex = scope.totalPages - 10;
 
-            // ensure that it's not too far either
-            start = Math.min(maxIndex, start);
+                // set the start, but it can't be below zero
+                let start = Math.max(scope.pageNumber - 5, 0);
 
-            for (i = start; i < (10 + start) ; i++) {
-                this.pagination.push(
-                    { isActive: this.pageNumber === (i + 1), val: (i + 1) },
-                );
-            }
+                // ensure that it's not too far either
+                start = Math.min(maxIndex, start);
 
-            // now, if the start is greater than 0 then '1' will not be displayed, so do the elipses thing
-            if (start > 0) {
-                this.pagination.unshift(
-                    { name: "First", val: 1, isActive: false },
-                    { val: "...", isActive: false },
-                );
-            }
+                for (i = start; i < (10 + start) ; i++) {
+                    scope.pagination.push({
+                        val: (i + 1),
+                        isActive: scope.pageNumber === (i + 1),
+                    });
+                }
 
-            // same for the end
-            if (start < maxIndex) {
-                this.pagination.push(
-                    { val: "...", isActive: false },
-                    { name: "Last", val: this.totalPages, isActive: false },
-                );
+                // now, if the start is greater than 0 then '1' will not be displayed, so do the elipses thing
+                if (start > 0) {
+                    scope.pagination.unshift({ name: "First", val: 1, isActive: false });
+                }
+
+                // same for the end
+                if (start < maxIndex) {
+                    scope.pagination.push({ name: "Last", val: scope.totalPages, isActive: false });
+                }
             }
         }
 
-        this.next = function() {
-            if (this.pageNumber < this.totalPages) {
-                this.pageNumber++;
-                if (this.onNext) {
-                    this.onNext(this.pageNumber);
+        scope.next = () => {
+            if (scope.pageNumber < scope.totalPages) {
+                scope.pageNumber++;
+                if (scope.onNext) {
+                    scope.onNext(scope.pageNumber);
                 }
-                if (this.onChange) {
-                    this.onChange({ pageNumber: this.pageNumber });
-                }
-            }
-        };
-
-        this.prev = function() {
-            if (this.pageNumber > 1) {
-                this.pageNumber--;
-                if (this.onPrev) {
-                    this.onPrev(this.pageNumber);
-                }
-                if (this.onChange) {
-                    this.onChange({ pageNumber: this.pageNumber });
+                if (scope.onChange) {
+                    scope.onChange({ pageNumber: scope.pageNumber });
                 }
             }
         };
 
-        this.goToPage = function(pageNumber) {
-            this.pageNumber = pageNumber + 1;
-            if (this.onGoToPage) {
-                this.onGoToPage(this.pageNumber);
-            }
-            if (this.onChange) {
-                if (this.onChange) {
-                    this.onChange({ pageNumber: this.pageNumber });
+        scope.prev = () => {
+            if (scope.pageNumber > 1) {
+                scope.pageNumber--;
+                if (scope.onPrev) {
+                    scope.onPrev(scope.pageNumber);
+                }
+                if (scope.onChange) {
+                    scope.onChange({ pageNumber: scope.pageNumber });
                 }
             }
         };
 
-    },
+        scope.goToPage = (pageNumber) => {
+            scope.pageNumber = pageNumber + 1;
+            if (scope.onGoToPage) {
+                scope.onGoToPage(scope.pageNumber);
+            }
+            if (scope.onChange) {
+                if (scope.onChange) {
+                    scope.onChange({ pageNumber: scope.pageNumber });
+                }
+            }
+        };
+
+        const unbindPageNumberWatcher =  scope.$watchCollection("[pageNumber, totalPages]", (newValues, oldValues) => {
+            activate();
+        });
+
+        scope.$on("$destroy", () => {
+            unbindPageNumberWatcher();
+        });
+
+        activate();
+    }
+
+    return {
+        restrict: "E",
+        templateUrl: "components/pagination.html",
+        controllerAs: "vm",
+        scope: {
+            pageNumber: "=",
+            totalPages: "=",
+            onNext: "=",
+            onPrev: "=",
+            onGoToPage: "=",
+            onChange: "&",
+        },
+        link: paginationLink,
+    };
 });

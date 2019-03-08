@@ -36,8 +36,14 @@
 
           <div class="row">
               <div class="col-md-8">
+                <!-- Pagination -->
+                <pagination page-number="vm.logs.pageNumber" total-pages="vm.logs.totalPages" on-change="vm.changePageNumber(pageNumber)"></pagination>
+
                 <!-- LogViewer Search Results -->
                 <log-items logitems="vm.logs" log-options="vm.logOptions" on-perform-search="vm.performSearch()"></log-items>
+
+                <!-- Pagination -->
+                <pagination page-number="vm.logs.pageNumber" total-pages="vm.logs.totalPages" on-change="vm.changePageNumber(pageNumber)"></pagination>
               </div>
 
               <div class="col-md-4">
