@@ -2,7 +2,7 @@
   "name": "logviewer.client",
   "productName": "Compact Log Viewer",
   "version": "1.0.0",
-  "description": "A cross platform Electron app to view & search logs stored in the Compact log format",
+  "description": "A cross platform Electron app to view and search logs stored in the Compact log format",
   "homepage": "https://github.com/warrenbuckley/Compact-Log-Format-Viewer#readme",
   "repository": {
     "type": "git",
@@ -13,7 +13,8 @@
     "start": "electron .",
     "tsc": "tsc --diagnostics",
     "watch": "tsc --watch",
-    "win": "electron-builder --publish never --win --config ./electron-builder.json"
+    "win": "set DEBUG=electron-builder && electron-builder --publish never --win --config ./electron-builder.json"
+
   },
   "author": "Warren Buckley",
   "license": "ISC",
