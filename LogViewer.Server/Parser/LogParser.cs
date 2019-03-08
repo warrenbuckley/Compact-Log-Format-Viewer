@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using LogViewer.Server.Extensions;
 using LogViewer.Server.Models;
+using Newtonsoft.Json;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -36,24 +37,20 @@ namespace LogViewer.Server
             {
                 using (var stream = new StreamReader(fs))
                 {
-                    try
+                    var reader = new LogEventReader(stream);
+                    while (TryRead(reader, out var evt))
                     {
-                        var reader = new LogEventReader(stream);
-                        while (reader.TryRead(out var evt))
-                        {
-                            if (logger != null)
-                            {
-                                //We can persist the log item (using the passed in Serilog config)
-                                //In this case a Logger with File Sink setup
-                                logger.Write(evt);
-                            }
+                        if (evt == null)
+                            continue;
 
-                            logItems.Add(evt);
+                        if (logger != null)
+                        {
+                            //We can persist the log item (using the passed in Serilog config)
+                            //In this case a Logger with File Sink setup
+                            logger.Write(evt);
                         }
-                    }
-                    catch (Exception)
-                    {
-                        throw;
+
+                        logItems.Add(evt);
                     }
                 }
             }
@@ -196,6 +193,19 @@ namespace LogViewer.Server
             }
 
             return null;
+        }
+
+        private bool TryRead(LogEventReader reader, out LogEvent evt)
+        {
+            try
+            {
+                return reader.TryRead(out evt);
+            }
+            catch (JsonReaderException)
+            {
+                evt = null;
+                return true;
+            }
         }
     }
 }
