@@ -13,8 +13,8 @@
     "start": "electron .",
     "tsc": "tsc --diagnostics",
     "watch": "tsc --watch",
-    "win": "set DEBUG=electron-builder && electron-builder --publish never --win --config ./electron-builder.json",
-    "mac": "env DEBUG=electron-builder && electron-builder --publish never --mac --config ./electron-builder.json"
+    "win": "electron-builder --publish never --win --config ./electron-builder.json",
+    "mac": "electron-builder --publish never --mac --config ./electron-builder.json"
 
   },
   "author": "Warren Buckley",
