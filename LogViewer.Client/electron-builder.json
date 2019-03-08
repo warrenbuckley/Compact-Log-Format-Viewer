@@ -33,7 +33,7 @@
     },
     "appx": {
         "applicationId": "Compact.Log.Viewer",
-        "backgroundColor": "#3544b1",
+        "backgroundColor": "#f5c1bc",
         "displayName": "Compact Log Viewer",
         "identityName": "64819WarrenBuckley.CompactLogFormatViewer",
         "publisher": "CN=4629CEC3-93A2-4080-86C0-63487B897B1F",
