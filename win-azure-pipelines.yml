@@ -29,6 +29,12 @@ steps:
     zipAfterPublish: false
     modifyOutputPath: false
     workingDirectory: LogViewer.Server
+    
+- task: NodeTool@0
+  displayName: 'Use Latest Node 10.x'
+  inputs:
+    versionSpec: 10.x
+    checkLatest: true
 
 - task: Npm@1
   displayName: 'npm install'
