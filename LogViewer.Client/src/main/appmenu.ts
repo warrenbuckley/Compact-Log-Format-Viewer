@@ -1,4 +1,4 @@
-import { app, Menu, shell, BrowserWindow } from "electron";
+import { app, Menu, shell } from "electron";
 import { is } from "electron-util";
 import * as file from "./file";
 
