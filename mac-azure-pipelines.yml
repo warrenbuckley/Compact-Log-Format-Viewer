@@ -3,10 +3,6 @@
 # Add steps that run tests, create a NuGet package, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
-pool:
-  vmImage: Hosted Windows 2019 with VS2019
-  demands: npm
-
 steps:
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore'
@@ -29,7 +25,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: false
-    arguments: '-r win10-x64 --output bin/dist/win'
+    arguments: '-r osx.10.11-x64 --output bin/dist/osx'
     zipAfterPublish: false
     modifyOutputPath: false
     workingDirectory: LogViewer.Server
@@ -49,12 +45,12 @@ steps:
     customCommand: 'run tsc'
 
 - task: Npm@1
-  displayName: 'npm run win (builds window outputs AppX & Installer)'
+  displayName: 'npm run mac (builds Mac output - DMG)'
   inputs:
     command: custom
     workingDir: LogViewer.Client
     verbose: false
-    customCommand: 'run win'
+    customCommand: 'run mac'
 
 - task: CopyFiles@2
   displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)'
