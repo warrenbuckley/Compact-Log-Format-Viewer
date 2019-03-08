@@ -1,4 +1,4 @@
-import { app, Menu, shell } from "electron";
+import { app, Menu, shell, BrowserWindow } from "electron";
 import { is } from "electron-util";
 import * as file from "./file";
 
@@ -12,11 +12,6 @@ const template: Electron.MenuItemConstructorOptions[] = [
           accelerator: "CmdOrCtrl+O",
           click: (menuItem, focusedWindow) => {
             file.openFileDialog(focusedWindow.webContents);
-
-            // Disable the file open menu item & enable the close menu item
-            updateMenuEnabledState("logviewer.open", false);
-            updateMenuEnabledState("logviewer.close", true);
-            updateMenuEnabledState("logviewer.export", true);
         },
       },
       {

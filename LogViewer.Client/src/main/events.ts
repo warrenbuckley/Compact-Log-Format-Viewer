@@ -11,12 +11,6 @@ ipcMain.on("logviewer.open-file-dialog", () => {
 
     // Get focused window
     const currentWindow = activeWindow().webContents;
-
-    // Disable the file open menu item & enable the close menu item
-    updateMenuEnabledState("logviewer.open", false);
-    updateMenuEnabledState("logviewer.close", true);
-    updateMenuEnabledState("logviewer.export", true);
-
     openFileDialog(currentWindow);
 });
 
