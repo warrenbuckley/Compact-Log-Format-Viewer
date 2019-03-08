@@ -13,8 +13,8 @@
     "start": "electron .",
     "tsc": "tsc --diagnostics",
     "watch": "tsc --watch",
-    "win": "electron-builder --publish never --win",
-    "mac": "electron-builder --publish never --mac"
+    "win": "electron-builder --publish never --win --config ./electron-builder.json",
+    "mac": "electron-builder --publish never --mac --config electron-builder.json"
 
   },
   "author": "Warren Buckley",
@@ -41,57 +41,5 @@
     "jquery": "^3.3.1",
     "popper.js": "^1.14.7",
     "request": "^2.88.0"
-  },
-  "build": {
-      "appId": "com.warrenbuckley.compact.logviewer",
-      "productName": "Compact Log Viewer",
-      "directories": {
-          "output": "../output"
-      },
-      "files": [
-          "!**/.vscode",
-          "!tsconfig.json",
-          "!tslint.json"
-      ],
-      "extraResources": {
-          "from": "../LogViewer.Server/bin/dist/",
-          "to": "LogViewer.Server/bin/dist/",
-          "filter": [
-              "**/*"
-          ]
-      },
-      "win": {
-          "target": [
-              "nsis",
-              "appx"
-          ],
-          "icon": "logo.png"
-      },
-      "mac": {
-          "category": "public.app-category.developer-tools",
-          "target": [
-              "dmg"         
-          ],
-          "icon": "logo.png"
-      },
-      "nsis": {
-          "deleteAppDataOnUninstall": true,
-          "createDesktopShortcut": true,
-          "createStartMenuShortcut": true,
-          "shortcutName": "Compact Log Viewer",
-          "artifactName": "Compact.Log.Viewer.Setup.${version}.${ext}",
-          "uninstallDisplayName": "Compact Log Viewer (${version})"
-      },
-      "appx": {
-          "applicationId": "Compact.Log.Viewer",
-          "backgroundColor": "#f5c1bc",
-          "displayName": "Compact Log Viewer",
-          "identityName": "64819WarrenBuckley.CompactLogFormatViewer",
-          "publisher": "CN=4629CEC3-93A2-4080-86C0-63487B897B1F",
-          "publisherDisplayName": "Warren Buckley"
-      },
-      "dmg": {
-          "backgroundColor": "#f5c1bc"
-      }
   }
 }
