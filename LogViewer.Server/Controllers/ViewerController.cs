@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using LogViewer.Server.Extensions;
 using LogViewer.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -40,7 +42,17 @@ namespace LogViewer.Server.Controllers
                 var message = $"The file {filePath} is not a compatible log file. Can only open .json, .txt or .clef files";
                 return BadRequest(message);
             }
-            
+
+            //Lets check file is valid JSON & not a text document on your upcoming novel
+            var firstLine = System.IO.File.ReadLines(filePath).First();
+
+            if (firstLine.IsValidJson() == false)
+            {
+                var message = $"The file {filePath} does not contain valid JSON on line one";
+                return BadRequest(message);
+            }
+
+            //We will skip over/ignore invalid/malformed log lines
             var logs = _logParser.ReadLogs(filePath);            
             return $"Log contains {logs.Count}";
 
@@ -95,5 +107,6 @@ namespace LogViewer.Server.Controllers
 
             return _logParser.Search(pageNumber, pageSize, filterExpression, sort);
         }       
+
     }
 }
