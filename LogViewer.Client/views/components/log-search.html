@@ -7,5 +7,15 @@
                 <button class="btn btn-primary" type="button" ng-click="vm.search(vm.logOptions)">Search</button>
             </div>
         </div>
+
+        <div class="row">
+            <div class="col-md-4 offset-md-8">
+                <select ng-model="vm.logOptions.sortOrder" ng-change="vm.search(vm.logOptions)" class="custom-select custom-select-lg">
+                    <option value="Ascending">Ascending</option>
+                    <option value="Descending">Descending</option>
+                </select>
+            </div>
+        </div>
+
     </div>
 </div>
