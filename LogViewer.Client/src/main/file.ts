@@ -18,10 +18,6 @@ export function openFileDialog(focusedWindow: Electron.WebContents) {
         // If more than one is selected (use the first item)
         const selectedFile = filePaths[0];
 
-        updateMenuEnabledState("logviewer.open", false);
-        updateMenuEnabledState("logviewer.close", true);
-        updateMenuEnabledState("logviewer.export", true);
-
         // Call the Web API with the selected file
         webapi.openFile(selectedFile, focusedWindow);
     });

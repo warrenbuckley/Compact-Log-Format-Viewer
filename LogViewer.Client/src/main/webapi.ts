@@ -1,5 +1,6 @@
-import { app, WebContents } from "electron";
+import { app, dialog, WebContents } from "electron";
 import request = require("request");
+import { updateMenuEnabledState } from "./appmenu";
 
 const serverApiDomain = "http://localhost:45678/api/Viewer";
 
@@ -10,12 +11,18 @@ export function openFile(filePath: string, focusedWindow: WebContents) {
     focusedWindow.send("logviewer.emptystate", false);
 
     request(`${serverApiDomain}/Open?filePath=${filePath}`, { json: true }, (err, res, body) => {
-        if (err) {
-            focusedWindow.send("logviewer.error", err);
+        if (res.statusCode === 400) {
+            focusedWindow.send("logviewer.error", body);
             focusedWindow.send("logviewer.loading", false);
 
-            return console.log(err);
+            dialog.showErrorBox("Error", body);
+
+            return;
         }
+
+        updateMenuEnabledState("logviewer.open", false);
+        updateMenuEnabledState("logviewer.close", true);
+        updateMenuEnabledState("logviewer.export", true);
 
         // Add the file to a recent documents list
         // Lets assume the Electron API here deals with dupes etc
