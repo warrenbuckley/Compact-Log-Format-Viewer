@@ -12,28 +12,29 @@ trigger:
 - master
 
 jobs:
-- job: 'Windows Build'
+# Windows Build
+- job: Debug
   pool: 'windows-2019'
   steps:
     - task: DotNetCoreCLI@2
-    displayName: 'dotnet restore'
-    inputs:
+      displayName: 'dotnet restore'
+      inputs:
         workingDirectory: LogViewer.Server
 
     - task: DotNetCoreCLI@2
-    displayName: 'dotnet build'
-    inputs:
+      displayName: 'dotnet build'
+      inputs:
         workingDirectory: LogViewer.Server
 
     - task: DotNetCoreCLI@2
-    displayName: 'dotnet test'
-    inputs:
+      displayName: 'dotnet test'
+      inputs:
         command: test
         workingDirectory: LogViewer.Server.Tests
 
     - task: DotNetCoreCLI@2
-    displayName: 'dotnet publish - Create Self Contained WebAPI for Windows'
-    inputs:
+      displayName: 'dotnet publish - Create Self Contained WebAPI for Windows'
+      inputs:
         command: publish
         publishWebProjects: false
         arguments: '-r win10-x64 --output bin/dist/win'
@@ -42,67 +43,68 @@ jobs:
         workingDirectory: LogViewer.Server
 
     - task: Npm@1
-    displayName: 'npm install'
-    inputs:
+      displayName: 'npm install'
+      inputs:
         workingDir: LogViewer.Client
         verbose: false
 
     - task: Npm@1
-    displayName: 'npm run tsc (TypeScript compile)'
-    inputs:
+      displayName: 'npm run tsc (TypeScript compile)'
+      inputs:
         command: custom
         workingDir: LogViewer.Client
         verbose: false
         customCommand: 'run tsc'
 
     - task: Npm@1
-    displayName: 'npm run win (builds window outputs AppX & Installer)'
-    inputs:
+      displayName: 'npm run win (builds window outputs AppX & Installer)'
+      inputs:
         command: custom
         workingDir: LogViewer.Client
         verbose: false
         customCommand: 'run win'
 
     - task: CopyFiles@2
-    displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)'
-    inputs:
+      displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)'
+      inputs:
         SourceFolder: '$(Build.SourcesDirectory)/output'
         Contents: |
-        *.appx
-        *.exe
+          *.appx
+          *.exe
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
         CleanTargetFolder: true
         OverWrite: true
 
     - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact: output'
-    inputs:
+      displayName: 'Publish Artifact: output'
+      inputs:
         ArtifactName: output
 
+# OSX Build
 - job: 'OSX Build'
   dependsOn: 'Windows Build'
   condition: succeeded()
   pool: 'macOS-10.13'
   steps:
     - task: DotNetCoreCLI@2
-    displayName: 'dotnet restore'
-    inputs:
+      displayName: 'dotnet restore'
+      inputs:
         workingDirectory: LogViewer.Server
 
     - task: DotNetCoreCLI@2
-    displayName: 'dotnet build'
-    inputs:
+      displayName: 'dotnet build'
+      inputs:
         workingDirectory: LogViewer.Server
 
     - task: DotNetCoreCLI@2
-    displayName: 'dotnet test'
-    inputs:
+      displayName: 'dotnet test'
+      inputs:
         command: test
         workingDirectory: LogViewer.Server.Tests
 
     - task: DotNetCoreCLI@2
-    displayName: 'dotnet publish - Create Self Contained WebAPI for Windows'
-    inputs:
+      displayName: 'dotnet publish - Create Self Contained WebAPI for Windows'
+      inputs:
         command: publish
         publishWebProjects: false
         arguments: '-r osx.10.11-x64 --output bin/dist/osx'
@@ -111,108 +113,38 @@ jobs:
         workingDirectory: LogViewer.Server
 
     - task: Npm@1
-    displayName: 'npm install'
-    inputs:
+      displayName: 'npm install'
+      inputs:
         workingDir: LogViewer.Client
         verbose: false
 
     - task: Npm@1
-    displayName: 'npm run tsc (TypeScript compile)'
-    inputs:
+      displayName: 'npm run tsc (TypeScript compile)'
+      inputs:
         command: custom
         workingDir: LogViewer.Client
         verbose: false
         customCommand: 'run tsc'
 
     - task: Npm@1
-    displayName: 'npm run mac (builds Mac output - DMG)'
-    inputs:
+      displayName: 'npm run mac (builds Mac output - DMG)'
+      inputs:
         command: custom
         workingDir: LogViewer.Client
         verbose: false
         customCommand: 'run mac'
 
     - task: CopyFiles@2
-    displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)'
-    inputs:
+      displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)'
+      inputs:
         SourceFolder: '$(Build.SourcesDirectory)/output'
         Contents: |
-        *.dmg
+          *.dmg
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
         CleanTargetFolder: true
         OverWrite: true
 
     - task: PublishBuildArtifacts@1
-    displayName: 'Publish Artifact: output'
-    inputs:
+      displayName: 'Publish Artifact: output'
+      inputs:
         ArtifactName: output
-
-
-
-
-
-steps:
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet restore'
-  inputs:
-    workingDirectory: LogViewer.Server
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet build'
-  inputs:
-    workingDirectory: LogViewer.Server
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet test'
-  inputs:
-    command: test
-    workingDirectory: LogViewer.Server.Tests
-
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet publish - Create Self Contained WebAPI for Windows'
-  inputs:
-    command: publish
-    publishWebProjects: false
-    arguments: '-r win10-x64 --output bin/dist/win'
-    zipAfterPublish: false
-    modifyOutputPath: false
-    workingDirectory: LogViewer.Server
-
-- task: Npm@1
-  displayName: 'npm install'
-  inputs:
-    workingDir: LogViewer.Client
-    verbose: false
-
-- task: Npm@1
-  displayName: 'npm run tsc (TypeScript compile)'
-  inputs:
-    command: custom
-    workingDir: LogViewer.Client
-    verbose: false
-    customCommand: 'run tsc'
-
-- task: Npm@1
-  displayName: 'npm run win (builds window outputs AppX & Installer)'
-  inputs:
-    command: custom
-    workingDir: LogViewer.Client
-    verbose: false
-    customCommand: 'run win'
-
-- task: CopyFiles@2
-  displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)'
-  inputs:
-    SourceFolder: '$(Build.SourcesDirectory)/output'
-    Contents: |
-     *.appx
-     *.exe
-    TargetFolder: '$(Build.ArtifactStagingDirectory)'
-    CleanTargetFolder: true
-    OverWrite: true
-
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: output'
-  inputs:
-    ArtifactName: output
-
