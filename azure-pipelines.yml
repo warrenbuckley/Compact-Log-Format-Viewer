@@ -13,7 +13,7 @@ trigger:
 
 jobs:
 # Windows Build
-- job: Debug
+- job: WinBuild
   pool: 'windows-2019'
   steps:
     - task: DotNetCoreCLI@2
@@ -81,9 +81,7 @@ jobs:
         ArtifactName: output
 
 # OSX Build
-- job: 'OSX Build'
-  dependsOn: 'Windows Build'
-  condition: succeeded()
+- job: OSXBuild
   pool: 'macOS-10.13'
   steps:
     - task: DotNetCoreCLI@2
