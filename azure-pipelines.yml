@@ -13,8 +13,19 @@ trigger:
 
 
 jobs:
+- job: ServerTests
+  displayName: 'Server Project Tests'
+  continueOnError: false
+  steps:
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet test'
+      inputs:
+        command: test
+        workingDirectory: LogViewer.Server.Tests
+
 # Windows Build
 - job: WinBuild
+  dependsOn: ServerTests
   displayName: 'Windows Build'
   pool:
     vmImage: 'windows-2019'
@@ -30,12 +41,6 @@ jobs:
         workingDirectory: LogViewer.Server
 
     - task: DotNetCoreCLI@2
-      displayName: 'dotnet test'
-      inputs:
-        command: test
-        workingDirectory: LogViewer.Server.Tests
-
-    - task: DotNetCoreCLI@2
       displayName: 'dotnet publish - Create Self Contained WebAPI for Windows'
       inputs:
         command: publish
@@ -44,6 +49,12 @@ jobs:
         zipAfterPublish: false
         modifyOutputPath: false
         workingDirectory: LogViewer.Server
+
+    - task: NodeTool@0
+      displayName: 'Use Latest Node'
+      inputs:
+        versionSpec: 10.x
+        checkLatest: true
 
     - task: Npm@1
       displayName: 'npm install'
@@ -85,6 +96,7 @@ jobs:
 
 # OSX Build
 - job: OSXBuild
+  dependsOn: ServerTests
   displayName: 'OSX Build'
   pool:
     vmImage: 'macOS-10.13'
@@ -100,12 +112,6 @@ jobs:
         workingDirectory: LogViewer.Server
 
     - task: DotNetCoreCLI@2
-      displayName: 'dotnet test'
-      inputs:
-        command: test
-        workingDirectory: LogViewer.Server.Tests
-
-    - task: DotNetCoreCLI@2
       displayName: 'dotnet publish - Create Self Contained WebAPI for Windows'
       inputs:
         command: publish
@@ -114,6 +120,12 @@ jobs:
         zipAfterPublish: false
         modifyOutputPath: false
         workingDirectory: LogViewer.Server
+
+    - task: NodeTool@0
+      displayName: 'Use Latest Node'
+      inputs:
+        versionSpec: 10.x
+        checkLatest: true
 
     - task: Npm@1
       displayName: 'npm install'
