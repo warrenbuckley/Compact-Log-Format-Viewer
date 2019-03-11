@@ -7,6 +7,7 @@ name: 'CIBuild_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)'
 
 variables:
   buildConfiguration: 'Release'
+  version.build_number: '1.0.0-$(Date:yyyyMMdd)$(Rev:.r)'
 
 trigger:
 - master
