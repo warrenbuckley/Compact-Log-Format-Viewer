@@ -18,6 +18,9 @@ jobs:
   displayName: 'Server Project Tests'
   continueOnError: false
   steps:
+    - script: set
+      displayName: 'Print ENV Variables'
+
     - task: DotNetCoreCLI@2
       displayName: 'dotnet test'
       inputs:
