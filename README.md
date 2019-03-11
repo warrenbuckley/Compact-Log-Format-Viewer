@@ -4,7 +4,7 @@ A cross platform tool to read &amp; query JSON aka CLEF log files created by Ser
 ![Compact Log Format Viewer](https://raw.githubusercontent.com/warrenbuckley/Compact-Log-Format-Viewer/master/LogViewer.Client/build/logo.png)
 
 ## Build Status
-Mac: [![Win & OSX Build Status](https://dev.azure.com/warrenbuckley/LogViewer/_apis/build/status/Windows%20&%20OSX%20Build?branchName=master)](https://dev.azure.com/warrenbuckley/LogViewer/_build/latest?definitionId=6&branchName=master)
+[![Win & OSX Build Status](https://dev.azure.com/warrenbuckley/LogViewer/_apis/build/status/Windows%20&%20OSX%20Build?branchName=master)](https://dev.azure.com/warrenbuckley/LogViewer/_build/latest?definitionId=6&branchName=master)
 
 Builds done by Azure Pipelines - https://dev.azure.com/warrenbuckley/LogViewer/
 
