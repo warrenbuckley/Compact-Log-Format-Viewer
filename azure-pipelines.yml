@@ -11,10 +11,13 @@ variables:
 trigger:
 - master
 
+
 jobs:
 # Windows Build
 - job: WinBuild
-  pool: 'windows-2019'
+  displayName: 'Windows Build'
+  pool:
+    vmImage: 'windows-2019'
   steps:
     - task: DotNetCoreCLI@2
       displayName: 'dotnet restore'
@@ -82,7 +85,9 @@ jobs:
 
 # OSX Build
 - job: OSXBuild
-  pool: 'macOS-10.13'
+  displayName: 'OSX Build'
+  pool:
+    vmImage: 'macOS-10.13'
   steps:
     - task: DotNetCoreCLI@2
       displayName: 'dotnet restore'
