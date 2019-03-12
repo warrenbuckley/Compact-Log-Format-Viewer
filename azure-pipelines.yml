@@ -7,12 +7,11 @@ name: 'CIBuild_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)'
 
 variables:
   buildConfiguration: 'Release'
-  version.build_number: '1.0.0-$(Date:yyyyMMdd)$(Rev:.r)'
-  DEBUG: 'electron-builder'
+  version.build_number: '1.0.0-$(Date:yyyyMMdd)$(Rev:.r)' ##It comes out as VERSION_BUILD_NUMBER=1.0.0-$(Date:yyyyMMdd)$(Rev:.r)
+  debug: 'electron-builder' #Used to set electron-builder in debug mode to give us more verbose details when packaing
 
 trigger:
 - master
-
 
 jobs:
 - job: ServerTests
@@ -50,7 +49,8 @@ jobs:
       inputs:
         command: publish
         publishWebProjects: false
-        arguments: '-r win10-x64 --output bin/dist/win'
+        configuration: $(buildConfiguration)
+        arguments: '--runtime win10-x64 --output bin/dist/win'
         zipAfterPublish: false
         modifyOutputPath: false
         workingDirectory: LogViewer.Server
@@ -90,8 +90,7 @@ jobs:
       inputs:
         SourceFolder: '$(Build.SourcesDirectory)/output'
         Contents: |
-          *.appx
-          *.exe
+          *
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
         CleanTargetFolder: true
         OverWrite: true
@@ -123,7 +122,8 @@ jobs:
       inputs:
         command: publish
         publishWebProjects: false
-        arguments: '-r osx.10.11-x64 --output bin/dist/osx'
+        configuration: $(buildConfiguration)
+        arguments: '--runtime osx.10.11-x64 --output bin/dist/osx'
         zipAfterPublish: false
         modifyOutputPath: false
         workingDirectory: LogViewer.Server
