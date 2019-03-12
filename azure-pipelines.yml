@@ -8,6 +8,7 @@ name: 'CIBuild_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)'
 variables:
   buildConfiguration: 'Release'
   version.build_number: '1.0.0-$(Date:yyyyMMdd)$(Rev:.r)'
+  DEBUG: 'electron-builder'
 
 trigger:
 - master
@@ -53,6 +54,8 @@ jobs:
         zipAfterPublish: false
         modifyOutputPath: false
         workingDirectory: LogViewer.Server
+        versioningScheme: byBuildNumber
+
 
     - task: NodeTool@0
       displayName: 'Use Latest Node'
