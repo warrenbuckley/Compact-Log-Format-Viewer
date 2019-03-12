@@ -3,15 +3,12 @@
 # Add steps that run tests, create a NuGet package, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
-name: 'CIBuild_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)'
+name: '$(Date:yyyyMMdd)$(Rev:.r)'
 
 variables:
   buildConfiguration: 'Release'
-  BUILD_NUMBER: 2058
-  debug: 'electron-builder' #Used to set electron-builder in debug mode to give us more verbose details when packaing
-  majorVersion: 1
-  minorVersion: 0
-  patchVersion: 1
+  DEBUG: 'electron-builder' #Used to set electron-builder in debug mode to give us more verbose details when packaing
+
 
 trigger:
 - master
@@ -58,9 +55,6 @@ jobs:
         modifyOutputPath: false
         workingDirectory: LogViewer.Server
         versioningScheme: byBuildNumber
-        majorVersion: 1
-        minorVersion: 0
-        patchVersion: 1
 
     - task: NodeTool@0
       displayName: 'Use Latest Node'
