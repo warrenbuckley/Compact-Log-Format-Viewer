@@ -90,7 +90,7 @@ jobs:
       inputs:
         SourceFolder: '$(Build.SourcesDirectory)/output'
         Contents: |
-          *
+          **\*
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
         CleanTargetFolder: true
         OverWrite: true
