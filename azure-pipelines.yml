@@ -3,10 +3,12 @@
 # Add steps that run tests, create a NuGet package, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
+name: '$(BuildId)'
+
 variables:
   buildConfiguration: 'Release'
   DEBUG: 'electron-builder' #Used to set electron-builder in debug mode to give us more verbose details when packaing
-
+  application.Version: '1.0.1' #ENV vairable = APPLICATION_VERSION
 
 trigger:
 - master
