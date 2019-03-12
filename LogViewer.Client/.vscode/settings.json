@@ -7,4 +7,12 @@
         "**/built": true,
     },
     "typescript.tsdk": "node_modules\\typescript\\lib",
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "/electron-builder.json"
+            ],
+            "url": "./node_modules/app-builder-lib/scheme.json"
+        }
+    ]
 }
