@@ -88,7 +88,8 @@ jobs:
       inputs:
         SourceFolder: '$(Build.SourcesDirectory)/output'
         Contents: |
-          **\*
+          *.exe
+          *.appx
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
         CleanTargetFolder: true
         OverWrite: true
