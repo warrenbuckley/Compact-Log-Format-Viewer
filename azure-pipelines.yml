@@ -7,8 +7,11 @@ name: 'CIBuild_$(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)'
 
 variables:
   buildConfiguration: 'Release'
-  version.build_number: '1.0.0-$(Date:yyyyMMdd)$(Rev:.r)' ##It comes out as VERSION_BUILD_NUMBER=1.0.0-$(Date:yyyyMMdd)$(Rev:.r)
+  BUILD_NUMBER: 2058
   debug: 'electron-builder' #Used to set electron-builder in debug mode to give us more verbose details when packaing
+  majorVersion: 1
+  minorVersion: 0
+  patchVersion: 1
 
 trigger:
 - master
@@ -55,7 +58,9 @@ jobs:
         modifyOutputPath: false
         workingDirectory: LogViewer.Server
         versioningScheme: byBuildNumber
-
+        majorVersion: 1
+        minorVersion: 0
+        patchVersion: 1
 
     - task: NodeTool@0
       displayName: 'Use Latest Node'
