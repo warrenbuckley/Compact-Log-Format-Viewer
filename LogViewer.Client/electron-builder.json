@@ -29,7 +29,9 @@
             "dmg",
             "mas"
         ],
-        "icon": "logo.png"
+        "bundleVersion": 3,
+        "icon": "logo.png",
+        "provisioningProfile": "../Compact_Log_Viewer_App__Mac_Production_Profile.provisionprofile"
     },
     "nsis": {
         "deleteAppDataOnUninstall": true,
