@@ -26,7 +26,8 @@
     "mac": {
         "category": "public.app-category.developer-tools",
         "target": [
-            "dmg"
+            "dmg",
+            "mas"
         ],
         "icon": "logo.png"
     },
@@ -48,5 +49,10 @@
     },
     "dmg": {
         "backgroundColor": "#3544b1"
+    },
+    "mas": {
+        "binaries": [
+            "../LogViewer.Server/bin/dist/osx/LogViewer.Server"
+        ]
     }
 }
