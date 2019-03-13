@@ -10,9 +10,11 @@ Releases are available on this GitHub Repository along on the Windows Store
 <a href='//www.microsoft.com/store/apps/9N8RV8LKTXRJ?cid=storebadge&ocid=badge'><img src='https://assets.windowsphone.com/85864462-9c82-451e-9355-a3d5f874397a/English_get-it-from-MS_InvariantCulture_Default.png' alt='English badge' style='width: 284px; height: 104px;' width="284" height="104" /></a>
 
 ## Build Status
-[![Win & OSX Build Status](https://dev.azure.com/warrenbuckley/LogViewer/_apis/build/status/Windows%20&%20OSX%20Build?branchName=master)](https://dev.azure.com/warrenbuckley/LogViewer/_build/latest?definitionId=6&branchName=master)
+[![Tests](https://dev.azure.com/warrenbuckley/Compact-Log-Viewer/_apis/build/status/warrenbuckley.Compact-Log-Format-Viewer?branchName=master&jobName=Server%20Project%20Tests&label=Tests)](https://dev.azure.com/warrenbuckley/Compact-Log-Viewer/_build/latest?definitionId=8&branchName=master)<br/>
+[![Windows](https://dev.azure.com/warrenbuckley/Compact-Log-Viewer/_apis/build/status/warrenbuckley.Compact-Log-Format-Viewer?branchName=master&jobName=Windows%20Build&label=Windows)](https://dev.azure.com/warrenbuckley/Compact-Log-Viewer/_build/latest?definitionId=8&branchName=master)<br/>
+[![MacOS](https://dev.azure.com/warrenbuckley/Compact-Log-Viewer/_apis/build/status/warrenbuckley.Compact-Log-Format-Viewer?branchName=master&jobName=OSX%20Build&label=MacOS)](https://dev.azure.com/warrenbuckley/Compact-Log-Viewer/_build/latest?definitionId=8&branchName=master)
 
-Builds done by Azure Pipelines - https://dev.azure.com/warrenbuckley/LogViewer/
+Builds done by Azure Pipelines - https://dev.azure.com/warrenbuckley/Compact-Log-Viewer
 
 ## Building
 
