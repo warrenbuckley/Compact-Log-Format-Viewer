@@ -31,8 +31,8 @@ https://visualstudio.microsoft.com/vs/
 - Open terminal in root of project
 - `dotnet restore` Will fetch the dependencies needed for the WebAPI
 - `dotnet build /p:TrimUnusedDependencies=true` Verify that there are no build errors
-- `dotnet publish --runtime osx-x64 --output bin/dist/osx` generates a self contained application for our WebAPI
-- `dotnet publish --runtime win10-x64 --output bin/dist/win` same but creates the Windows version
+- `dotnet publish --runtime osx-x64 --output bin/dist/osx /p:TrimUnusedDependencies=true` generates a self contained application for our WebAPI
+- `dotnet publish --runtime win10-x64 --output bin/dist/win /p:TrimUnusedDependencies=true` same but creates the Windows version
 - Change terminal directory to `LogViewer.Client` folder
 - `npm install`
 - `tsc --watch` This will compile the TypeScript files & continue to watch them
