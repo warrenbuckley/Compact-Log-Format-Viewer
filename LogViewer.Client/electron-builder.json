@@ -29,7 +29,7 @@
             "dmg",
             "mas"
         ],
-        "bundleVersion": 3,
+        "bundleVersion": 4,
         "icon": "logo.png",
         "provisioningProfile": "../Compact_Log_Viewer_App__Mac_Production_Profile.provisionprofile"
     },
