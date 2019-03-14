@@ -30,7 +30,7 @@ https://visualstudio.microsoft.com/vs/
 - Clone Repo
 - Open terminal in root of project
 - `dotnet restore` Will fetch the dependencies needed for the WebAPI
-- `dotnet build` Verify that there are no build errors
+- `dotnet build /p:TrimUnusedDependencies=true` Verify that there are no build errors
 - `dotnet publish --runtime osx-x64 --output bin/dist/osx` generates a self contained application for our WebAPI
 - `dotnet publish --runtime win10-x64 --output bin/dist/win` same but creates the Windows version
 - Change terminal directory to `LogViewer.Client` folder
