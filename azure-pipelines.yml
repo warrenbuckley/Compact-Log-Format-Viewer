@@ -127,6 +127,20 @@ jobs:
         modifyOutputPath: false
         workingDirectory: LogViewer.Server
 
+    - task: InstallAppleCertificate@2
+      displayName: 'Install Apple Certificate'
+      inputs:
+        certSecureFile: ''
+        certPwd: '' #Needs to be an encrypted variable from
+        signingIdentity: ''
+        deleteCert: true
+
+    - task: InstallAppleProvisioningProfile@1
+      displayName: 'Install Apple Provisioning Profile'
+      inputs:
+        provProfileSecureFile: ''
+        removeProfile: true
+
     - task: NodeTool@0
       displayName: 'Use Latest Node'
       inputs:
