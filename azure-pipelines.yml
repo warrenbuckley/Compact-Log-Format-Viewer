@@ -127,6 +127,11 @@ jobs:
         modifyOutputPath: false
         workingDirectory: LogViewer.Server
 
+    - task: DownloadSecureFile@1
+      displayName: 'Download secure file'
+      inputs:
+        secureFile: 'CertificateSigningRequest.certSigningRequest'
+
     - task: InstallAppleCertificate@2
       displayName: 'Install Apple Certificate'
       enabled: false
