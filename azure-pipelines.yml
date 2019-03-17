@@ -170,6 +170,9 @@ jobs:
         workingDir: LogViewer.Client
         verbose: false
         customCommand: 'run tsc'
+        
+    - script: set
+      displayName: 'Print ENV Variables'
 
     - task: Npm@1
       displayName: 'npm run mac (builds Mac output - DMG)'
