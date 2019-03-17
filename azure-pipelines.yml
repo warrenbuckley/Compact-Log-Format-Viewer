@@ -129,6 +129,7 @@ jobs:
 
     - task: InstallAppleCertificate@2
       displayName: 'Install Apple Certificate'
+      enabled: false
       inputs:
         certSecureFile: ''
         certPwd: '' #Needs to be an encrypted variable from
@@ -138,7 +139,8 @@ jobs:
     - task: InstallAppleProvisioningProfile@1
       displayName: 'Install Apple Provisioning Profile'
       inputs:
-        provProfileSecureFile: ''
+        provProfileSecureFile: 'CertificateSigningRequest.certSigningRequest'
+        provisioningProfileLocation: secureFiles
         removeProfile: true
 
     - task: NodeTool@0
