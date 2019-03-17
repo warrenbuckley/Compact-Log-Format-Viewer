@@ -129,17 +129,14 @@ jobs:
 
     - task: DownloadSecureFile@1
       displayName: 'Download secure Apple Cert'
-      enabled: false
       inputs:
-        secureFile: ''
+        secureFile: 'AppCertificates.p12'
 
     - task: InstallAppleCertificate@2
       displayName: 'Install Apple Certificate'
-      enabled: false
       inputs:
-        certSecureFile: ''
-        certPwd: '' #Needs to be an encrypted variable from
-        signingIdentity: ''
+        certSecureFile: 'AppCertificates.p12'
+        certPwd: '$(AppCertificatesPassword)'
         deleteCert: true
 
     - task: DownloadSecureFile@1
