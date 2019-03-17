@@ -130,7 +130,7 @@ jobs:
     - task: DownloadSecureFile@1
       displayName: 'Download secure file'
       inputs:
-        secureFile: 'CertificateSigningRequest.certSigningRequest'
+        secureFile: 'Compact_Log_Viewer_App__Mac_Production_Profile.provisionprofile'
 
     - task: InstallAppleCertificate@2
       displayName: 'Install Apple Certificate'
@@ -144,7 +144,7 @@ jobs:
     - task: InstallAppleProvisioningProfile@1
       displayName: 'Install Apple Provisioning Profile'
       inputs:
-        provProfileSecureFile: 'CertificateSigningRequest.certSigningRequest'
+        provProfileSecureFile: 'Compact_Log_Viewer_App__Mac_Production_Profile.provisionprofile'
         provisioningProfileLocation: secureFiles
         removeProfile: true
 
