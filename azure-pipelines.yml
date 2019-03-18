@@ -154,9 +154,9 @@ jobs:
     - task: CopyFiles@2
       displayName: 'Copy ProvisionProfile to Source Root'
       inputs:
-        SourceFolder: '$(Agent.TempDirectory)'
+        SourceFolder: '$(Agent.TempDirectory)/'
         Contents: |
-          *.provisionprofile
+          Compact_Log_Viewer_App__Mac_Production_Profile.provisionprofile
         TargetFolder: '$(Build.SourcesDirectory)'
         OverWrite: true
 
