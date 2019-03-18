@@ -151,15 +151,6 @@ jobs:
         provisioningProfileLocation: secureFiles
         removeProfile: true
 
-    - task: CopyFiles@2
-      displayName: 'Copy ProvisionProfile to Source Root'
-      inputs:
-        SourceFolder: '$(Agent.TempDirectory)/'
-        Contents: |
-          Compact_Log_Viewer_App__Mac_Production_Profile.provisionprofile
-        TargetFolder: '$(Build.SourcesDirectory)'
-        OverWrite: true
-
     - task: NodeTool@0
       displayName: 'Use Latest Node'
       inputs:
