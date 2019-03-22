@@ -1,8 +1,8 @@
 import angular from "angular";
 import { ipcRenderer } from "electron";
 
-const logViewerApp = angular.module("logViewerApp", ["chart.js"]);
-logViewerApp.controller("LogViewerController", ["$scope", function($scope) {
+const logViewerApp = angular.module("logViewerApp", ["chart.js", "logViewerApp.resources"]);
+logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", function($scope, logViewerResource) {
     const vm = this;
     vm.isLoading = false;
     vm.fileOpen = false;
@@ -48,7 +48,14 @@ logViewerApp.controller("LogViewerController", ["$scope", function($scope) {
 
     vm.performSearch = () => {
         console.log("vm.logOptions we send to MAIN to perform API call", vm.logOptions);
-        ipcRenderer.send("logviewer.get-logs", vm.logOptions);
+
+        vm.loadinglogs = true;
+        logViewerResource.getLogs(vm.logOptions).then((response) => {
+            vm.logs = response.data;
+            vm.loadinglogs = false;
+        });
+
+        // ipcRenderer.send("logviewer.get-logs", vm.logOptions);
     };
 
     // Used by the button in the UI
