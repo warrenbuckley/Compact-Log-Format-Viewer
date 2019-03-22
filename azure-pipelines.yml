@@ -34,22 +34,12 @@ jobs:
     vmImage: 'windows-2019'
   steps:
     - task: DotNetCoreCLI@2
-      displayName: 'dotnet restore'
-      inputs:
-        workingDirectory: LogViewer.Server
-
-    - task: DotNetCoreCLI@2
-      displayName: 'dotnet build'
-      inputs:
-        workingDirectory: LogViewer.Server
-
-    - task: DotNetCoreCLI@2
       displayName: 'dotnet publish - Create Self Contained WebAPI for Windows'
       inputs:
         command: publish
         publishWebProjects: false
         configuration: $(buildConfiguration)
-        arguments: '--runtime win10-x64 --output bin/dist/win'
+        arguments: '--runtime win10-x64 --output bin/dist/win /p:TrimUnusedDependencies=true'
         zipAfterPublish: false
         modifyOutputPath: false
         workingDirectory: LogViewer.Server
@@ -107,22 +97,12 @@ jobs:
     vmImage: 'macOS-10.13'
   steps:
     - task: DotNetCoreCLI@2
-      displayName: 'dotnet restore'
-      inputs:
-        workingDirectory: LogViewer.Server
-
-    - task: DotNetCoreCLI@2
-      displayName: 'dotnet build'
-      inputs:
-        workingDirectory: LogViewer.Server
-
-    - task: DotNetCoreCLI@2
       displayName: 'dotnet publish - Create Self Contained WebAPI for Windows'
       inputs:
         command: publish
         publishWebProjects: false
         configuration: $(buildConfiguration)
-        arguments: '--runtime osx.10.11-x64 --output bin/dist/osx'
+        arguments: '--runtime osx.10.11-x64 --output bin/dist/osx /p:TrimUnusedDependencies=true'
         zipAfterPublish: false
         modifyOutputPath: false
         workingDirectory: LogViewer.Server
@@ -170,7 +150,7 @@ jobs:
         workingDir: LogViewer.Client
         verbose: false
         customCommand: 'run tsc'
-        
+
     - script: set
       displayName: 'Print ENV Variables'
 
