@@ -84,6 +84,23 @@ function startServer() {
   // Spin up the exe or OSX excutable - self hosted x-plat .NET Core WebAPI
   apiProcess = child.spawn(apipath);
 
+  // Log events out to console to help with debugging whats up with .NET Core Server
+  apiProcess.stdout.on("data", (data) => {
+    console.log(`${data}`);
+  });
+
+  apiProcess.stderr.on("data", (data) => {
+    console.log(`NuCache Server - stderr ${data}`);
+  });
+
+  apiProcess.on("error", (err) => {
+    console.log(`NuCache Server - General Error ${err}`);
+  });
+
+  apiProcess.on("close", (code) => {
+    console.log(`NuCache Server - Recieved Close Code ${code}`);
+  });
+
   // Create Window
   createWindow();
 }
