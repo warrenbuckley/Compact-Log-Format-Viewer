@@ -29,8 +29,9 @@
             "dmg",
             "mas"
         ],
-        "bundleVersion": 4,
-        "icon": "logo.png"
+        "bundleVersion": 20190426,
+        "icon": "logo.png",
+        "provisioningProfile": "Compact_Log_Viewer_App__Mac_Production_Profile.provisionprofile"
     },
     "nsis": {
         "deleteAppDataOnUninstall": true,
@@ -53,7 +54,7 @@
     },
     "mas": {
         "binaries": [
-            "../LogViewer.Server/bin/dist/osx/LogViewer.Server"
+            "/Users/warrenbuckley/Projects/LogViewer/output/mas/Compact Log Viewer.app/Contents/Resources/LogViewer.Server/bin/dist/osx/LogViewer.Server"
         ]
     }
 }
