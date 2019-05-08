@@ -29,8 +29,9 @@
             "dmg",
             "mas"
         ],
-        "bundleVersion": 20190426,
+        "bundleVersion": 20190507,
         "icon": "logo.png",
+        //"provisioningProfile": "Compact_Log_Viewer_App__Mac_Development_Profile.provisionprofile"
         "provisioningProfile": "Compact_Log_Viewer_App__Mac_Production_Profile.provisionprofile"
     },
     "nsis": {
@@ -54,6 +55,7 @@
     },
     "mas": {
         "binaries": [
+            //"/Users/warrenbuckley/Projects/LogViewer/output/mas-dev/Compact Log Viewer.app/Contents/Resources/LogViewer.Server/bin/dist/osx/LogViewer.Server"
             "/Users/warrenbuckley/Projects/LogViewer/output/mas/Compact Log Viewer.app/Contents/Resources/LogViewer.Server/bin/dist/osx/LogViewer.Server"
         ]
     }
