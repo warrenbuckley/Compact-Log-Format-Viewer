@@ -27,6 +27,7 @@
         "category": "public.app-category.developer-tools",
         "target": [
             "dmg",
+            //"mas-dev",
             "mas"
         ],
         "bundleVersion": 20190507,
@@ -55,7 +56,8 @@
     },
     "mas": {
         "binaries": [
-            //"/Users/warrenbuckley/Projects/LogViewer/output/mas-dev/Compact Log Viewer.app/Contents/Resources/LogViewer.Server/bin/dist/osx/LogViewer.Server"
+            //"../LogViewer.Server/bin/dist/osx/LogViewer.Server",
+            //"/Users/warrenbuckley/Projects/LogViewer/output/mas-dev/Compact Log Viewer.app/Contents/Resources/LogViewer.Server/bin/dist/osx/LogViewer.Server",
             "/Users/warrenbuckley/Projects/LogViewer/output/mas/Compact Log Viewer.app/Contents/Resources/LogViewer.Server/bin/dist/osx/LogViewer.Server"
         ]
     }
