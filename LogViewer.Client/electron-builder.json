@@ -30,7 +30,7 @@
             //"mas-dev",
             "mas"
         ],
-        "bundleVersion": 20190507,
+        "bundleVersion": 20190514,
         "icon": "logo.png",
         //"provisioningProfile": "Compact_Log_Viewer_App__Mac_Development_Profile.provisionprofile"
         "provisioningProfile": "Compact_Log_Viewer_App__Mac_Production_Profile.provisionprofile"
