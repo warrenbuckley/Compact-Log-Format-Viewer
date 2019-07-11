@@ -85,7 +85,7 @@ namespace LogViewer.Server
         public void ExportTextFile(string messageTemplate, string newFileName)
         {
             if (string.IsNullOrEmpty(messageTemplate))
-                messageTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}";
+                messageTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss,fff} [P{ProcessId}/D{AppDomainId}/T{ThreadId}] {Level:u3}  {SourceContext} - {Message:lj}{NewLine}{Exception}";
 
             var loggerConfig = new LoggerConfiguration()
                 .WriteTo.File(newFileName, outputTemplate: messageTemplate);
