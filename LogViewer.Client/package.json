@@ -1,7 +1,7 @@
 {
   "name": "logviewer.client",
   "productName": "Compact Log Viewer",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A cross platform Electron app to view and search logs stored in the Compact log format",
   "homepage": "https://github.com/warrenbuckley/Compact-Log-Format-Viewer#readme",
   "repository": {
