@@ -78,15 +78,15 @@ function startServer() {
   });
 
   apiProcess.stderr.on("data", (data) => {
-    console.log(`NuCache Server - stderr ${data}`);
+    console.log(`LogViewer Server - stderr ${data}`);
   });
 
   apiProcess.on("error", (err) => {
-    console.log(`NuCache Server - General Error ${err}`);
+    console.log(`LogViewer Server - General Error ${err}`);
   });
 
   apiProcess.on("close", (code) => {
-    console.log(`NuCache Server - Recieved Close Code ${code}`);
+    console.log(`LogViewer Server - Recieved Close Code ${code}`);
   });
 
   // Create Window
