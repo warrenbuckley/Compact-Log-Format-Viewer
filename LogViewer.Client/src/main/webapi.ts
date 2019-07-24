@@ -22,11 +22,45 @@ export function openFile(filePath: string, focusedWindow: WebContents) {
 
         updateMenuEnabledState("logviewer.open", false);
         updateMenuEnabledState("logviewer.close", true);
+        updateMenuEnabledState("logviewer.reload", true);
         updateMenuEnabledState("logviewer.export", true);
 
         // Add the file to a recent documents list
         // Lets assume the Electron API here deals with dupes etc
         app.addRecentDocument(filePath);
+
+        focusedWindow.send("logviewer.file-opened", body);
+        focusedWindow.send("logviewer.loading", false);
+
+        // Call Further Init API Endpoints
+        // Which in turn emit their data/JSON back to the RENDERER to listen for
+        getErrors(focusedWindow);
+        getTotals(focusedWindow);
+        getMessageTemplates(focusedWindow);
+        getLogs(focusedWindow, 1, "");
+
+    });
+}
+
+export function reload(focusedWindow: WebContents) {
+    // Send a signal/event to notify the main UI(renderer) that we are loading
+    focusedWindow.send("logviewer.loading", true);
+    focusedWindow.send("logviewer.emptystate", false);
+
+    request(`${serverApiDomain}/reload`, { json: true }, (err, res, body) => {
+        if (res.statusCode === 400) {
+            focusedWindow.send("logviewer.error", body);
+            focusedWindow.send("logviewer.loading", false);
+
+            dialog.showErrorBox("Error", body);
+
+            return;
+        }
+
+        updateMenuEnabledState("logviewer.open", false);
+        updateMenuEnabledState("logviewer.close", true);
+        updateMenuEnabledState("logviewer.reload", true);
+        updateMenuEnabledState("logviewer.export", true);
 
         focusedWindow.send("logviewer.file-opened", body);
         focusedWindow.send("logviewer.loading", false);

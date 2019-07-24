@@ -17,7 +17,7 @@ namespace LogViewer.Server
     public class LogParser : ILogParser
     {
         private List<LogEvent> _logItems;
-        private string _logFilePath;
+        public string LogFilePath { get; set; }
         public bool LogIsOpen { get; set; }
 
         private const string ExpressionOperators = "()+=*<>%-";
@@ -25,7 +25,8 @@ namespace LogViewer.Server
         public LogParser()
         {
             _logItems = new List<LogEvent>();
-            _logFilePath = string.Empty;
+
+            LogFilePath = string.Empty;
             LogIsOpen = false;
         }
         
@@ -56,7 +57,7 @@ namespace LogViewer.Server
             }
 
             _logItems = logItems;
-            _logFilePath = filePath;
+            LogFilePath = filePath;
             LogIsOpen = true;
 
             return _logItems;
@@ -93,7 +94,7 @@ namespace LogViewer.Server
             //We will need to re-read logs & pass in a Serilog that can persist to TXT file
             using (var logger = loggerConfig.CreateLogger())
             {
-                ReadLogs(_logFilePath, logger);
+                ReadLogs(LogFilePath, logger);
             }
         }
 

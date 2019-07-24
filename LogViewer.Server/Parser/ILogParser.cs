@@ -9,6 +9,8 @@ namespace LogViewer.Server
     {
         bool LogIsOpen { get; set; }
 
+        string LogFilePath { get; set; }
+
         List<LogEvent> ReadLogs(string filePath, Logger logger = null);
 
         LogLevelCounts TotalCounts();

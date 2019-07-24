@@ -1,6 +1,7 @@
 import { app, Menu, shell } from "electron";
 import { is } from "electron-util";
 import * as file from "./file";
+import * as webapi from "./webapi";
 
 const template: Electron.MenuItemConstructorOptions[] = [
 {
@@ -23,11 +24,21 @@ const template: Electron.MenuItemConstructorOptions[] = [
             // Disable the close menu item & re-activate the open menu item
             updateMenuEnabledState("logviewer.open", true);
             updateMenuEnabledState("logviewer.close", false);
+            updateMenuEnabledState("logviewer.reload", false);
             updateMenuEnabledState("logviewer.export", false);
 
             // Resets the UI later to open a new nucache file
             // By sending a signal/event that we listen for
             focusedWindow.webContents.send("logviewer.file-closed");
+        },
+    },
+    {
+        id: "logviewer.reload",
+        label: "Reload Log",
+        enabled: false,
+        accelerator: "CmdOrCtrl+R",
+        click: (menuItuem, focusedWindow) => {
+            webapi.reload(focusedWindow.webContents);
         },
     },
     {

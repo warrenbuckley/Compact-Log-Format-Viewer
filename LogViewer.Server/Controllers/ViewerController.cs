@@ -24,7 +24,8 @@ namespace LogViewer.Server.Controllers
 
         [HttpGet("open")]
         public ActionResult<string> Open(string filePath)
-        {
+        {     
+
             //Check for valid filepath
             if (System.IO.File.Exists(filePath) == false)
             {
@@ -56,6 +57,19 @@ namespace LogViewer.Server.Controllers
             var logs = _logParser.ReadLogs(filePath);            
             return $"Log contains {logs.Count}";
 
+        }
+
+        [HttpGet("reload")]
+        public ActionResult<string> Reload()
+        {
+            //Ensure _logFilePath not null
+            if(string.IsNullOrEmpty(_logParser.LogFilePath) == false)
+            {
+                //Call Open again with the stored path
+                return Open(_logParser.LogFilePath);
+            }
+
+            return Ok();
         }
 
         [HttpGet("totals")]

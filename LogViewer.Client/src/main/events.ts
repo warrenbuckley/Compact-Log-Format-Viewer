@@ -22,6 +22,7 @@ ipcMain.on("logviewer.dragged-file", (event: any, filePath: string) => {
     // Disable the file open menu item & enable the close menu item
     updateMenuEnabledState("logviewer.open", false);
     updateMenuEnabledState("logviewer.close", true);
+    updateMenuEnabledState("logviewer.reload", true);
     updateMenuEnabledState("logviewer.export", true);
 
     // Call the Web API with the selected file
