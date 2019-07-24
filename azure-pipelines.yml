@@ -95,89 +95,89 @@ jobs:
         ArtifactName: output
 
 # OSX Build
-- job: OSXBuild
-  dependsOn: ServerTests
-  displayName: 'OSX Build'
-  pool:
-    vmImage: 'macOS-10.13'
-  steps:
-    - task: DotNetCoreCLI@2
-      displayName: 'dotnet publish - Create Self Contained WebAPI for Windows'
-      inputs:
-        command: publish
-        publishWebProjects: false
-        configuration: $(buildConfiguration)
-        arguments: '--runtime osx.10.11-x64 --output bin/dist/osx /p:TrimUnusedDependencies=true'
-        zipAfterPublish: false
-        modifyOutputPath: false
-        workingDirectory: LogViewer.Server
+# - job: OSXBuild
+#   dependsOn: ServerTests
+#   displayName: 'OSX Build'
+#   pool:
+#     vmImage: 'macOS-10.13'
+#   steps:
+#     - task: DotNetCoreCLI@2
+#       displayName: 'dotnet publish - Create Self Contained WebAPI for Windows'
+#       inputs:
+#         command: publish
+#         publishWebProjects: false
+#         configuration: $(buildConfiguration)
+#         arguments: '--runtime osx.10.11-x64 --output bin/dist/osx /p:TrimUnusedDependencies=true'
+#         zipAfterPublish: false
+#         modifyOutputPath: false
+#         workingDirectory: LogViewer.Server
 
-    - task: DownloadSecureFile@1
-      displayName: 'Download secure Apple Cert'
-      inputs:
-        secureFile: 'AppCertificates.p12'
+#     - task: DownloadSecureFile@1
+#       displayName: 'Download secure Apple Cert'
+#       inputs:
+#         secureFile: 'AppCertificates.p12'
 
-    - task: InstallAppleCertificate@2
-      displayName: 'Install Apple Certificate'
-      inputs:
-        certSecureFile: 'AppCertificates.p12'
-        certPwd: '$(AppCertificatesPassword)'
-        deleteCert: true
+#     - task: InstallAppleCertificate@2
+#       displayName: 'Install Apple Certificate'
+#       inputs:
+#         certSecureFile: 'AppCertificates.p12'
+#         certPwd: '$(AppCertificatesPassword)'
+#         deleteCert: true
 
-    - task: DownloadSecureFile@1
-      displayName: 'Download secure Provisioning Profile'
-      inputs:
-        secureFile: 'Compact_Log_Viewer_App__Mac_Production_Profile.provisionprofile'
+#     - task: DownloadSecureFile@1
+#       displayName: 'Download secure Provisioning Profile'
+#       inputs:
+#         secureFile: 'Compact_Log_Viewer_App__Mac_Production_Profile.provisionprofile'
 
-    - task: InstallAppleProvisioningProfile@1
-      displayName: 'Install Apple Provisioning Profile'
-      inputs:
-        provProfileSecureFile: 'Compact_Log_Viewer_App__Mac_Production_Profile.provisionprofile'
-        provisioningProfileLocation: secureFiles
-        removeProfile: true
+#     - task: InstallAppleProvisioningProfile@1
+#       displayName: 'Install Apple Provisioning Profile'
+#       inputs:
+#         provProfileSecureFile: 'Compact_Log_Viewer_App__Mac_Production_Profile.provisionprofile'
+#         provisioningProfileLocation: secureFiles
+#         removeProfile: true
 
-    - task: NodeTool@0
-      displayName: 'Use Latest Node'
-      inputs:
-        versionSpec: 10.x
-        checkLatest: true
+#     - task: NodeTool@0
+#       displayName: 'Use Latest Node'
+#       inputs:
+#         versionSpec: 10.x
+#         checkLatest: true
 
-    - task: Npm@1
-      displayName: 'npm install'
-      inputs:
-        workingDir: LogViewer.Client
-        verbose: false
+#     - task: Npm@1
+#       displayName: 'npm install'
+#       inputs:
+#         workingDir: LogViewer.Client
+#         verbose: false
 
-    - task: Npm@1
-      displayName: 'npm run tsc (TypeScript compile)'
-      inputs:
-        command: custom
-        workingDir: LogViewer.Client
-        verbose: false
-        customCommand: 'run tsc'
+#     - task: Npm@1
+#       displayName: 'npm run tsc (TypeScript compile)'
+#       inputs:
+#         command: custom
+#         workingDir: LogViewer.Client
+#         verbose: false
+#         customCommand: 'run tsc'
 
-    - script: set
-      displayName: 'Print ENV Variables'
+#     - script: set
+#       displayName: 'Print ENV Variables'
 
-    - task: Npm@1
-      displayName: 'npm run mac (builds Mac output - DMG)'
-      inputs:
-        command: custom
-        workingDir: LogViewer.Client
-        verbose: false
-        customCommand: 'run mac'
+#     - task: Npm@1
+#       displayName: 'npm run mac (builds Mac output - DMG)'
+#       inputs:
+#         command: custom
+#         workingDir: LogViewer.Client
+#         verbose: false
+#         customCommand: 'run mac'
 
-    - task: CopyFiles@2
-      displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)'
-      inputs:
-        SourceFolder: '$(Build.SourcesDirectory)/output'
-        Contents: |
-          *.dmg
-        TargetFolder: '$(Build.ArtifactStagingDirectory)'
-        CleanTargetFolder: true
-        OverWrite: true
+#     - task: CopyFiles@2
+#       displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)'
+#       inputs:
+#         SourceFolder: '$(Build.SourcesDirectory)/output'
+#         Contents: |
+#           *.dmg
+#         TargetFolder: '$(Build.ArtifactStagingDirectory)'
+#         CleanTargetFolder: true
+#         OverWrite: true
 
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish Artifact: output'
-      inputs:
-        ArtifactName: output
+#     - task: PublishBuildArtifacts@1
+#       displayName: 'Publish Artifact: output'
+#       inputs:
+#         ArtifactName: output
