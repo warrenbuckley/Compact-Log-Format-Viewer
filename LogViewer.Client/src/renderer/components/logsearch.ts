@@ -10,6 +10,7 @@ angular.module("logViewerApp").component("logSearch", {
 
         // Functions
         this.search = search;
+        this.clear = clear;
     },
     templateUrl: "components/log-search.html",
 });
@@ -17,5 +18,14 @@ angular.module("logViewerApp").component("logSearch", {
 function search(logOptions) {
     // Reset pagenumber back to 1
     logOptions.pageNumber = 1;
+    this.onPerformSearch();
+}
+
+function clear(logOptions) {
+    // Reset pagenumber back to 1 & empty out search
+    logOptions.pageNumber = 1;
+    logOptions.filterExpression = "";
+
+    // Perform new search back to page 1 with no search
     this.onPerformSearch();
 }
