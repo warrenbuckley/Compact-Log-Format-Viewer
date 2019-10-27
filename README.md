@@ -3,6 +3,8 @@ A cross platform tool to read &amp; query JSON aka CLEF log files created by Ser
 
 <img src="https://raw.githubusercontent.com/warrenbuckley/Compact-Log-Format-Viewer/master/LogViewer.Client/build/logo.png?v=2" width="100" height="100">
 
+![screenshot](screenshot.JPG?raw=true "Screenshot")
+
 ## Download
 Releases are available on this GitHub Repository along on the Windows Store
 
