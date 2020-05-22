@@ -12,7 +12,7 @@ env:
 
 jobs:
   ServerTests:
-    name: .NETCore CLV Server exe Tests
+    name: .NET Core CLV Server exe Tests
     runs-on: windows-latest
     continue-on-error: false
     steps:
@@ -28,3 +28,11 @@ jobs:
           
       - name: Run .NET test
         run: dotnet test
+        
+  WinBuild:
+    name: Build Windows Apps
+    needs: [ServerTests]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      
