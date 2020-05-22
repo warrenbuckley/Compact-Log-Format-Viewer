@@ -1,0 +1,30 @@
+name: CI Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  buildConfiguration: 'Release'
+  DEBUG: 'electron-builder' #Used to set electron-builder in debug mode to give us more verbose details when packaing:  
+
+jobs:
+  ServerTests:
+    name: .NETCore CLV Server exe Tests
+    runs-on: windows-latest
+    continue-on-error: false
+    steps:
+      - uses: actions/checkout@v2
+        
+      - name: Print ENV variables
+        run: set
+      
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.101
+          
+      - name: Run .NET test
+        run: dotnet test
