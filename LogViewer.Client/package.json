@@ -29,7 +29,7 @@
     "electron-builder": "^20.40.2",
     "tslint": "^5.16.0",
     "typescript": "^3.4.5",
-    "typescript-tslint-plugin": "^0.3.1"
+    "typescript-tslint-plugin": "^0.5.5"
   },
   "dependencies": {
     "angular": "^1.7.8",
