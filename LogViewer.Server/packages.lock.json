@@ -2,12 +2,6 @@
   "version": 1,
   "dependencies": {
     ".NETCoreApp,Version=v3.1": {
-      "Microsoft.Packaging.Tools.Trimming": {
-        "type": "Direct",
-        "requested": "[1.1.0-preview1-26619-01, )",
-        "resolved": "1.1.0-preview1-26619-01",
-        "contentHash": "TsJW2A6DsEN+cmXUNsAXJppmZmGFbYPxk9LWUhZm6xAeMdbbgzipSI+72HMzNLHupGHQ/cD1eXm6oxnYWq8AXw=="
-      },
       "Serilog.Filters.Expressions": {
         "type": "Direct",
         "requested": "[2.0.0, )",

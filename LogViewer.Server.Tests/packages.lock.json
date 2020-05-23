@@ -118,11 +118,6 @@
         "resolved": "1.1.0",
         "contentHash": "EVEt2RZIr8wFkpj/u2EKIHYfsv7AGhCvcVlNmxHYZW+rmCyG+hYwrYbykelEw2ssP2rigtIL8FmHdf9YgOyNHQ=="
       },
-      "Microsoft.Packaging.Tools.Trimming": {
-        "type": "Transitive",
-        "resolved": "1.1.0-preview1-26619-01",
-        "contentHash": "TsJW2A6DsEN+cmXUNsAXJppmZmGFbYPxk9LWUhZm6xAeMdbbgzipSI+72HMzNLHupGHQ/cD1eXm6oxnYWq8AXw=="
-      },
       "Microsoft.TestPlatform.ObjectModel": {
         "type": "Transitive",
         "resolved": "15.9.0",
@@ -1048,7 +1043,6 @@
       "logviewer.server": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Packaging.Tools.Trimming": "1.1.0-preview1-26619-01",
           "Serilog.Filters.Expressions": "2.0.0",
           "Serilog.Formatting.Compact.Reader": "1.0.3",
           "Serilog.Sinks.File": "4.0.0"
