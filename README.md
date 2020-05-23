@@ -27,8 +27,8 @@ https://visualstudio.microsoft.com/vs/
 ### Build Steps 🔨📐
 - Clone Repo
 - Open terminal in root of project
-- `dotnet publish --runtime osx-x64 --output bin/dist/osx /p:TrimUnusedDependencies=true` generates a self contained application for our WebAPI
-- `dotnet publish --runtime win10-x64 --output bin/dist/win /p:TrimUnusedDependencies=true` same but creates the Windows version
+- `dotnet publish --runtime osx-x64 --output bin/dist/osx --configuration release -p:PublishSingleFile=true` generates a self contained application for our WebAPI
+- `dotnet publish --runtime win-x64 --output bin/dist/win --configuration release -p:PublishSingleFile=true` same but creates the Windows version
 - Change terminal directory to `LogViewer.Client` folder
 - `npm install`
 - `tsc --watch` This will compile the TypeScript files & continue to watch them
