@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,10 +16,7 @@ namespace LogViewer.Server
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services
-                .AddMvcCore().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-                .AddJsonFormatters();
-
+            services.AddControllers();
             services.AddSingleton<ILogParser, LogParser>();
         }
 
@@ -30,7 +26,12 @@ namespace LogViewer.Server
             app.UseStaticFiles(); // serve assets from wwwroot
 
             app.UseDeveloperExceptionPage();
-            app.UseMvc(); // WebAPI MVC Routing
+
+            app.UseRouting();
+            app.UseEndpoints(routes =>
+            {
+                routes.MapControllers();
+            });
         }
     }
 }
