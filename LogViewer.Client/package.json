@@ -40,6 +40,6 @@
     "electron-util": "^0.11.0",
     "jquery": "^3.4.1",
     "popper.js": "^1.15.0",
-    "request": "^2.88.0"
+    "request": "^2.88.2"
   }
 }
