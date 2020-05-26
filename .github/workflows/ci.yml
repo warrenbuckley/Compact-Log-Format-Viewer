@@ -7,8 +7,8 @@ on:
     branches: [ master ]
 
 env:
-  buildConfiguration: 'Release'
-  DEBUG: 'electron-builder' #Used to set electron-builder in debug mode to give us more verbose details when packaing:  
+  BUILD_CONFIGURATION: 'Debug'
+  DEBUG: 'electron-builder' #Used to set electron-builder in debug mode to give us more verbose details when packaing:
 
 jobs:
   ServerTests:
@@ -17,22 +17,80 @@ jobs:
     continue-on-error: false
     steps:
       - uses: actions/checkout@v2
-        
+
       - name: Print ENV variables
         run: 'dir env:'
-      
+
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.101
-          
+
       - name: Run .NET test
         run: dotnet test
-        
+
+      - name: Cache .NET Nuget packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
   WinBuild:
     name: Build Windows Apps
     needs: [ServerTests]
+    continue-on-error: false
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 3.1.101
+
+      - name: Make .NET Core Server excutable
+        working-directory: LogViewer.Server
+        run: dotnet publish --runtime win-x64 --output bin/dist/win --configuration $BUILD_CONFIGURATION -p:PublishSingleFile=true
+
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '12'
+
+      - name: Get npm cache directory
+        id: npm-cache
+        run: |
+          echo "::set-output name=dir::$(npm config get cache)"
+
+      - name: npm install
+        working-directory: LogViewer.Client
+        run: npm install
+
+      - name: Cache npm (Win) packages
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.npm-cache.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Compile TypeScript
+        working-directory: LogViewer.Client
+        run: tsc --diagnostics true
+
+      - name: Build electron apps installer .exe & .appx
+        working-directory: LogViewer.Client
+        run: npm run build win
+
+      - name: Upload Build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Compact Log Viewer 1.0.6.appx
+          path: output/Compact Log Viewer 1.0.6.appx
+
+      - name: Upload Build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Compact.Log.Viewer.Setup.1.0.6.exe
+          path: output/Compact.Log.Viewer.Setup.1.0.6.exe
