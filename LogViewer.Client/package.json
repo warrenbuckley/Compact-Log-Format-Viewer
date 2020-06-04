@@ -36,7 +36,7 @@
     "angular-chart.js": "^1.1.1",
     "bootstrap": "^4.3.1",
     "chart.js": "^2.8.0",
-    "electron-log": "^3.0.5",
+    "electron-log": "^4.2.1",
     "electron-util": "^0.11.0",
     "jquery": "^3.4.1",
     "popper.js": "^1.15.0",
