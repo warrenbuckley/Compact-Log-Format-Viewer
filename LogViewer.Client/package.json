@@ -27,7 +27,7 @@
     "devtron": "^1.4.0",
     "electron": "^4.2.0",
     "electron-builder": "^20.40.2",
-    "tslint": "^5.16.0",
+    "tslint": "^6.1.2",
     "typescript": "^3.4.5",
     "typescript-tslint-plugin": "^0.3.1"
   },
