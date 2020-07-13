@@ -25,7 +25,7 @@ jobs:
     # **** Please change 'working-directory' to be the location where your .SLN file is located **** #
     - name: Install dependencies
       run: dotnet restore
-      working-directory: ./csharp
+      working-directory: ./
 
     # **** Please change the version of Node being used to the one for your project **** #
     - name: Use Node.js 12.x
