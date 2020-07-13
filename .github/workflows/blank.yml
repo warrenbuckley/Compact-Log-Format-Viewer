@@ -1,0 +1,43 @@
+### This template is meant to be used by a .NET Core repository running RichNav
+### Please fill anything marked above with a "# **** #" comment with the value appropriate for your repository
+
+name: Rich Code Navigation
+
+on:
+  pull_request:
+  push:
+    branches: [ master ]
+
+jobs:
+  richnav:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    # **** Please change 'dotnet-version' to be the version of the .NET SDK used in your project **** #
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.101
+
+    # **** Please change 'working-directory' to be the location where your .SLN file is located **** #
+    - name: Install dependencies
+      run: dotnet restore
+      working-directory: ./csharp
+
+    # **** Please change the version of Node being used to the one for your project **** #
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+
+    - run: yarn
+      working-directory: typescript
+
+
+    - uses: microsoft/RichCodeNavIndexer@v0.1
+      with: 
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        languages: csharp,typescript
