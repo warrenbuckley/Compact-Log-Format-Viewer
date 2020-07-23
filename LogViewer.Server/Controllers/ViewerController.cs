@@ -29,7 +29,8 @@ namespace LogViewer.Server.Controllers
             //Check for valid filepath
             if (System.IO.File.Exists(filePath) == false)
             {
-                var message = $"No file exists on disk at {filePath}";
+                Console.WriteLine("This is a test! Just for show :)");
+                var message = $"No file exists on disk at {filePath}.";
                 return NotFound(message);
             }
 
