@@ -38,7 +38,7 @@ namespace LogViewer.Server.Controllers
 
             //Don't want to attempt to any old file type
             var extension = Path.GetExtension(filePath);
-            if (extension != ".txt" && extension != ".json" && extension != ".clef")
+            if (extension != ".txt" && extension != ".json" && extension != ".log" && extension != ".clef")
             {
                 var message = $"The file {filePath} is not a compatible log file. Can only open .json, .txt or .clef files";
                 return BadRequest(message);
