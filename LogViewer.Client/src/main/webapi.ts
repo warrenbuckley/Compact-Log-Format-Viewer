@@ -10,7 +10,7 @@ export function openFile(filePath: string, focusedWindow: WebContents) {
     focusedWindow.send("logviewer.loading", true);
     focusedWindow.send("logviewer.emptystate", false);
 
-    request(`${serverApiDomain}/Open?filePath=${filePath}`, { json: true }, (err, res, body) => {
+    request(`${serverApiDomain}/Open?filePath=${encodeURI(filePath)}`, { json: true }, (err, res, body) => {
         if (res.statusCode === 400) {
             focusedWindow.send("logviewer.error", body);
             focusedWindow.send("logviewer.loading", false);
