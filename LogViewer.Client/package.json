@@ -21,7 +21,7 @@
   "private": true,
   "devDependencies": {
     "@types/angular": "^1.6.54",
-    "@types/chart.js": "^2.7.52",
+    "@types/chart.js": "^2.9.26",
     "@types/electron-is-dev": "^0.3.0",
     "@types/request": "^2.48.1",
     "devtron": "^1.4.0",
