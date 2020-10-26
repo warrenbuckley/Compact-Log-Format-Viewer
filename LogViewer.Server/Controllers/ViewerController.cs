@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using LogViewer.Server.Extensions;
+using LogViewer.Server.Helpers;
 using LogViewer.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -45,8 +46,8 @@ namespace LogViewer.Server.Controllers
             }
 
             //Lets check file is valid JSON & not a text document on your upcoming novel
-            var firstLine = System.IO.File.ReadLines(filePath).First();
 
+            var firstLine = new FileReadHelper().ReadFileLine(filePath);
             if (firstLine.IsValidJson() == false)
             {
                 var message = $"The file {filePath} does not contain valid JSON on line one";
