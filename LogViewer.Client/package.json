@@ -20,7 +20,7 @@
   "license": "ISC",
   "private": true,
   "devDependencies": {
-    "@types/angular": "^1.6.54",
+    "@types/angular": "^1.8.0",
     "@types/chart.js": "^2.9.28",
     "@types/electron-is-dev": "^1.1.1",
     "@types/request": "^2.48.5",
