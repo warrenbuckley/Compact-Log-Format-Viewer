@@ -6,7 +6,7 @@ name: Rich Code Navigation
 on:
   pull_request:
   push:
-    branches: [ master ]
+    branches: [ dev ]
 
 jobs:
   richnav:
@@ -38,6 +38,6 @@ jobs:
       run: npm install
 
     - uses: microsoft/RichCodeNavIndexer@v0.1
-      with: 
+      with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         languages: csharp,typescript
