@@ -23,7 +23,7 @@
     "@types/angular": "^1.6.54",
     "@types/chart.js": "^2.7.52",
     "@types/electron-is-dev": "^0.3.0",
-    "@types/request": "^2.48.1",
+    "@types/request": "^2.48.5",
     "devtron": "^1.4.0",
     "electron": "^11.0.2",
     "electron-builder": "^20.40.2",
