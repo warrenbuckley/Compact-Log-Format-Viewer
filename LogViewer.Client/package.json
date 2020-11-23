@@ -22,7 +22,7 @@
   "devDependencies": {
     "@types/angular": "^1.6.54",
     "@types/chart.js": "^2.9.28",
-    "@types/electron-is-dev": "^0.3.0",
+    "@types/electron-is-dev": "^1.1.1",
     "@types/request": "^2.48.5",
     "devtron": "^1.4.0",
     "electron": "^11.0.2",
