@@ -31,7 +31,7 @@ function DropZoneController($element) {
         const allFiles = ev.dataTransfer.files;
         const firstFile = allFiles[0];
 
-        // File name does not end with .db
+        // File name does not end with expected extensions
         if (firstFile.name.endsWith(".json") === false
             && firstFile.name.endsWith(".txt") === false
             && firstFile.name.endsWith(".clef") === false) {
