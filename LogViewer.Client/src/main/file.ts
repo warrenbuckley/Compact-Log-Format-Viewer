@@ -5,17 +5,6 @@ import * as webapi from "./webapi";
 /// Renderer -> Emits 'logviewer.open-file-dialog' --> main/events listens --> Calls this func to open dialog
 export function openFileDialog(focusedWindow: Electron.WebContents):void {
 
-    dialog.showSaveDialog({
-        filters: [{name: "Text Log File", extensions: ["txt"]}],
-        title: "Export as Text File",
-    }).then(result => {
-        console.log(result.canceled);
-        console.log(result.filePath);
-        webapi.exportFile(focusedWindow, result.filePath);
-    }).catch(err => {
-        console.log(err)
-    });
-
     dialog.showOpenDialog({
         filters: [{name: "Log File", extensions: ["txt", "json", "clef"]}],
         properties: ["openFile"],
