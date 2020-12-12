@@ -62,17 +62,17 @@ const template: Electron.MenuItemConstructorOptions[] = [
         { role: "copy" },
         { role: "paste" },
         { role: "delete" },
-        { role: "selectall" },
+        { role: "selectAll" },
     ],
 },
 {
     label: "View",
     submenu: [
-        { role: "toggledevtools" },
+        { role: "toggleDevTools" },
         { type: "separator" },
-        { role: "resetzoom" },
-        { role: "zoomin" },
-        { role: "zoomout" },
+        { role: "resetZoom" },
+        { role: "zoomIn" },
+        { role: "zoomOut" },
         { type: "separator" },
         { role: "togglefullscreen" },
     ],
@@ -103,7 +103,7 @@ if (is.macos) {
       { role: "services" },
       { type: "separator" },
       { role: "hide" },
-      { role: "hideothers" },
+      { role: "hideOthers" },
       { role: "unhide" },
       { type: "separator" },
       { role: "quit" },
@@ -123,7 +123,7 @@ if (is.macos) {
 const menu = Menu.buildFromTemplate(template);
 Menu.setApplicationMenu(menu);
 
-export function updateMenuEnabledState(menuId: string, enabledState: boolean) {
+export function updateMenuEnabledState(menuId: string, enabledState: boolean):void {
     const menuToUpdate = menu.getMenuItemById(menuId);
 
     if (menuToUpdate) {

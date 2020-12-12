@@ -4,7 +4,7 @@ import { updateMenuEnabledState } from "./appmenu";
 
 const serverApiDomain = "http://localhost:45678/api/Viewer";
 
-export function openFile(filePath: string, focusedWindow: WebContents) {
+export function openFile(filePath: string, focusedWindow: WebContents):void {
 
     // Send a signal/event to notify the main UI(renderer) that we are loading
     focusedWindow.send("logviewer.loading", true);
@@ -42,7 +42,7 @@ export function openFile(filePath: string, focusedWindow: WebContents) {
     });
 }
 
-export function reload(focusedWindow: WebContents) {
+export function reload(focusedWindow: WebContents):void {
     // Send a signal/event to notify the main UI(renderer) that we are loading
     focusedWindow.send("logviewer.loading", true);
     focusedWindow.send("logviewer.emptystate", false);
@@ -111,7 +111,7 @@ function getMessageTemplates(focusedWindow: WebContents) {
     });
 }
 
-export function getLogs(focusedWindow: WebContents, pageNumber: number, filterExpression: string, sortOrder: SortOrder = SortOrder.Descending) {
+export function getLogs(focusedWindow: WebContents, pageNumber: number, filterExpression: string, sortOrder: SortOrder = SortOrder.Descending):void {
 
     request(`${serverApiDomain}/search?pageNumber=${pageNumber}&filterExpression=${filterExpression}&sort=${sortOrder}`, { json: true }, (err, res, body) => {
         if (err) {
@@ -123,7 +123,7 @@ export function getLogs(focusedWindow: WebContents, pageNumber: number, filterEx
     });
 }
 
-export function exportFile(focusedWindow: WebContents, newFileName: string) {
+export function exportFile(focusedWindow: WebContents, newFileName: string):void {
 
     // TODO: At some point in future specify the mesaage template in the UI of app
     // So it can be passed to the export API endpoint
