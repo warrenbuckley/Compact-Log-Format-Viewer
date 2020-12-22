@@ -29,7 +29,7 @@
     "@typescript-eslint/parser": "^4.10.0",
     "electron": "^11.1.0",
     "electron-builder": "^22.9.1",
-    "eslint": "^7.15.0",
+    "eslint": "^7.16.0",
     "eslint-plugin-jsdoc": "^30.7.8",
     "eslint-plugin-prefer-arrow": "^1.2.2",
     "tslint": "^6.1.3",
