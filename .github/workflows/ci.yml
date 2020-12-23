@@ -45,7 +45,7 @@ jobs:
 
       - name: Make .NET Core Server excutable
         working-directory: LogViewer.Server
-        run: dotnet publish --runtime win-x64 --output bin/dist/win --configuration $BUILD_CONFIGURATION -p:PublishSingleFile=true
+        run: dotnet publish --runtime win-x64 --output bin/dist/win
 
       - uses: actions/setup-node@v2-beta
         with:
@@ -72,17 +72,17 @@ jobs:
         working-directory: LogViewer.Client
         run: tsc --diagnostics true
 
-      - name: Build electron apps installer .exe & .appx
+      - name: Build electron apps Setup.exe & Windows-Store.appx
         working-directory: LogViewer.Client
         run: npm run build win
 
-      - name: Upload Build artifacts
+      - name: Upload Windows-Store.appx
         uses: actions/upload-artifact@v2
         with:
           name: Compact Log Viewer 1.0.6.appx
           path: output/Compact Log Viewer 1.0.6.appx
 
-      - name: Upload Build artifacts
+      - name: Upload Setup.exe
         uses: actions/upload-artifact@v2
         with:
           name: Compact.Log.Viewer.Setup.1.0.6.exe
