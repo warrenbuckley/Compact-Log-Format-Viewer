@@ -1,4 +1,4 @@
-name: Main IntelliCode Workflow
+name: Microsoft Train IntelliCode Model
 
 on:
   push:
