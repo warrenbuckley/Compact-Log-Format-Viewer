@@ -1,4 +1,4 @@
-name: Main IntelliCode Workflow
+name: Microsoft Train IntelliCode Model
 
 on:
   push:
@@ -17,8 +17,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.101
-
+        dotnet-version: '5.0.x' 
     - name: Build with dotnet
       working-directory: LogViewer.Server
       run: dotnet build # Project needs to build before training a model.

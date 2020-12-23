@@ -1,7 +1,7 @@
 ### This template is meant to be used by a .NET Core repository running RichNav
 ### Please fill anything marked above with a "# **** #" comment with the value appropriate for your repository
 
-name: Rich Code Navigation
+name: Microsoft Rich Code Navigation
 
 on:
   pull_request:
@@ -20,7 +20,7 @@ jobs:
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.101
+        dotnet-version: '5.0.x'
 
     # **** Please change 'working-directory' to be the location where your .SLN file is located **** #
     - name: Install dependencies
