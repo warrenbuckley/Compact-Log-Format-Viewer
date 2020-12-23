@@ -24,18 +24,11 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.101
+          dotnet-version: '5.0.x'
 
       - name: Run .NET test
         run: dotnet test
 
-      - name: Cache .NET Nuget packages
-        uses: actions/cache@v1
-        with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
 
   WinBuild:
     name: Build Windows Apps
@@ -48,7 +41,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.101
+          dotnet-version: '5.0.x'
 
       - name: Make .NET Core Server excutable
         working-directory: LogViewer.Server
