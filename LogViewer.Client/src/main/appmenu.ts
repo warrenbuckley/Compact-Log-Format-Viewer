@@ -1,5 +1,4 @@
 import { app, Menu, shell } from "electron";
-import { is } from "electron-util";
 import * as file from "./file";
 import * as webapi from "./webapi";
 
@@ -94,7 +93,7 @@ const template: Electron.MenuItemConstructorOptions[] = [
     }],
 }];
 
-if (is.macos) {
+if (process.platform === 'darwin') {
   template.unshift({
     label: app.getName(),
     submenu: [

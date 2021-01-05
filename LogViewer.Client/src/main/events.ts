@@ -1,5 +1,4 @@
 import { dialog, ipcMain, webContents } from "electron";
-import { activeWindow } from "electron-util";
 import { updateMenuEnabledState } from "./appmenu";
 import { openFileDialog } from "./file";
 import * as webapi from "./webapi";
@@ -9,7 +8,7 @@ ipcMain.on("logviewer.open-file-dialog", () => {
     // arg is empty - we simply wanting to be notified that user trying to open a file dialog
 
     // Get focused window
-    const currentWindow = activeWindow().webContents;
+    const currentWindow = Electron.BrowserWindow.getFocusedWindow().webContents;
     openFileDialog(currentWindow);
 });
 
