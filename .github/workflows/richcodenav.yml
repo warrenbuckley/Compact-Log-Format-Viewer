@@ -37,7 +37,7 @@ jobs:
       working-directory: LogViewer.Client
       run: npm install
 
-    - uses: microsoft/RichCodeNavIndexer@v0.1
+    - uses: microsoft/RichCodeNavIndexer@v0.1.8
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         languages: csharp,typescript
