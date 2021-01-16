@@ -74,7 +74,7 @@ jobs:
 
       - name: Build electron apps Setup.exe & Windows-Store.appx
         working-directory: LogViewer.Client
-        run: npm run build win
+        run: npm run win
 
       - name: Upload Windows-Store.appx
         uses: actions/upload-artifact@v2
