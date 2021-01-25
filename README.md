@@ -32,6 +32,7 @@ https://visualstudio.microsoft.com/vs/
 - `dotnet publish --runtime osx-x64 --output bin/dist/osx --configuration release -p:PublishSingleFile=true` generates a self contained application for our WebAPI
 - `dotnet publish --runtime win-x64 --output bin/dist/win --configuration release -p:PublishSingleFile=true` same but creates the Windows version
 - Change terminal directory to `LogViewer.Client` folder
+- Install TypeScript if missing `npm install -g typescript`
 - `npm install`
 - `tsc --watch` This will compile the TypeScript files & continue to watch them
 - Open a new terminal in `LogViewer.Client`
