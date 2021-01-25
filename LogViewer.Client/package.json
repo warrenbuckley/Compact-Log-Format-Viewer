@@ -22,7 +22,7 @@
   "private": true,
   "devDependencies": {
     "@types/angular": "^1.8.0",
-    "@types/chart.js": "^2.9.29",
+    "@types/chart.js": "^2.9.30",
     "@types/electron-is-dev": "^1.1.1",
     "@types/request": "^2.48.5",
     "@typescript-eslint/eslint-plugin": "^4.14.0",
