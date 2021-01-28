@@ -45,7 +45,10 @@ namespace LogViewer.Server.Controllers
             }
 
             //Lets check file is valid JSON & not a text document on your upcoming novel
-            var firstLine = System.IO.File.ReadLines(filePath).First();
+            string firstLine;
+            using (var s = System.IO.File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (var sr = new StreamReader(s))
+            { firstLine = sr.ReadLine(); }
 
             if (firstLine.IsValidJson() == false)
             {
