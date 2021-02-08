@@ -27,7 +27,7 @@
     "@types/request": "^2.48.5",
     "@typescript-eslint/eslint-plugin": "^4.14.2",
     "@typescript-eslint/parser": "^4.14.2",
-    "electron": "^11.2.2",
+    "electron": "^11.2.3",
     "electron-builder": "^22.9.1",
     "eslint": "^7.19.0",
     "eslint-plugin-jsdoc": "^31.6.1",
