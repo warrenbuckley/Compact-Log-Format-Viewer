@@ -40,7 +40,7 @@
     "angular": "^1.8.2",
     "angular-chart.js": "^1.1.1",
     "bootstrap": "^4.6.0",
-    "chart.js": "^3.0.2",
+    "chart.js": "^3.2.0",
     "electron-log": "^4.3.2",
     "jquery": "^3.6.0",
     "popper.js": "^1.16.1",
