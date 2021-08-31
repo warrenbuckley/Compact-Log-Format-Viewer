@@ -24,7 +24,7 @@
     "@types/angular": "^1.8.1",
     "@types/chart.js": "^2.9.34",
     "@types/electron-is-dev": "^1.1.1",
-    "@types/request": "^2.48.5",
+    "@types/request": "^2.48.7",
     "@typescript-eslint/eslint-plugin": "^4.25.0",
     "@typescript-eslint/parser": "^4.29.1",
     "electron": "^13.2.3",
