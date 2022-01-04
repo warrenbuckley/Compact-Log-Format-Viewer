@@ -3,18 +3,20 @@ updates:
 - package-ecosystem: nuget
   directory: "/"
   schedule:
-    interval: daily
+    interval: weekly
     time: '10:00'
     timezone: Europe/London
+    day: "friday"
   open-pull-requests-limit: 10
   reviewers:
   - warrenbuckley
 - package-ecosystem: npm
   directory: "/LogViewer.Client"
   schedule:
-    interval: daily
+    interval: weekly
     time: '10:00'
     timezone: Europe/London
+    day: "friday"
   open-pull-requests-limit: 10
   reviewers:
   - warrenbuckley
