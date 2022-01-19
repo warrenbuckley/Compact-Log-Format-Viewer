@@ -65,7 +65,7 @@ namespace LogViewer.Server.Controllers
             {
                 // Can be InvalidDataExcpetion or JsonFormatterException
                 // Such as 'The data on line 1 does not include the required @t field'
-                return BadRequest($"There was a problem reading the JSON. {ex.Message}")
+                return BadRequest($"There was a problem reading the JSON. {ex.Message}");
             }
         }
 
