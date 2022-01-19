@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using LogViewer.Server.Extensions;
 using LogViewer.Server.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -57,9 +56,17 @@ namespace LogViewer.Server.Controllers
             }
 
             //We will skip over/ignore invalid/malformed log lines
-            var logs = _logParser.ReadLogs(filePath);            
-            return $"Log contains {logs.Count}";
-
+            try
+            {
+                var logs = _logParser.ReadLogs(filePath);
+                return $"Log contains {logs.Count}";
+            }
+            catch (InvalidDataException ex)
+            {
+                // Can be InvalidDataExcpetion or JsonFormatterException
+                // Such as 'The data on line 1 does not include the required @t field'
+                return BadRequest($"There was a problem reading the JSON. {ex.Message}");
+            }
         }
 
         [HttpGet("reload")]
