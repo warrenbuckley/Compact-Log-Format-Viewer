@@ -31,16 +31,6 @@ function DropZoneController($element) {
         const allFiles = ev.dataTransfer.files;
         const firstFile = allFiles[0];
 
-        // File name does not end with expected extensions
-        if (firstFile.name.endsWith(".json") === false
-            && firstFile.name.endsWith(".txt") === false
-            && firstFile.name.endsWith(".clef") === false) {
-
-            // Cancel
-            alert("File is not a .json, .txt or .clef file");
-            return;
-        }
-
         // Emit an event to 'main'
         ipcRenderer.send("logviewer.dragged-file", firstFile.path);
 

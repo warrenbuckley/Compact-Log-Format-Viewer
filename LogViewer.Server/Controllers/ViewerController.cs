@@ -32,17 +32,6 @@ namespace LogViewer.Server.Controllers
                 return NotFound(message);
             }
 
-            //Check for file extension ends with one of the following
-            //.json .txt or .clef
-
-            //Don't want to attempt to any old file type
-            var extension = Path.GetExtension(filePath);
-            if (extension != ".txt" && extension != ".json" && extension != ".clef")
-            {
-                var message = $"The file {filePath} is not a compatible log file. Can only open .json, .txt or .clef files";
-                return BadRequest(message);
-            }
-
             //Lets check file is valid JSON & not a text document on your upcoming novel
             string firstLine;
             using (var s = System.IO.File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
