@@ -117,6 +117,15 @@ const template: Electron.MenuItemConstructorOptions[] = [
             exampleQueries.once("ready-to-show", () => {
                 exampleQueries.show();
             });
+
+            // When an <a href=""> is clicked it will use the OS browser to open the link
+            // and not create a new Electron Browser Window to navigate to it
+            exampleQueries.webContents.setWindowOpenHandler( ({url}) => {
+                if (url.startsWith('https:')) {
+                    shell.openExternal(url);
+                }
+                return { action: 'deny' };
+            });
         }
     }],
 }];
