@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html ng-app="logViewerApp">
+<head>
+    <meta charset="UTF-8">
+    <title>Compact Log Viewer: Example Queries</title>
+
+    <!-- BootStrap Dist CSS -->
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- Our CSS -->
+    <link rel="stylesheet" href="../styles/app.css" type="text/css" />
+</head>
+
+<body>
+    <div class="container-fluid">
+        <h1>Help</h1>        
+
+        <h2>Common Properties</h2>
+        <p>Below is a useful guide to common properties used in <mark>Serilog.Formatting.Compact</mark></p>
+        <dl class="row">
+            <dt class="col-sm-3">@t</dt>
+            <dd class="col-sm-9">An ISO 8601 timestamp</dd>
+          
+            <dt class="col-sm-3">@l</dt>
+            <dd class="col-sm-9">An implementation-specific level identifier (string or number). Absence of property implies "informational"</dd>
+          
+            <dt class="col-sm-3">@m</dt>
+            <dd class="col-sm-9">A fully-rendered message describing the event</dd>
+
+            <dt class="col-sm-3">@mt</dt>
+            <dd class="col-sm-9">Message Template</dd>
+
+            <dt class="col-sm-3">@x</dt>
+            <dd class="col-sm-9">Exception</dd>          
+        </dl>
+
+        <hr/>
+
+        <h2>Message Queries</h2>
+        <p>Below is a useful guide to common queries used to query your logfiles</p>
+
+        <h3>StartsWith</h3>
+        <p>            
+            Find all logs where the <mark>SourceContext</mark> starts with the NameSpace <mark>Umbraco.Core</mark>
+        </p>        
+        <code>StartsWith(SourceContext, 'Umbraco.Core')</code>
+        
+        <hr/>
+
+        <h3>EndsWith</h3>
+        <p>            
+            Find all logs where the <mark>RequestPath</mark> proeprty ends with the <mark>/SomeEndpoint</mark>
+        </p>        
+        <code>EndsWith(RequestPath, '/SomeEndpoint')</code>
+        
+        <hr/>
+
+        
+
+        <h3>Has</h3>
+        <p>            
+            Find all logs that have the property <mark>Duration</mark> and the Duration is greater than 1000ms
+        </p>        
+        <code>Has(Duration) and Duration > 1000</code>
+        <code>Has(@Exception)</code>
+
+        <hr/>
+
+    </div>
+</body>
+</html>
