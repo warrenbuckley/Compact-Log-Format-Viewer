@@ -1,4 +1,4 @@
-import { app, Menu, shell } from "electron";
+import { app, BrowserWindow, Menu, shell } from "electron";
 import * as file from "./file";
 import * as webapi from "./webapi";
 
@@ -90,6 +90,34 @@ const template: Electron.MenuItemConstructorOptions[] = [
         click() {
             shell.openExternal("https://github.com/warrenbuckley/Compact-Log-Format-Viewer");
         },
+    },
+    {
+        label: "Example Search Filters",
+        click: (menuItuem, focusedWindow) => {
+           
+            let exampleQueries = new BrowserWindow({
+                parent: focusedWindow,
+
+                center:true,                
+                modal: true,
+                show:false,
+
+                minWidth:800,
+                minHeight:600,
+
+                maximizable: false,
+                minimizable: false,
+            });
+
+            // Remove the menu that is assigned from the parent window
+            // Load the HTML page with the query examples
+            exampleQueries.removeMenu();
+            exampleQueries.loadFile("views/example-queries.html");
+
+            exampleQueries.once("ready-to-show", () => {
+                exampleQueries.show();
+            });
+        }
     }],
 }];
 
