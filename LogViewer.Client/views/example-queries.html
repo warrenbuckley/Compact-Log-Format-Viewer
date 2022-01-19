@@ -41,31 +41,81 @@
 
         <h3>StartsWith</h3>
         <p>            
-            Find all logs where the <mark>SourceContext</mark> starts with the NameSpace <mark>Umbraco.Core</mark>
+            Find all logs where the <mark>SourceContext</mark> starts with the NameSpace <mark>MyAwesomeProject.Core</mark>
         </p>        
-        <code>StartsWith(SourceContext, 'Umbraco.Core')</code>
-        
+        <code>StartsWith(SourceContext, 'MyAwesomeProject.Core')</code>
         <hr/>
+
 
         <h3>EndsWith</h3>
         <p>            
             Find all logs where the <mark>RequestPath</mark> proeprty ends with the <mark>/SomeEndpoint</mark>
-        </p>        
-        <code>EndsWith(RequestPath, '/SomeEndpoint')</code>
-        
+            <br/>
+            <code>EndsWith(RequestPath, '/SomeEndpoint')</code>    
+        </p>
         <hr/>
 
-        
 
         <h3>Has</h3>
         <p>            
             Find all logs that have the property <mark>Duration</mark> and the Duration is greater than 1000ms
-        </p>        
-        <code>Has(Duration) and Duration > 1000</code>
-        <code>Has(@Exception)</code>
+            <br/>
+            <code>Has(Duration) and Duration > 1000</code>
+        </p>
 
+        <p>
+            Find all logs that has an exception property (Warning, Error & Fatal with Exceptions)
+            <br/>
+            <code>Has(@Exception)</code>
+        </p>
         <hr/>
 
+
+        <h3>Not</h3>
+        <p>            
+            Find all logs where the Level is NOT <mark>Verbose</mark> and NOT <mark>Debug</mark>
+            <br/>
+            <code>Not(@Level='Verbose') and Not(@Level='Debug')</code>    
+        </p>
+        <hr/>
+
+        <h3>like</h3>
+        <p>            
+            Find all logs that the message has <mark>localhost</mark> in it with SQL like
+            <br/>
+            <code>@Message like '%localhost%'</code>    
+        </p>
+        <p>
+            Find all logs that the message that starts with <mark>hot</mark> in it with SQL like
+            <br/>
+            <code>@Message like 'hot%'</code>
+        </p>
+        <hr/>
+
+        <h3>Further examples</h3>
+        <p>
+            Below are some more examples of queries that you can use to find logs in your logfiles.
+            For a full list of supported expressions <a href="https://github.com/serilog/serilog-filters-expressions" target="_blank">see the Serilog.Filters.Expressions project</a>
+        </p>
+        <p>
+            Find all logs that use a specific log message template
+            <br/>
+            <code>@MessageTemplate = '[Timing {TimingId}] {EndMessage} ({TimingDuration}ms)'</code>
+        </p>
+
+        <p>
+            Find logs where one of the items in the SortedComponentTypes property array is equal to <mark>Umbraco.Web.Search.ExamineComponent</mark>
+            <br/>
+            <code>SortedComponentTypes[?] = 'Umbraco.Web.Search.ExamineComponent'</code>
+        </p>
+
+        <p>
+            Find logs where one of the items in the SortedComponentTypes property array contains <mark>DatabaseServer</mark>
+            <br/>
+            <code>Contains(SortedComponentTypes[?], 'DatabaseServer')</code>
+        </p>
+
+        
     </div>
 </body>
-</html>
+</html>  
