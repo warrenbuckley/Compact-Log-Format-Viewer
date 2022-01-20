@@ -1,8 +1,7 @@
 import angular from "angular";
 import { ipcRenderer } from "electron";
 
-//const logViewerApp = angular.module("logViewerApp", ["chart.js", "logViewerApp.resources"]);
-const logViewerApp = angular.module("logViewerApp", ["logViewerApp.resources"]);
+const logViewerApp = angular.module("logViewerApp", ["chart.js", "logViewerApp.resources"]);
 logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", function($scope, logViewerResource) {
     
     // eslint-disable-next-line @typescript-eslint/no-this-alias
