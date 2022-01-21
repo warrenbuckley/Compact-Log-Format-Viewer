@@ -47,9 +47,9 @@ jobs:
         working-directory: LogViewer.Server
         run: dotnet publish --runtime win-x64 --output bin/dist/win
 
-      - uses: actions/setup-node@v2-beta
+      - uses: actions/setup-node@v2
         with:
-          node-version: '12'
+          node-version: '16'
 
       - name: Get npm cache directory
         id: npm-cache
