@@ -109,9 +109,7 @@ const template: Electron.MenuItemConstructorOptions[] = [
                 minimizable: false,
             });
 
-            // Remove the menu that is assigned from the parent window
-            // Load the HTML page with the query examples
-            exampleQueries.removeMenu();
+            exampleQueries.menuBarVisible = false;
             exampleQueries.loadFile("views/example-queries.html");
 
             exampleQueries.once("ready-to-show", () => {
