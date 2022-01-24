@@ -19,7 +19,8 @@
     "win": {
         "target": [
             "nsis",
-            "appx"
+            "appx",
+            "portable"
         ],
         "icon": "logo.png"
     },
@@ -50,6 +51,9 @@
         "identityName": "64819WarrenBuckley.CompactLogFormatViewer",
         "publisher": "CN=4629CEC3-93A2-4080-86C0-63487B897B1F",
         "publisherDisplayName": "Warren Buckley"
+    },
+    "portable": {
+        "artifactName": "Compact.Log.Viewer.Portable.${version}.${ext}",
     },
     "dmg": {
         "backgroundColor": "#3544b1"
