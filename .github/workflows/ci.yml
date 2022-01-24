@@ -80,16 +80,16 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Compact Log Viewer.appx
-          path: output/**.appx
+          path: output/*.appx
 
       - name: Upload Installer Setup.exe
         uses: actions/upload-artifact@v2
         with:
           name: Compact.Log.Viewer.Setup.exe
-          path: output/Compact.Log.Viewer.Setup.**.exe
+          path: output/Compact.Log.Viewer.Setup.*.exe
 
       - name: Upload Portable.exe
         uses: actions/upload-artifact@v2
         with:
           name: Compact.Log.Viewer.Portable.exe
-          path: output/Compact.Log.Viewer.Portable.**.exe
+          path: output/Compact.Log.Viewer.Portable.*.exe
