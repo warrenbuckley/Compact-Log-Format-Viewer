@@ -2,6 +2,14 @@ import { app, BrowserWindow, Menu, shell } from "electron";
 import * as file from "./file";
 import * as webapi from "./webapi";
 
+
+app.setAboutPanelOptions({
+    applicationName: "Compact Log Viewer",
+    version: app.getVersion(),
+    website: "https://github.com/warrenbuckley/Compact-Log-Format-Viewer",
+    authors: ["Warren Buckley"]
+});
+
 const template: Electron.MenuItemConstructorOptions[] = [
 {
   label: "File",
@@ -125,6 +133,10 @@ const template: Electron.MenuItemConstructorOptions[] = [
                 return { action: 'deny' };
             });
         }
+    },
+    {
+        label: "About",
+        role: "about"
     }],
 }];
 
