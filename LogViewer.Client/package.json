@@ -14,8 +14,8 @@
     "lint": "eslint -c .eslintrc.js --ext .ts src",
     "tsc": "tsc --diagnostics",
     "watch": "tsc --watch",
-    "win": "electron-builder --publish never --win --config ./electron-builder.json",
-    "mac": "electron-builder --publish never --mac --config electron-builder.json"
+    "win": "electron-builder --win --config ./electron-builder.json",
+    "mac": "electron-builder --mac --config electron-builder.json"
   },
   "author": "Warren Buckley",
   "license": "ISC",
