@@ -72,18 +72,24 @@ jobs:
         working-directory: LogViewer.Client
         run: tsc --diagnostics true
 
-      - name: Build electron apps Setup.exe & Windows-Store.appx
+      - name: Build electron apps Setup.exe & Windows-Store.appx & portable.exe
         working-directory: LogViewer.Client
         run: npm run win
 
       - name: Upload Windows-Store.appx
         uses: actions/upload-artifact@v2
         with:
-          name: Compact Log Viewer 1.0.6.appx
-          path: output/Compact Log Viewer 1.0.6.appx
+          name: Compact Log Viewer.appx
+          path: output/**.appx
 
-      - name: Upload Setup.exe
+      - name: Upload Installer Setup.exe
         uses: actions/upload-artifact@v2
         with:
-          name: Compact.Log.Viewer.Setup.1.0.6.exe
-          path: output/Compact.Log.Viewer.Setup.1.0.6.exe
+          name: Compact.Log.Viewer.Setup.exe
+          path: output/Compact.Log.Viewer.Setup.**.exe
+
+      - name: Upload Portable.exe
+        uses: actions/upload-artifact@v2
+        with:
+          name: Compact.Log.Viewer.Portable.exe
+          path: output/Compact.Log.Viewer.Portable.**.exe
