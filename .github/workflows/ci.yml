@@ -9,6 +9,7 @@ on:
 env:
   BUILD_CONFIGURATION: 'Debug'
   DEBUG: 'electron-builder' #Used to set electron-builder in debug mode to give us more verbose details when packaing:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Electron Builder uses GH_TOKEN env variable
 
 jobs:
   ServerTests:
