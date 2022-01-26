@@ -161,7 +161,7 @@ export function exportFile(focusedWindow: WebContents, newFileName: string):void
             newFileName: newFileName
         }
     })
-    .then(function (response) {
+    .then(function () {
         focusedWindow.send("logviewer.export-done");
     })
     .catch(function (error) {
