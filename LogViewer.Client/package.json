@@ -12,6 +12,7 @@
   "scripts": {
     "start": "electron .",
     "lint": "eslint -c .eslintrc.js --ext .ts src",
+    "lint:fix": "eslint --fix -c .eslintrc.js --ext .ts src",
     "tsc": "tsc --diagnostics",
     "watch": "tsc --watch",
     "win": "electron-builder --win --config ./electron-builder.json",
