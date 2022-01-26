@@ -1,5 +1,4 @@
 import { dialog } from "electron";
-import { updateMenuEnabledState } from "./appmenu";
 import * as webapi from "./webapi";
 
 /// Renderer -> Emits 'logviewer.open-file-dialog' --> main/events listens --> Calls this func to open dialog
