@@ -12,7 +12,7 @@ ipcMain.on("logviewer.open-file-dialog", () => {
     openFileDialog(currentWindow);
 });
 
-ipcMain.on("logviewer.dragged-file", (event: any, filePath: string) => {
+ipcMain.on("logviewer.dragged-file", (event: Electron.IpcMainEvent, filePath: string) => {
 
     // Get focused window
     const allWindows = webContents.getAllWebContents();
@@ -28,7 +28,7 @@ ipcMain.on("logviewer.dragged-file", (event: any, filePath: string) => {
     webapi.openFile(filePath, currentWindow);
 });
 
-ipcMain.on("logviewer.get-logs", (event: any, arg: any) => {
+ipcMain.on("logviewer.get-logs", (event: Electron.IpcMainEvent, arg: any) => {
     // Get focused window
     console.log("get logs", arg);
     const allWindows = webContents.getAllWebContents();
@@ -38,7 +38,7 @@ ipcMain.on("logviewer.get-logs", (event: any, arg: any) => {
 
 });
 
-ipcMain.on("logviewer.export-done", (event: any, arg: any) => {
+ipcMain.on("logviewer.export-done", (event: Electron.IpcMainEvent, arg: any) => {
     dialog.showMessageBox({
         message: `File sucessfully exported at ${arg.file}`,
         title: "File Saved",

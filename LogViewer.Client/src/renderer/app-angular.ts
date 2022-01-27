@@ -68,7 +68,7 @@ logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", f
 
     // Listen for events from RENDERER & update our VM
     // Which will flow down into our components
-    ipcRenderer.on("logviewer.loading", (event: any , loading: boolean) => {
+    ipcRenderer.on("logviewer.loading", (event:Electron.IpcRendererEvent, loading: boolean) => {
         vm.isLoading = loading;
         $scope.$applyAsync();
     });
@@ -94,12 +94,12 @@ logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", f
         $scope.$applyAsync();
     });
 
-    ipcRenderer.on("logviewer.data-errors", (event: any , errors: number) => {
+    ipcRenderer.on("logviewer.data-errors", (event:Electron.IpcRendererEvent, errors: number) => {
         vm.errorCount = errors;
         $scope.$applyAsync();
     });
 
-    ipcRenderer.on("logviewer.data-totals", (event: any , arg: any) => {
+    ipcRenderer.on("logviewer.data-totals", (event:Electron.IpcRendererEvent, arg: any) => {
         vm.logTypes = arg;
         vm.chartData = [
             arg.verbose,
@@ -112,13 +112,13 @@ logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", f
         $scope.$applyAsync();
     });
 
-    ipcRenderer.on("logviewer.data-templates", (event: any , arg: any) => {
+    ipcRenderer.on("logviewer.data-templates", (event:Electron.IpcRendererEvent, arg: any) => {
         console.log("templates", arg);
         vm.messageTemplates = arg;
         $scope.$applyAsync();
     });
 
-    ipcRenderer.on("logviewer.data-logs", (event: any , arg: any) => {
+    ipcRenderer.on("logviewer.data-logs", (event:Electron.IpcRendererEvent, arg: any) => {
         console.log("logs", arg);
         vm.logs = arg;
         $scope.$applyAsync();

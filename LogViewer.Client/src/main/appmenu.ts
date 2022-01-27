@@ -103,7 +103,7 @@ const template: Electron.MenuItemConstructorOptions[] = [
         label: "Example Search Filters",
         click: (menuItuem, focusedWindow) => {
            
-            let exampleQueries = new BrowserWindow({
+            const exampleQueries = new BrowserWindow({
                 parent: focusedWindow,
 
                 center:true,                
