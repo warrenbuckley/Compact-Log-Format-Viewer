@@ -24,7 +24,7 @@ logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", f
 
     vm.errorCountClick = () => {
         // When we click error count - Update filter expression & do NEW search
-        vm.logOptions.filterExpression = "@Level='Error'";
+        vm.logOptions.filterExpression = "@Level='Error' or @Level='Fatal' or Has(@Exception)";
         vm.logOptions.pageNumber = 1;
         vm.performSearch();
     };
