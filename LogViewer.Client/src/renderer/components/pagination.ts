@@ -80,7 +80,7 @@ angular.module("logViewerApp").directive("pagination", () => {
             }
         };
 
-        const unbindPageNumberWatcher =  scope.$watchCollection("[pageNumber, totalPages]", (newValues, oldValues) => {
+        const unbindPageNumberWatcher =  scope.$watchCollection("[pageNumber, totalPages]", () => {
             activate();
         });
 
