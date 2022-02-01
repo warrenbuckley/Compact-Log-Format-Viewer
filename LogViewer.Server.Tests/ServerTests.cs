@@ -88,6 +88,8 @@ namespace LogViewer.Server.Tests
         [TestCase("@MessageTemplate = '{EndMessage} ({Duration}ms) [Timing {TimingId}]'", 622)]
         [TestCase("SortedComponentTypes[?] = 'Umbraco.Web.Search.ExamineComponent'", 1)]
         [TestCase("Contains(SortedComponentTypes[?], 'DatabaseServer')", 1)]
+        [TestCase("@Message like '%localhost%'", 388)]
+        [TestCase("runtime", 7)]
         [Test]
         public void Logs_Can_Query_With_Expressions(string queryToVerify, int expectedCount)
         {

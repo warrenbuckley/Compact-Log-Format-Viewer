@@ -38,20 +38,22 @@ namespace LogViewer.Server
             {
                 using (var stream = new StreamReader(fs))
                 {
-                    var reader = new LogEventReader(stream);
-                    while (TryRead(reader, out var evt))
+                    using (var reader = new LogEventReader(stream))
                     {
-                        if (evt == null)
-                            continue;
-
-                        if (logger != null)
+                        while (TryRead(reader, out var evt))
                         {
-                            //We can persist the log item (using the passed in Serilog config)
-                            //In this case a Logger with File Sink setup
-                            logger.Write(evt);
-                        }
+                            if (evt == null)
+                                continue;
 
-                        logItems.Add(evt);
+                            if (logger != null)
+                            {
+                                //We can persist the log item (using the passed in Serilog config)
+                                //In this case a Logger with File Sink setup
+                                logger.Write(evt);
+                            }
+
+                            logItems.Add(evt);
+                        }
                     }
                 }
             }
@@ -130,7 +132,7 @@ namespace LogViewer.Server
             Func<LogEvent, bool> filter;
 
             // If the expression is one word and doesn't contain a serilog operator then we can perform a like search
-            if (!filterExpression.Contains(" ") && !filterExpression.ContainsAny(ExpressionOperators.Select(c => c)))
+            if (!filterExpression.Contains(" ") && !filterExpression.ContainsAny(ExpressionOperators))
             {
                 filter = PerformMessageLikeFilter(filterExpression);
             }
