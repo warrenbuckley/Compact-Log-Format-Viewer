@@ -12,43 +12,62 @@ let apiProcess: child.ChildProcess;
 
 app.setAppUserModelId("com.warrenbuckley.compact.logviewer");
 
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  // If it failed to obtain the lock, you can assume that another instance of 
+  // your application is already running with the lock and exit immediately
+  app.quit();
+}
+else {
+  app.on('second-instance', (event, commandLine, workingDirectory, additionalData) => {
+    // Someone tried to run a second instance, we should focus our window if it's minimized
+    if (win) {
+      if (win.isMinimized()) {
+        win.restore();
+        win.focus();
+      }
+    }
+  })
+}
+
+
 function createWindow() {
 
-    win = new BrowserWindow({
-      center: true,
-      height: 800,
-      minHeight: 800,
-      minWidth: 1300,
-      show: false,
-      width: 1300,
-      webPreferences: {
-        nodeIntegration:true,
-        contextIsolation: false
-      }
-    });
+  win = new BrowserWindow({
+    center: true,
+    height: 800,
+    minHeight: 800,
+    minWidth: 1300,
+    show: false,
+    width: 1300,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  });
 
-    // and load the index.html of the app.
-    win.loadFile("views/index.html");
+  // and load the index.html of the app.
+  win.loadFile("views/index.html");
 
-    const window = win;
-    win.once("ready-to-show", () => {
+  const window = win;
+  win.once("ready-to-show", () => {
 
-      // ** TODO **  Replace from electron-util is
-      // if (is.development) {
-      //   // Open DevTools in detach mode to help with dev & debugging
-      //   win.webContents.openDevTools({ mode: "undocked" });
-      // }
+    // ** TODO **  Replace from electron-util is
+    // if (is.development) {
+    //   // Open DevTools in detach mode to help with dev & debugging
+    //   win.webContents.openDevTools({ mode: "undocked" });
+    // }
 
-      window.show();
-    });
+    window.show();
+  });
 
-    // Emitted when the window is closed.
-    win.on("closed", () => {
-      // Dereference the window object, usually you would store windows
-      // in an array if your app supports multi windows, this is the time
-      // when you should delete the corresponding element.
-      win = null;
-    });
+  // Emitted when the window is closed.
+  win.on("closed", () => {
+    // Dereference the window object, usually you would store windows
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    win = null;
+  });
 }
 
 // This method will be called when Electron has finished
