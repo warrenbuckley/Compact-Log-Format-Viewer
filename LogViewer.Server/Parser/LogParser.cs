@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Filters.Expressions;
+using Serilog.Expressions;
 using Serilog.Formatting.Compact.Reader;
 
 
@@ -130,6 +130,7 @@ namespace LogViewer.Server
 
 
             Func<LogEvent, bool> filter;
+            Func<LogEvent> filter2;
 
             // If the expression is one word and doesn't contain a serilog operator then we can perform a like search
             if (!filterExpression.Contains(" ") && !filterExpression.ContainsAny(ExpressionOperators))
@@ -139,12 +140,36 @@ namespace LogViewer.Server
             else // check if it's a valid expression
             {
                 // If the expression evaluates then make it into a filter
-                if (FilterLanguage.TryCreateFilter(filterExpression, out var eval, out _))
+                //if (FilterLanguage.TryCreateFilter(filterExpression, out var eval, out _))
+                //{
+                //    filter = evt => true.Equals(eval(evt));
+                //}
+                //else
+                //{
+                //    //Assume the expression was a search string and make a Like filter from that
+                //    filter = PerformMessageLikeFilter(filterExpression);
+                //}
+
+                // If the expression evaluates then make it into a filter
+                if (SerilogExpression.TryCompile(filterExpression, out var compiled, out var error))
                 {
-                    filter = evt => true.Equals(eval(evt));
+                    // `compiled` is a function that can be executed against `LogEvent`s:
+                    filter = evt =>
+                    {
+                        var result = compiled(evt);
+                        return ExpressionResult.IsTrue(result);
+
+                        //return result is ScalarValue value &&
+                        //    value.Value is bool matches && matches;
+
+                        //return true.Equals(compiled(evt));
+                    };
                 }
                 else
                 {
+                    // `error` describes a syntax error.
+                    // Console.WriteLine($"Couldn't compile the expression; {error}.");
+
                     //Assume the expression was a search string and make a Like filter from that
                     filter = PerformMessageLikeFilter(filterExpression);
                 }
@@ -189,10 +214,25 @@ namespace LogViewer.Server
 
         private Func<LogEvent, bool> PerformMessageLikeFilter(string filterExpression)
         {
-            var filterSearch = $"@Message like '%{FilterLanguage.EscapeLikeExpressionContent(filterExpression)}%'";
-            if (FilterLanguage.TryCreateFilter(filterSearch, out var eval, out _))
+            //var filterSearch = $"@Message like '%{SerilogExpression.EscapeLikeExpressionContent(filterExpression)}%'";
+            var filterSearch = $"@Message like '%{filterExpression}%'";
+            if (SerilogExpression.TryCompile(filterSearch, out var compiled, out var error))
             {
-                return evt => true.Equals(eval(evt));
+                // `compiled` is a function that can be executed against `LogEvent`s:
+                return evt =>
+                {
+                    var result = compiled(evt);
+                    return ExpressionResult.IsTrue(result);
+
+                    //return result is ScalarValue value &&
+                    //    value.Value is bool matches && matches;
+
+                    //return true.Equals(compiled(evt));
+                };
+            }
+            else
+            {
+                var foo = 5;
             }
 
             return null;
