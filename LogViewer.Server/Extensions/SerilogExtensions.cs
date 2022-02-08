@@ -1,24 +1,21 @@
 ﻿using Serilog.Events;
-using System;
 
 namespace LogViewer.Server.Extensions
 {
     public class SerilogExtensions
     {
-        public static LogEventPropertyValue? Has(StringComparison comparison, LogEventPropertyValue? input)
-        {
-            // Comes in null if its not a property we have
-            // The input in the Has() is checking to see if that property exists
-            if(input != null)
-            {
-                // But if user does Has('SomeString')
-                // It would be a weird use, as its not checking a property existance
-                // but just some random string. It would still return as true though
-                return new ScalarValue(true);
-            }
+        static readonly LogEventPropertyValue ConstantTrue = new ScalarValue(true);
+        static readonly LogEventPropertyValue ConstantFalse = new ScalarValue(false);
 
-            return null;
+        // This Has() code is the same as the renamed IsDefined()
+        public static LogEventPropertyValue? Has(LogEventPropertyValue? value)
+        {
+            return ScalarBoolean(value != null);
         }
 
+        private static LogEventPropertyValue ScalarBoolean(bool value)
+        {
+            return value ? ConstantTrue : ConstantFalse;
+        }
     }
 }

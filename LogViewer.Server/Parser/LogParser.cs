@@ -134,15 +134,15 @@ namespace LogViewer.Server
             // Our custom Serilog Functions in this case plugging the gap for missing Has() function
             var customSerilogFunctions = new StaticMemberNameResolver(typeof(SerilogExtensions));
 
-            // If the expression is one word and doesn't contain a serilog operator then we can perform a like search
+            // With an empty expression - ensure all logs are sent back
             if (filterExpression == String.Empty){
-                // With an empty expression - ensure all logs are sent back
                 filter = evt =>
                 {
                     // Return true/matches
                     return true;
                 };
             }
+            // If the expression is one word and doesn't contain a serilog operator then we can perform a like search
             else if (!filterExpression.Contains(" ") && !filterExpression.ContainsAny(ExpressionOperators))
             {
                 filter = PerformMessageLikeFilter(filterExpression);
@@ -150,7 +150,6 @@ namespace LogViewer.Server
             else 
             {
                 // Check if it's a valid expression
-
                 // If the expression evaluates then make it into a filter
                 if (SerilogExpression.TryCompile(filterExpression, null, customSerilogFunctions, out var compiled, out var error))
                 {
