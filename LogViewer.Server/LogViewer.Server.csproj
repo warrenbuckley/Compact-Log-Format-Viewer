@@ -14,7 +14,7 @@
 	</PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.2" />
         <PackageReference Include="Serilog.Filters.Expressions" Version="2.1.0" />
         <PackageReference Include="Serilog.Formatting.Compact.Reader" Version="1.0.5" />
         <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
