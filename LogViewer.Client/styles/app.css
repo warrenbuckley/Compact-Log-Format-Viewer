@@ -82,6 +82,11 @@ log-items .exception p {
     font-family: monospace;
 }
 
+log-items .properties th {
+    white-space: nowrap;
+    vertical-align: top;
+}
+
 .square {
     height:12px;
     width:12px;

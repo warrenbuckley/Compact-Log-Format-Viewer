@@ -29,7 +29,7 @@
                         </div>
 
                         <h3>Properties</h3>
-                        <table class="table">
+                        <table class="table properties">
                             <tbody>
                                 <tr>
                                     <th>Timestamp</th>
@@ -49,10 +49,10 @@
                                         <div ng-switch-default>
                                             <span ng-if="val.value">{{val.value}}</span>
                                             <div ng-if="val.properties">
-                                                <table>
+                                                <table class="table nested-prop">
                                                     <tbody>
                                                         <tr ng-repeat="prop in val.properties">
-                                                            <td>{{prop.name}}</td>
+                                                            <th>{{prop.name}}</th>
                                                             <td ng-if="prop.value.value">{{prop.value.value}}</td>
                                                         </tr>
                                                     </tbody>
