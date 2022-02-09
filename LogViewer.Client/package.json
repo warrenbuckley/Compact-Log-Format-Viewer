@@ -28,7 +28,7 @@
     "@typescript-eslint/eslint-plugin": "^5.11.0",
     "@typescript-eslint/parser": "^5.11.0",
     "electron": "^17.0.0",
-    "electron-builder": "^22.14.5",
+    "electron-builder": "^22.14.13",
     "eslint": "^8.8.0",
     "eslint-plugin-jsdoc": "^37.8.1",
     "eslint-plugin-prefer-arrow": "^1.2.3",
