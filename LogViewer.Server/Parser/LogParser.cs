@@ -158,9 +158,6 @@ namespace LogViewer.Server
                     {
                         var result = compiled(evt);
                         return ExpressionResult.IsTrue(result);
-
-                        //return result is ScalarValue value &&
-                        //    value.Value is bool matches && matches;
                     };
                 }
                 else
@@ -220,9 +217,6 @@ namespace LogViewer.Server
                 {
                     var result = compiled(evt);
                     return ExpressionResult.IsTrue(result);
-
-                    //return result is ScalarValue value &&
-                    //    value.Value is bool matches && matches;
                 };
             }
 
