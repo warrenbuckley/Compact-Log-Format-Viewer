@@ -1,7 +1,7 @@
 import { app, BrowserWindow, Menu, shell } from "electron";
 import * as file from "./file";
 import * as webapi from "./webapi";
-
+import * as updater from "./app-updater";
 
 app.setAboutPanelOptions({
     applicationName: "Compact Log Viewer",
@@ -18,7 +18,7 @@ const template: Electron.MenuItemConstructorOptions[] = [
           id: "logviewer.open",
           label: "Open Log",
           accelerator: "CmdOrCtrl+O",
-          click: (menuItem, focusedWindow) => {
+          click: (menuItem, focusedWindow,) => {
             file.openFileDialog(focusedWindow.webContents);
         },
       },
@@ -137,6 +137,12 @@ const template: Electron.MenuItemConstructorOptions[] = [
     {
         label: "About",
         role: "about"
+    },
+    {
+        label: "Check for Updates",
+        click: (menuItem) => {
+            updater.checkForUpdates(menuItem);
+        }
     }],
 }];
 

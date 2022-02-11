@@ -21,7 +21,8 @@
             "nsis",
             "appx"
         ],
-        "icon": "logo.png"
+        "icon": "logo.png",
+        "publish": ["github"]
     },
     "mac": {
         "category": "public.app-category.developer-tools",
