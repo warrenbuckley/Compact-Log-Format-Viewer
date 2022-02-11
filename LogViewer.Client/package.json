@@ -16,7 +16,8 @@
     "tsc": "tsc --diagnostics",
     "watch": "tsc --watch",
     "win": "electron-builder --win --config ./electron-builder.json",
-    "mac": "electron-builder --mac --config electron-builder.json"
+    "mac": "electron-builder --mac --config electron-builder.json",
+    "publish": "electron-builder --config electron-builder.json --publish onTagOrDraft"
   },
   "author": "Warren Buckley",
   "license": "ISC",
