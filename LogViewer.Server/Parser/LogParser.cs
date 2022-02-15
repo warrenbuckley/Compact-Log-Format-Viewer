@@ -132,10 +132,10 @@ namespace LogViewer.Server
             Func<LogEvent, bool> filter;
 
             // Our custom Serilog Functions in this case plugging the gap for missing Has() function
-            var customSerilogFunctions = new StaticMemberNameResolver(typeof(SerilogExtensions));
+            var customSerilogFunctions = new LegacyNameResolver(typeof(SerilogExtensions));
 
             // With an empty expression - ensure all logs are sent back
-            if (filterExpression == String.Empty){
+            if (filterExpression == string.Empty){
                 filter = evt =>
                 {
                     // Return true/matches
