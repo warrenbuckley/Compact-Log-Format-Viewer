@@ -32,7 +32,7 @@
     "electron": "^17.0.0",
     "electron-builder": "^22.14.13",
     "eslint": "^8.8.0",
-    "eslint-plugin-jsdoc": "^37.8.1",
+    "eslint-plugin-jsdoc": "^37.9.1",
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "typescript": "^4.5.5",
     "typescript-tslint-plugin": "^1.0.1"
