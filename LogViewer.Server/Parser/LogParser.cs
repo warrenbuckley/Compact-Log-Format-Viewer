@@ -30,7 +30,7 @@ namespace LogViewer.Server
             LogIsOpen = false;
         }
         
-        public List<LogEvent> ReadLogs(string filePath, Logger logger = null)
+        public List<LogEvent> ReadLogs(string filePath, Logger? logger = null)
         {
             var logItems = new List<LogEvent>();
 
@@ -102,7 +102,7 @@ namespace LogViewer.Server
 
         
 
-        public PagedResult<LogMessage> Search(int pageNumber = 1, int pageSize = 100, string filterExpression = null, SortOrder sort = SortOrder.Descending)
+        public PagedResult<LogMessage> Search(int pageNumber = 1, int pageSize = 100, string? filterExpression = null, SortOrder sort = SortOrder.Descending)
         {
             //If filter null - return a simple page of results
             if(filterExpression == null)
@@ -129,7 +129,7 @@ namespace LogViewer.Server
             }
 
 
-            Func<LogEvent, bool> filter;
+            Func<LogEvent, bool> ?filter;
 
             // Our custom Serilog Functions in this case plugging the gap for missing Has() function
             var customSerilogFunctions = new LegacyNameResolver(typeof(SerilogExtensions));
@@ -171,7 +171,7 @@ namespace LogViewer.Server
             }
 
             //Apply the filter to the collection
-            var filteredLogs = _logItems.Where(filter);
+            var filteredLogs = filter is not null ? _logItems.Where(filter) : _logItems;
             var filteredTotal = filteredLogs.Count();
             var logItems = filteredLogs
                     .OrderBy(x => x.Timestamp, sort)
@@ -207,7 +207,7 @@ namespace LogViewer.Server
             return templates.ToList();
         }
 
-        private Func<LogEvent, bool> PerformMessageLikeFilter(string filterExpression)
+        private Func<LogEvent, bool>? PerformMessageLikeFilter(string filterExpression)
         {
             var filterSearch = $"@m like '%{SerilogExpression.EscapeLikeExpressionContent(filterExpression)}%' ci";
             if (SerilogExpression.TryCompile(filterSearch, out var compiled, out var error))
@@ -223,7 +223,7 @@ namespace LogViewer.Server
             return null;
         }
 
-        private bool TryRead(LogEventReader reader, out LogEvent evt)
+        private bool TryRead(LogEventReader reader, out LogEvent? evt)
         {
             try
             {

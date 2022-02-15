@@ -40,7 +40,7 @@ namespace LogViewer.Server.Models
         public long TotalItems { get; private set; }
 
         [DataMember(Name = "items")]
-        public IEnumerable<T> Items { get; set; }
+        public IEnumerable<T> ?Items { get; set; }
 
         /// <summary>
         /// Calculates the skip size based on the paged parameters specified
