@@ -71,7 +71,7 @@ jobs:
 
       - name: Compile TypeScript
         working-directory: LogViewer.Client
-        run: tsc --diagnostics true
+        run: npx tsc --diagnostics true
 
       - name: Build electron apps Setup.exe & Windows-Store.appx
         working-directory: LogViewer.Client
