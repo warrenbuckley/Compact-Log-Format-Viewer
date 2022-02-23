@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Filters.Expressions;
+using Serilog.Expressions;
 using Serilog.Formatting.Compact.Reader;
 
 
@@ -30,7 +30,7 @@ namespace LogViewer.Server
             LogIsOpen = false;
         }
         
-        public List<LogEvent> ReadLogs(string filePath, Logger logger = null)
+        public List<LogEvent> ReadLogs(string filePath, Logger? logger = null)
         {
             var logItems = new List<LogEvent>();
 
@@ -102,7 +102,7 @@ namespace LogViewer.Server
 
         
 
-        public PagedResult<LogMessage> Search(int pageNumber = 1, int pageSize = 100, string filterExpression = null, SortOrder sort = SortOrder.Descending)
+        public PagedResult<LogMessage> Search(int pageNumber = 1, int pageSize = 100, string? filterExpression = null, SortOrder sort = SortOrder.Descending)
         {
             //If filter null - return a simple page of results
             if(filterExpression == null)
@@ -129,29 +129,49 @@ namespace LogViewer.Server
             }
 
 
-            Func<LogEvent, bool> filter;
+            Func<LogEvent, bool> ?filter;
 
+            // Our custom Serilog Functions in this case plugging the gap for missing Has() function
+            var customSerilogFunctions = new LegacyNameResolver(typeof(SerilogExtensions));
+
+            // With an empty expression - ensure all logs are sent back
+            if (filterExpression == string.Empty){
+                filter = evt =>
+                {
+                    // Return true/matches
+                    return true;
+                };
+            }
             // If the expression is one word and doesn't contain a serilog operator then we can perform a like search
-            if (!filterExpression.Contains(" ") && !filterExpression.ContainsAny(ExpressionOperators))
+            else if (!filterExpression.Contains(" ") && !filterExpression.ContainsAny(ExpressionOperators))
             {
                 filter = PerformMessageLikeFilter(filterExpression);
             }
-            else // check if it's a valid expression
+            else 
             {
+                // Check if it's a valid expression
                 // If the expression evaluates then make it into a filter
-                if (FilterLanguage.TryCreateFilter(filterExpression, out var eval, out _))
+                if (SerilogExpression.TryCompile(filterExpression, null, customSerilogFunctions, out var compiled, out var error))
                 {
-                    filter = evt => true.Equals(eval(evt));
+                    // `compiled` is a function that can be executed against `LogEvent`s:
+                    filter = evt =>
+                    {
+                        var result = compiled(evt);
+                        return ExpressionResult.IsTrue(result);
+                    };
                 }
                 else
                 {
+                    // `error` describes a syntax error
+                    // Couldn't compile an expression
+
                     //Assume the expression was a search string and make a Like filter from that
                     filter = PerformMessageLikeFilter(filterExpression);
                 }
             }
 
             //Apply the filter to the collection
-            var filteredLogs = _logItems.Where(filter);
+            var filteredLogs = filter is not null ? _logItems.Where(filter) : _logItems;
             var filteredTotal = filteredLogs.Count();
             var logItems = filteredLogs
                     .OrderBy(x => x.Timestamp, sort)
@@ -187,18 +207,23 @@ namespace LogViewer.Server
             return templates.ToList();
         }
 
-        private Func<LogEvent, bool> PerformMessageLikeFilter(string filterExpression)
+        private Func<LogEvent, bool>? PerformMessageLikeFilter(string filterExpression)
         {
-            var filterSearch = $"@Message like '%{FilterLanguage.EscapeLikeExpressionContent(filterExpression)}%'";
-            if (FilterLanguage.TryCreateFilter(filterSearch, out var eval, out _))
+            var filterSearch = $"@m like '%{SerilogExpression.EscapeLikeExpressionContent(filterExpression)}%' ci";
+            if (SerilogExpression.TryCompile(filterSearch, out var compiled, out var error))
             {
-                return evt => true.Equals(eval(evt));
+                // `compiled` is a function that can be executed against `LogEvent`s:
+                return evt =>
+                {
+                    var result = compiled(evt);
+                    return ExpressionResult.IsTrue(result);
+                };
             }
 
             return null;
         }
 
-        private bool TryRead(LogEventReader reader, out LogEvent evt)
+        private bool TryRead(LogEventReader reader, out LogEvent? evt)
         {
             try
             {

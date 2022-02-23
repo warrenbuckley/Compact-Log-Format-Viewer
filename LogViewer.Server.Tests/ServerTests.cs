@@ -80,15 +80,22 @@ namespace LogViewer.Server.Tests
         }
 
 
-        [TestCase("", 2410)]
+        [TestCase("", 2410)]        
         [TestCase("Has(@Exception)", 2)]
+        [TestCase("IsDefined(@x)", 2)]
+        [TestCase("IsDefined(Duration) and Duration > 1000", 13)]
+        [TestCase("Has(@x)", 2)]
         [TestCase("Has(Duration) and Duration > 1000", 13)]
-        [TestCase("Not(@Level = 'Verbose') and Not(@Level= 'Debug')", 71)]
+        [TestCase("Duration > 1000", 13)]
+        [TestCase("Not(@Level = 'Verbose') and Not(@Level = 'Debug')", 71)]
+        [TestCase("Not(@l = 'Verbose') and Not(@l = 'Debug')", 71)]
         [TestCase("StartsWith(SourceContext, 'Umbraco.Core')", 1183)]
         [TestCase("@MessageTemplate = '{EndMessage} ({Duration}ms) [Timing {TimingId}]'", 622)]
+        [TestCase("@mt = '{EndMessage} ({Duration}ms) [Timing {TimingId}]'", 622)]
         [TestCase("SortedComponentTypes[?] = 'Umbraco.Web.Search.ExamineComponent'", 1)]
         [TestCase("Contains(SortedComponentTypes[?], 'DatabaseServer')", 1)]
         [TestCase("@Message like '%localhost%'", 388)]
+        [TestCase("@m like '%localhost%'", 388)]
         [TestCase("runtime", 7)]
         [Test]
         public void Logs_Can_Query_With_Expressions(string queryToVerify, int expectedCount)

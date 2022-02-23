@@ -33,7 +33,7 @@ namespace LogViewer.Server.Controllers
             }
 
             //Lets check file is valid JSON & not a text document on your upcoming novel
-            string firstLine;
+            string ?firstLine;
             using (var s = System.IO.File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (var sr = new StreamReader(s))
             { firstLine = sr.ReadLine(); }
@@ -113,7 +113,7 @@ namespace LogViewer.Server.Controllers
         }
 
         [HttpGet("search")]
-        public ActionResult<PagedResult<LogMessage>> Search(int pageNumber = 1, int pageSize = 100, string filterExpression = null, SortOrder sort = SortOrder.Descending)
+        public ActionResult<PagedResult<LogMessage>> Search(int pageNumber = 1, int pageSize = 100, string? filterExpression = null, SortOrder sort = SortOrder.Descending)
         {
             if (_logParser.LogIsOpen == false)
                 return BadRequest("No logfile has been opened yet");

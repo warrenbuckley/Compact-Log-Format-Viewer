@@ -5,7 +5,7 @@ namespace LogViewer.Server.Extensions
 {
     public static class StringExtensions
     {
-        public static bool IsValidJson(this string stringValue)
+        public static bool IsValidJson(this string ?stringValue)
         {
             if (string.IsNullOrWhiteSpace(stringValue))
             {
