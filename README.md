@@ -42,6 +42,6 @@ https://visualstudio.microsoft.com/vs/
 
 ## 3rd Party Libraries 💖💖
 This package uses the following libraries:
-- Serilog.Formatting.Compact.Reader
-- Serilog.Filters.Expressions
-- Serilog.Sinks.File
+- [Serilog.Formatting.Compact.Reader](https://github.com/serilog/serilog-formatting-compact-reader)
+- [Serilog.Expressions](https://github.com/serilog/serilog-expressions)
+- [Serilog.Sinks.File](https://github.com/serilog/serilog-sinks-file)
