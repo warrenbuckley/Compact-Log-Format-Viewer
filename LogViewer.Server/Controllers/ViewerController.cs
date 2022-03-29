@@ -113,7 +113,7 @@ namespace LogViewer.Server.Controllers
         }
 
         [HttpGet("search")]
-        public ActionResult<PagedResult<LogMessage>> Search(int pageNumber = 1, int pageSize = 100, string? filterExpression = null, SortOrder sort = SortOrder.Descending)
+        public ActionResult<LogResults> Search(int pageNumber = 1, int pageSize = 100, string? filterExpression = null, SortOrder sort = SortOrder.Descending)
         {
             if (_logParser.LogIsOpen == false)
                 return BadRequest("No logfile has been opened yet");

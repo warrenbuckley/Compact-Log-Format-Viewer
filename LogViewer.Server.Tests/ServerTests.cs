@@ -108,7 +108,7 @@ namespace LogViewer.Server.Tests
 
             var testQuery = parser.Search(pageNumber: 1, filterExpression: queryToVerify);
 
-            Assert.AreEqual(expectedCount, testQuery.TotalItems);
+            Assert.AreEqual(expectedCount, testQuery.Logs.TotalItems);
         }
 
     }

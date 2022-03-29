@@ -19,7 +19,7 @@ namespace LogViewer.Server
 
         void ExportTextFile(string messageTemplate, string newFileName);
 
-        PagedResult<LogMessage> Search(int pageNumber = 1, int pageSize = 100, string? filterExpression = null, SortOrder sort = SortOrder.Descending);
+        LogResults Search(int pageNumber = 1, int pageSize = 100, string? filterExpression = null, SortOrder sort = SortOrder.Descending);
 
         List<LogTemplate> GetMessageTemplates();
     }
