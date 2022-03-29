@@ -21,6 +21,6 @@ namespace LogViewer.Server
 
         LogResults Search(int pageNumber = 1, int pageSize = 100, string? filterExpression = null, SortOrder sort = SortOrder.Descending);
 
-        List<LogTemplate> GetMessageTemplates();
+        List<LogTemplate> GetMessageTemplates(IEnumerable<LogEvent> logItems);
     }
 }

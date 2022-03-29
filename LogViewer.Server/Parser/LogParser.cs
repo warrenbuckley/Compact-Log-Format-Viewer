@@ -215,20 +215,6 @@ namespace LogViewer.Server
             return templates.ToList();
         }
 
-        public List<LogTemplate> GetMessageTemplates()
-        {
-            var templates = _logItems
-                .GroupBy(log => log.MessageTemplate.Text)
-                .Select(x => new LogTemplate
-                {
-                    MessageTemplate = x.Key,
-                    Count = x.Count()
-                })
-                .OrderByDescending(x => x.Count);
-
-            return templates.ToList();
-        }
-
         private Func<LogEvent, bool>? PerformMessageLikeFilter(string filterExpression)
         {
             var filterSearch = $"@m like '%{SerilogExpression.EscapeLikeExpressionContent(filterExpression)}%' ci";
