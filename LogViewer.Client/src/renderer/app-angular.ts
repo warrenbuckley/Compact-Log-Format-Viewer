@@ -53,7 +53,9 @@ logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", f
 
         vm.loadinglogs = true;
         logViewerResource.getLogs(vm.logOptions).then((response) => {
-            vm.logs = response.data;
+            console.log('resp in performSearch', response);
+            vm.logs = response.data.logs;
+            vm.messageTemplates = response.data.messageTemplates;
             vm.loadinglogs = false;
         });
 
@@ -113,14 +115,15 @@ logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", f
     });
 
     ipcRenderer.on("logviewer.data-templates", (event:Electron.IpcRendererEvent, arg: any) => {
-        console.log("templates", arg);
+        console.log("templates only call", arg);
         vm.messageTemplates = arg;
         $scope.$applyAsync();
     });
 
     ipcRenderer.on("logviewer.data-logs", (event:Electron.IpcRendererEvent, arg: any) => {
-        console.log("logs", arg);
-        vm.logs = arg;
+        console.log("logs only call from initial file open", arg);
+        vm.logs = arg.logs;
+        vm.messageTemplates = arg.messageTemplates;
         $scope.$applyAsync();
     });
 
