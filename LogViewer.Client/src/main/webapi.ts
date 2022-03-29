@@ -36,7 +36,6 @@ export function openFile(filePath: string, focusedWindow: WebContents):void {
         // Which in turn emit their data/JSON back to the RENDERER to listen for
         getErrors(focusedWindow);
         getTotals(focusedWindow);
-        getMessageTemplates(focusedWindow);
         getLogs(focusedWindow, 1, "");
 
       })
@@ -72,7 +71,6 @@ export function reload(focusedWindow: WebContents):void {
         // Which in turn emit their data/JSON back to the RENDERER to listen for
         getErrors(focusedWindow);
         getTotals(focusedWindow);
-        getMessageTemplates(focusedWindow);
         getLogs(focusedWindow, 1, "");
     })
     .catch(function (error) {
@@ -108,21 +106,6 @@ function getTotals(focusedWindow: WebContents) {
     })
     .then(function (response) {
         focusedWindow.send("logviewer.data-totals", response.data);
-    })
-    .catch(function (error) {
-        focusedWindow.send("logviewer.error", error.response.data);
-        return console.log(error);
-    });
-}
-
-function getMessageTemplates(focusedWindow: WebContents) {
-
-    axios.get('/messagetemplates', {
-        baseURL: serverApiDomain,
-        responseType: "json"
-    })
-    .then(function (response) {
-        focusedWindow.send("logviewer.data-templates", response.data);
     })
     .catch(function (error) {
         focusedWindow.send("logviewer.error", error.response.data);
