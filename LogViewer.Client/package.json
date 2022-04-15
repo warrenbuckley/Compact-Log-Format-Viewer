@@ -38,7 +38,7 @@
     "typescript-tslint-plugin": "^1.0.2"
   },
   "dependencies": {
-    "angular": "^1.8.2",
+    "angular": "^1.8.3",
     "angular-chart.js": "^1.1.1",
     "axios": "^0.26.1",
     "bootstrap": "^5.1.3",
