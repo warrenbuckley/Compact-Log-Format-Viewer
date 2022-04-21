@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using LogViewer.Server.Extensions;
 using LogViewer.Server.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -102,18 +101,8 @@ namespace LogViewer.Server.Controllers
             return Ok(); //TODO: Maybe return something useful in response - stream file or ...?! GUI can show loader?!
         }
         
-        [HttpGet("messagetemplates")]
-        public ActionResult<List<LogTemplate>> MessageTemplates()
-        {
-            if (_logParser.LogIsOpen == false)
-                return BadRequest("No logfile has been opened yet");
-
-            return _logParser.GetMessageTemplates();
-            
-        }
-
         [HttpGet("search")]
-        public ActionResult<PagedResult<LogMessage>> Search(int pageNumber = 1, int pageSize = 100, string? filterExpression = null, SortOrder sort = SortOrder.Descending)
+        public ActionResult<LogResults> Search(int pageNumber = 1, int pageSize = 100, string? filterExpression = null, SortOrder sort = SortOrder.Descending)
         {
             if (_logParser.LogIsOpen == false)
                 return BadRequest("No logfile has been opened yet");

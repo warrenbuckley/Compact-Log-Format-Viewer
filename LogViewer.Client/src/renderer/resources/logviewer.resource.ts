@@ -13,12 +13,6 @@ function logViewerResource($http: IHttpService) {
             return $http.get(`${serverApiDomain}/totals`);
         },
 
-        getMessageTemplates() {
-            $http.get(`${serverApiDomain}/messagetemplates`).then((response) => {
-                return response.data;
-            });
-        },
-
         getLogs: (options) => {
 
             const defaults = {

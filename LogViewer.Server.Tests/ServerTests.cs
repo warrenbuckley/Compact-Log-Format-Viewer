@@ -60,7 +60,8 @@ namespace LogViewer.Server.Tests
             parser.ReadLogs(_logfilePath);
 
             //Once a file been read/open we can call further methods
-            var templates = parser.GetMessageTemplates();
+            var results = parser.Search();
+            var templates = results.MessageTemplates;
 
             //Count no of templates
             Assert.AreEqual(43, templates.Count());
@@ -108,7 +109,7 @@ namespace LogViewer.Server.Tests
 
             var testQuery = parser.Search(pageNumber: 1, filterExpression: queryToVerify);
 
-            Assert.AreEqual(expectedCount, testQuery.TotalItems);
+            Assert.AreEqual(expectedCount, testQuery.Logs.TotalItems);
         }
 
     }

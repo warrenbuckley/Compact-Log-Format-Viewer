@@ -102,7 +102,7 @@ namespace LogViewer.Server
 
         
 
-        public PagedResult<LogMessage> Search(int pageNumber = 1, int pageSize = 100, string? filterExpression = null, SortOrder sort = SortOrder.Descending)
+        public LogResults Search(int pageNumber = 1, int pageSize = 100, string? filterExpression = null, SortOrder sort = SortOrder.Descending)
         {
             //If filter null - return a simple page of results
             if(filterExpression == null)
@@ -122,9 +122,13 @@ namespace LogViewer.Server
                         RenderedMessage = x.RenderMessage()
                     });
 
-                return new PagedResult<LogMessage>(totalRecords, pageNumber, pageSize)
+                return new LogResults()
                 {
-                    Items = logMessages
+                    Logs = new PagedResult<LogMessage>(totalRecords, pageNumber, pageSize)
+                    {
+                        Items = logMessages
+                    },
+                    MessageTemplates = GetMessageTemplates(_logItems)
                 };
             }
 
@@ -187,15 +191,19 @@ namespace LogViewer.Server
                         RenderedMessage = x.RenderMessage()
                     });
 
-            return new PagedResult<LogMessage>(filteredTotal, pageNumber, pageSize)
+            return new LogResults()
             {
-                Items = logItems
+                Logs = new PagedResult<LogMessage>(filteredTotal, pageNumber, pageSize)
+                {
+                    Items = logItems
+                },
+                MessageTemplates = GetMessageTemplates(filteredLogs)
             };
         }
 
-        public List<LogTemplate> GetMessageTemplates()
+        public List<LogTemplate> GetMessageTemplates(IEnumerable<LogEvent> logItems)
         {
-            var templates = _logItems
+            var templates = logItems
                 .GroupBy(log => log.MessageTemplate.Text)
                 .Select(x => new LogTemplate
                 {

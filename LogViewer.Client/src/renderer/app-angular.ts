@@ -49,15 +49,12 @@ logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", f
     };
 
     vm.performSearch = () => {
-        console.log("vm.logOptions we send to MAIN to perform API call", vm.logOptions);
-
         vm.loadinglogs = true;
         logViewerResource.getLogs(vm.logOptions).then((response) => {
-            vm.logs = response.data;
+            vm.logs = response.data.logs;
+            vm.messageTemplates = response.data.messageTemplates;
             vm.loadinglogs = false;
         });
-
-        // ipcRenderer.send("logviewer.get-logs", vm.logOptions);
     };
 
     // Used by the button in the UI
@@ -112,15 +109,9 @@ logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", f
         $scope.$applyAsync();
     });
 
-    ipcRenderer.on("logviewer.data-templates", (event:Electron.IpcRendererEvent, arg: any) => {
-        console.log("templates", arg);
-        vm.messageTemplates = arg;
-        $scope.$applyAsync();
-    });
-
     ipcRenderer.on("logviewer.data-logs", (event:Electron.IpcRendererEvent, arg: any) => {
-        console.log("logs", arg);
-        vm.logs = arg;
+        vm.logs = arg.logs;
+        vm.messageTemplates = arg.messageTemplates;
         $scope.$applyAsync();
     });
 
