@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, shell } from "electron";
+import { app, BrowserWindow, Menu, MenuItem, shell } from "electron";
 import * as file from "./file";
 import * as webapi from "./webapi";
 import * as updater from "./app-updater";
@@ -93,6 +93,7 @@ const template: Electron.MenuItemConstructorOptions[] = [
 },
 {
     role: "help",
+    id: "help",
     submenu: [{
         label: "Github Repo",
         click() {
@@ -137,12 +138,6 @@ const template: Electron.MenuItemConstructorOptions[] = [
     {
         label: "About",
         role: "about"
-    },
-    {
-        label: "Check for Updates",
-        click: (menuItem) => {
-            updater.checkForUpdates(menuItem);
-        }
     }],
 }];
 
@@ -173,6 +168,18 @@ if (process.platform === 'darwin') {
 }
 
 const menu = Menu.buildFromTemplate(template);
+
+const isWindowsStore = process.windowsStore;
+if(!isWindowsStore){
+    let helpMenu = menu.getMenuItemById("help");
+    helpMenu.submenu.append(new MenuItem({
+        label: "Check for Updates",
+        click: (menuItem) => {
+            updater.checkForUpdates(menuItem);
+        }
+    }));
+}
+
 Menu.setApplicationMenu(menu);
 
 export function updateMenuEnabledState(menuId: string, enabledState: boolean):void {
