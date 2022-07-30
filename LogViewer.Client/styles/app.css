@@ -56,6 +56,10 @@ log-items .table {
     word-break: break-all;
 }
 
+log-items .timestamp {
+    white-space: nowrap;
+}
+
 log-items tr.item {
     cursor:pointer;
 }
