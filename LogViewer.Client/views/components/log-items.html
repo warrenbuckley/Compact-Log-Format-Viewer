@@ -1,3 +1,19 @@
+<script type="text/ng-template" id="nestedTable">
+    <table class="table nested-prop">
+        <tbody>
+            <tr ng-if="val.properties" ng-repeat="prop in val.properties">
+                <th>{{prop.name}}</th>
+                <td ng-if="prop.value.value !== undefined">{{prop.value.value}}</td>
+                <td ng-if="prop.value.properties || prop.value.elements" ng-init="val = prop.value" ng-include="'nestedTable'"></td>
+            </tr>
+            <tr ng-if="val.elements" ng-repeat="element in val.elements">
+                <td ng-if="element.value !== undefined">{{element.value}}</td>
+                <td ng-if="element.properties || element.elements" ng-init="val = element" ng-include="'nestedTable'" ></td>
+            </tr>
+        </tbody>
+    </table>
+</script>
+
 <div class="card">
     <div class="card-body">
 
@@ -48,16 +64,7 @@
                                         <a ng-switch-when="RequestUrl" ng-href="{{val.value}}" target="_blank" rel="noopener" title="Open">{{val.value}}</a>
                                         <div ng-switch-default>
                                             <span ng-if="val.value !== undefined">{{val.value}}</span>
-                                            <div ng-if="val.properties">
-                                                <table class="table nested-prop">
-                                                    <tbody>
-                                                        <tr ng-repeat="prop in val.properties">
-                                                            <th>{{prop.name}}</th>
-                                                            <td ng-if="prop.value.value !== undefined">{{prop.value.value}}</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                            <div ng-if="val.properties || val.elements" ng-include="'nestedTable'"></div>
                                         </div>
                                     </td>
                                 </tr>
