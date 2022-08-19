@@ -27,7 +27,7 @@
     "@types/chart.js": "^2.9.35",
     "@types/electron-is-dev": "^1.1.1",
     "@types/node": "^18.7.2",
-    "@typescript-eslint/eslint-plugin": "^5.33.0",
+    "@typescript-eslint/eslint-plugin": "^5.33.1",
     "@typescript-eslint/parser": "^5.33.1",
     "electron": "^20.0.3",
     "electron-builder": "^23.3.3",
