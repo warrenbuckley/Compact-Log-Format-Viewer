@@ -3,7 +3,7 @@ updates:
 - package-ecosystem: nuget
   directory: "/"
   schedule:
-    interval: weekly
+    interval: monthly
     time: '10:00'
     timezone: Europe/London
     day: "friday"
@@ -13,7 +13,7 @@ updates:
 - package-ecosystem: npm
   directory: "/LogViewer.Client"
   schedule:
-    interval: weekly
+    interval: monthly
     time: '10:00'
     timezone: Europe/London
     day: "friday"
