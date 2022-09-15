@@ -29,12 +29,13 @@ https://visualstudio.microsoft.com/vs/
 ### Build Steps 🔨📐
 - Clone Repo
 - Open terminal in root of project
-- `dotnet publish LogViewer.Server --runtime osx-x64 --output bin/dist/osx --configuration release -p:PublishSingleFile=true` generates a self contained application for our WebAPI
-- `dotnet publish LogViewer.Server --runtime win-x64 --output bin/dist/win --configuration release -p:PublishSingleFile=true` same but creates the Windows version
+- `dotnet publish LogViewer.Server --runtime osx-x64 --output LogViewer.Server/bin/dist/osx --configuration release -p:PublishSingleFile=true` generates a self contained application for our WebAPI
+- `dotnet publish LogViewer.Server --runtime win-x64 --output LogViewer.Server/bin/dist/win --configuration release -p:PublishSingleFile=true` same but creates the Windows version
 - Change terminal directory to `LogViewer.Client` folder
 - Install TypeScript if missing `npm install -g typescript`
 - `npm install`
 - `tsc --watch` This will compile the TypeScript files & continue to watch them
+  - If you receive an error about `Command 'tsc' not found`, run `npm install typescript -g`, close the terminal and open a new one.
 - Open a new terminal in `LogViewer.Client`
 - `npm run start` Will run the Electron app for development with Chrome DevTools open/launched
 
