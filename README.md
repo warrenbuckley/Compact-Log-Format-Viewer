@@ -9,7 +9,7 @@ A cross platform tool to read &amp; query JSON aka CLEF log files created by Ser
 Releases are available on this GitHub Repository along on the Windows Store
 
 ### Windows
-<a href='//www.microsoft.com/store/apps/9N8RV8LKTXRJ?cid=storebadge&ocid=badge'><img src='https://assets.windowsphone.com/85864462-9c82-451e-9355-a3d5f874397a/English_get-it-from-MS_InvariantCulture_Default.png' alt='English badge' style='height: 38px;' height="38" /></a>
+<a href='https://www.microsoft.com/store/apps/9N8RV8LKTXRJ?cid=storebadge&ocid=badge'><img src='Get_it_from_Microsoft_Badge.png' alt='English badge' style='height: 38px;' height="38" /></a>
 
 ### MacOS
 The metrics for the MacOS usage was too little & I don't currently build/release any other Apple apps, so my Apple Developer subscription lapsed. I assumed the application would still be available to download but that I would not be able to push any new updates. However it seems Apple just removes the listing :(
