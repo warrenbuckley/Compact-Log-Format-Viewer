@@ -15,8 +15,7 @@ ipcMain.on("logviewer.open-file-dialog", () => {
 ipcMain.on("logviewer.dragged-file", (event: Electron.IpcMainEvent, filePath: string) => {
 
     // Get focused window
-    const allWindows = webContents.getAllWebContents();
-    const currentWindow = allWindows[0];
+    const currentWindow = webContents.getFocusedWebContents();
 
     // Disable the file open menu item & enable the close menu item
     updateMenuEnabledState("logviewer.open", false);
@@ -31,8 +30,7 @@ ipcMain.on("logviewer.dragged-file", (event: Electron.IpcMainEvent, filePath: st
 ipcMain.on("logviewer.get-logs", (event: Electron.IpcMainEvent, arg: any) => {
     // Get focused window
     console.log("get logs", arg);
-    const allWindows = webContents.getAllWebContents();
-    const currentWindow = allWindows[0];
+    const currentWindow = webContents.getFocusedWebContents();
 
     webapi.getLogs(currentWindow, arg.pageNumber, arg.filterExpression, arg.sortOrder);
 
