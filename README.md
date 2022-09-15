@@ -35,7 +35,6 @@ https://visualstudio.microsoft.com/vs/
 - Install TypeScript if missing `npm install -g typescript`
 - `npm install`
 - `tsc --watch` This will compile the TypeScript files & continue to watch them
-  - If you receive an error about `Command 'tsc' not found`, run `npm install typescript -g`, close the terminal and open a new one.
 - Open a new terminal in `LogViewer.Client`
 - `npm run start` Will run the Electron app for development with Chrome DevTools open/launched
 
