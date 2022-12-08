@@ -23,9 +23,9 @@ jobs:
         run: 'dir env:'
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: '7.0.x'
 
       - name: Run .NET test
         run: dotnet test
@@ -40,9 +40,9 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: '7.0.x'
 
       - name: Make .NET Core Server excutable
         working-directory: LogViewer.Server
