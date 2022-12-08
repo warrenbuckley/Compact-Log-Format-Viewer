@@ -15,9 +15,9 @@ jobs:
         fetch-depth: 0 # We need to fetch the entire Git history in order to verify the authenticity.
 
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '6.0.x' 
+        dotnet-version: '7.0.x' 
     - name: Build with dotnet
       working-directory: LogViewer.Server
       run: dotnet build # Project needs to build before training a model.
