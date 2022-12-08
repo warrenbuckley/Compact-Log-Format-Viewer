@@ -9,7 +9,7 @@ A cross platform tool to read &amp; query JSON aka CLEF log files created by Ser
 Releases are available on this GitHub Repository along on the Windows Store
 
 ### Windows
-<a href='//www.microsoft.com/store/apps/9N8RV8LKTXRJ?cid=storebadge&ocid=badge'><img src='https://assets.windowsphone.com/85864462-9c82-451e-9355-a3d5f874397a/English_get-it-from-MS_InvariantCulture_Default.png' alt='English badge' style='height: 38px;' height="38" /></a>
+<a href='https://www.microsoft.com/store/apps/9N8RV8LKTXRJ?cid=storebadge&ocid=badge'><img src='English_get-it-from-MS_InvariantCulture_Default.png' alt='English badge' style='height: 38px;' height="38" /></a>
 
 ### MacOS
 The metrics for the MacOS usage was too little & I don't currently build/release any other Apple apps, so my Apple Developer subscription lapsed. I assumed the application would still be available to download but that I would not be able to push any new updates. However it seems Apple just removes the listing :(
@@ -29,8 +29,8 @@ https://visualstudio.microsoft.com/vs/
 ### Build Steps 🔨📐
 - Clone Repo
 - Open terminal in root of project
-- `dotnet publish LogViewer.Server --runtime osx-x64 --output bin/dist/osx --configuration release -p:PublishSingleFile=true` generates a self contained application for our WebAPI
-- `dotnet publish LogViewer.Server --runtime win-x64 --output bin/dist/win --configuration release -p:PublishSingleFile=true` same but creates the Windows version
+- `dotnet publish LogViewer.Server --runtime osx-x64 --output LogViewer.Server/bin/dist/osx --configuration release -p:PublishSingleFile=true` generates a self contained application for our WebAPI
+- `dotnet publish LogViewer.Server --runtime win-x64 --output LogViewer.Server/bin/dist/win --configuration release -p:PublishSingleFile=true` same but creates the Windows version
 - Change terminal directory to `LogViewer.Client` folder
 - Install TypeScript if missing `npm install -g typescript`
 - `npm install`
