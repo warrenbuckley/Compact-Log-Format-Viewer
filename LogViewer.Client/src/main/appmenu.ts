@@ -26,6 +26,7 @@ const template: Electron.MenuItemConstructorOptions[] = [
         id: "logviewer.close",
         label: "Close Log",
         enabled: false,
+        accelerator: "CmdOrCtrl+Shift+W",
         click: (menuItem, focusedWindow) => {
 
             // Disable the close menu item & re-activate the open menu item
