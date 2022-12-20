@@ -1,5 +1,6 @@
 import angular from "angular";
 import { ipcRenderer } from "electron";
+import * as signalR from "@microsoft/signalr";
 
 const logViewerApp = angular.module("logViewerApp", ["chart.js", "logViewerApp.resources"]);
 logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", function($scope, logViewerResource) {
@@ -21,6 +22,28 @@ logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", f
     vm.logOptions.filterExpression = "";
     vm.logOptions.sortOrder = "Descending";
     vm.logOptions.pageNumber = 1;
+
+
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("http://localhost:45678/log")
+        .build();
+
+
+    connection
+        .start()
+        .catch((err) => {
+            console.error(err);
+        });
+
+
+    connection.on("ReceiveMessage", (username: string, message: string) => {
+        console.log('msg recieved', username, message);
+    });
+
+    vm.send = () => {
+        alert('hello');
+        connection.send("SendMessage", "warren", "HELLO");
+    };
 
     vm.errorCountClick = () => {
         // When we click error count - Update filter expression & do NEW search

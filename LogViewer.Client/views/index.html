@@ -15,6 +15,8 @@
 
     <div ng-controller="LogViewerController as vm">
 
+      <button class="btn btn-primary" ng-click="vm.send()">SEND</button>
+
       <!-- No Log File is Open (Empty State) -->
       <drop-zone id="empty-state" ng-hide="vm.isLoading || vm.fileOpen">
           <button type="button" id="open-file" class="btn btn-primary" ng-click="vm.openFileClick()">Select or Drop a Log file</button>

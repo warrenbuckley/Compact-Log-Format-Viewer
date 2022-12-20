@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using LogViewer.Server.Hubs;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace LogViewer.Server
 {
@@ -18,6 +20,7 @@ namespace LogViewer.Server
         {
             services.AddControllers().AddNewtonsoftJson();
             services.AddSingleton<ILogParser, LogParser>();
+            services.AddSignalR();
         }
 
         public void Configure(IApplicationBuilder app)
@@ -26,11 +29,12 @@ namespace LogViewer.Server
             app.UseStaticFiles(); // serve assets from wwwroot
 
             app.UseDeveloperExceptionPage();
-
+            
             app.UseRouting();
             app.UseEndpoints(routes =>
             {
                 routes.MapControllers();
+                routes.MapHub<LogHub>("log");
             });
         }
     }
