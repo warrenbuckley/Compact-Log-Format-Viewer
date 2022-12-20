@@ -23,27 +23,36 @@ logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", f
     vm.logOptions.sortOrder = "Descending";
     vm.logOptions.pageNumber = 1;
 
+    vm.fileHasUpdates = false;
 
+    // SignalR connection
+    // To be notified from the FileSystemWatcher changes
     const connection = new signalR.HubConnectionBuilder()
         .withUrl("http://localhost:45678/log")
         .build();
 
-
+    // Start signalR connection
     connection
         .start()
         .catch((err) => {
             console.error(err);
         });
 
-
-    connection.on("ReceiveMessage", (username: string, message: string) => {
-        console.log('msg recieved', username, message);
+    // SignalR on server will send us this
+    // Once it knows about a file change with FileSystemWatcher
+    connection.on("NotifyNewLogEntries", () => {
+        vm.fileHasUpdates = true;
+        $scope.$applyAsync();
+        console.log('FILE UPDATED');
     });
 
-    vm.send = () => {
-        alert('hello');
-        connection.send("SendMessage", "warren", "HELLO");
-    };
+    vm.reload = () => {
+        // Hide the message that notified user there was file updates
+        vm.fileHasUpdates = false;
+
+        // Reload the file - send a message to MAIN via IPC
+        ipcRenderer.send("logviewer.reload-file-after-notify");
+    }
 
     vm.errorCountClick = () => {
         // When we click error count - Update filter expression & do NEW search
