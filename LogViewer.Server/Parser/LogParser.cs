@@ -16,12 +16,13 @@ using Serilog.Formatting.Compact.Reader;
 
 namespace LogViewer.Server
 {
-    public class LogParser : ILogParser
+    public class LogParser : ILogParser, IDisposable
     {
         private List<LogEvent> _logItems;
         private readonly IHubContext<LogHub> _hubContext;
         public string LogFilePath { get; set; }
         public bool LogIsOpen { get; set; }
+        public FileSystemWatcher FileWatcher { get; }
 
         private const string ExpressionOperators = "()+=*<>%-";
 
@@ -32,6 +33,8 @@ namespace LogViewer.Server
 
             LogFilePath = string.Empty;
             LogIsOpen = false;
+
+            FileWatcher = new FileSystemWatcher();
         }
         
         public List<LogEvent> ReadLogs(string filePath, Logger? logger = null)
@@ -66,13 +69,12 @@ namespace LogViewer.Server
             LogFilePath = filePath;
             LogIsOpen = true;
             
-            var fileWatcher = new FileSystemWatcher();
-            fileWatcher.Path =  Path.GetDirectoryName(LogFilePath);
-            fileWatcher.Filter = Path.GetFileName(LogFilePath);
-            fileWatcher.EnableRaisingEvents = true;
-        
-            
-            fileWatcher.Changed += async (sender, args) =>
+            FileWatcher.Path =  Path.GetDirectoryName(LogFilePath);
+            FileWatcher.Filter = Path.GetFileName(LogFilePath);
+            FileWatcher.EnableRaisingEvents = true;
+
+
+            FileWatcher.Changed += async (sender, args) =>
             {
                 // Notify user that new entries has occured
                 // We don't pass back the new log lines, but rather just notify the client that new lines has been added
@@ -260,6 +262,11 @@ namespace LogViewer.Server
                 evt = null;
                 return true;
             }
+        }
+
+        public void Dispose()
+        {
+            FileWatcher.Dispose();
         }
     }
 }
