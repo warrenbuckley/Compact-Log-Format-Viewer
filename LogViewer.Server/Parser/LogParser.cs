@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using LogViewer.Server.Extensions;
+using LogViewer.Server.Hubs;
 using LogViewer.Server.Models;
+using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Serilog;
 using Serilog.Core;
@@ -17,14 +19,16 @@ namespace LogViewer.Server
     public class LogParser : ILogParser
     {
         private List<LogEvent> _logItems;
+        private readonly IHubContext<LogHub> _hubContext;
         public string LogFilePath { get; set; }
         public bool LogIsOpen { get; set; }
 
         private const string ExpressionOperators = "()+=*<>%-";
 
-        public LogParser()
+        public LogParser(IHubContext<LogHub> hubContext)
         {
             _logItems = new List<LogEvent>();
+            _hubContext = hubContext;
 
             LogFilePath = string.Empty;
             LogIsOpen = false;
@@ -61,6 +65,20 @@ namespace LogViewer.Server
             _logItems = logItems;
             LogFilePath = filePath;
             LogIsOpen = true;
+            
+            var fileWatcher = new FileSystemWatcher();
+            fileWatcher.Path =  Path.GetDirectoryName(LogFilePath);
+            fileWatcher.Filter = Path.GetFileName(LogFilePath);
+            fileWatcher.EnableRaisingEvents = true;
+        
+            
+            fileWatcher.Changed += async (sender, args) =>
+            {
+                // Notify user that new entries has occured
+                // We don't pass back the new log lines, but rather just notify the client that new lines has been added
+                //await Clients.All.SendAsync("NotifyNewLogEntries");
+                _hubContext.Clients.All.SendAsync("NotifyNewLogEntries");
+            };
 
             return _logItems;
         }
