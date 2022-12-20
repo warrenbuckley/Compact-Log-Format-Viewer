@@ -15,8 +15,6 @@
 
     <div ng-controller="LogViewerController as vm">
 
-      <button class="btn btn-primary" ng-click="vm.send()">SEND</button>
-
       <!-- No Log File is Open (Empty State) -->
       <drop-zone id="empty-state" ng-hide="vm.isLoading || vm.fileOpen">
           <button type="button" id="open-file" class="btn btn-primary" ng-click="vm.openFileClick()">Select or Drop a Log file</button>
@@ -27,6 +25,10 @@
 
       <!-- Log Is Open -->
       <div id="log-viewer" ng-show="vm.fileOpen">
+
+        <div id="file-update-message" class="alert alert-warning" ng-show="vm.fileHasUpdates">
+          File has updates <a href="#" class="alert-link" ng-click="vm.reload()">Reload file</a>
+        </div>
 
         <div class="container-fluid">
           <div class="row">

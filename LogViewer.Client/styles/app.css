@@ -121,3 +121,10 @@ log-items .properties th {
 .fatal {
     background-color:#dc3545;
 }
+
+#file-update-message {
+    position: sticky;
+    z-index: 100;
+    width: 100%;
+    top: 0;
+}
