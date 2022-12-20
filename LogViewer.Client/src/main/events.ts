@@ -42,3 +42,11 @@ ipcMain.on("logviewer.export-done", (event: Electron.IpcMainEvent, arg: any) => 
         title: "File Saved",
     });
 });
+
+ipcMain.on("logviewer.reload-file-after-notify", () => {
+    // arg is empty - we simply wanting to be notified that user trying to open a file dialog
+
+    // Get focused window
+    const currentWindow = BrowserWindow.getFocusedWindow()?.webContents;
+    webapi.reload(currentWindow);
+});
