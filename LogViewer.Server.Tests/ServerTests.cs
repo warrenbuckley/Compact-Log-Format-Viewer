@@ -1,7 +1,11 @@
 ﻿using System.IO;
 using System.Linq;
+using LogViewer.Server.Hubs;
 using LogViewer.Server.Models;
+using Microsoft.AspNetCore.SignalR;
+using Moq;
 using NUnit.Framework;
+using Serilog;
 
 namespace LogViewer.Server.Tests
 {
@@ -19,8 +23,10 @@ namespace LogViewer.Server.Tests
         [Test]
         public void Logs_Contain_Correct_Error_Count()
         {
+            var mockedHub = new Mock<IHubContext<LogHub>>();
+
             //Log Parser
-            var parser = new LogParser();
+            var parser = new LogParser(mockedHub.Object);
             
             //Open/parse the file into memory
             parser.ReadLogs(_logfilePath);
@@ -34,8 +40,10 @@ namespace LogViewer.Server.Tests
         [Test]
         public void Logs_Contain_Correct_Log_Level_Counts()
         {
+            var mockedHub = new Mock<IHubContext<LogHub>>();
+
             //Log Parser
-            var parser = new LogParser();
+            var parser = new LogParser(mockedHub.Object);
 
             //Open/parse the file into memory
             parser.ReadLogs(_logfilePath);
@@ -53,8 +61,10 @@ namespace LogViewer.Server.Tests
         [Test]
         public void Logs_Contains_Correct_Message_Templates()
         {
+            var mockedHub = new Mock<IHubContext<LogHub>>();
+
             //Log Parser
-            var parser = new LogParser();
+            var parser = new LogParser(mockedHub.Object);
 
             //Open/parse the file into memory
             parser.ReadLogs(_logfilePath);
@@ -101,8 +111,10 @@ namespace LogViewer.Server.Tests
         [Test]
         public void Logs_Can_Query_With_Expressions(string queryToVerify, int expectedCount)
         {
+            var mockedHub = new Mock<IHubContext<LogHub>>();
+
             //Log Parser
-            var parser = new LogParser();
+            var parser = new LogParser(mockedHub.Object);
 
             //Open/parse the file into memory
             parser.ReadLogs(_logfilePath);
