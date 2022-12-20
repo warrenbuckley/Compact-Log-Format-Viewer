@@ -52,7 +52,7 @@ logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", f
 
         // Reload the file - send a message to MAIN via IPC
         ipcRenderer.send("logviewer.reload-file-after-notify");
-    }
+    };
 
     vm.errorCountClick = () => {
         // When we click error count - Update filter expression & do NEW search
