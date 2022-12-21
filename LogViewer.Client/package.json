@@ -17,7 +17,7 @@
     "watch": "tsc --watch",
     "win": "electron-builder --win --config ./electron-builder.json",
     "mac": "electron-builder --mac --config electron-builder.json",
-    "publish": "electron-builder --config electron-builder.json --publish onTagOrDraft"
+    "publish": "electron-builder --config electron-builder.json --publish always"
   },
   "author": "Warren Buckley",
   "license": "ISC",
@@ -38,6 +38,7 @@
     "typescript-tslint-plugin": "^1.0.2"
   },
   "dependencies": {
+    "@microsoft/signalr": "^7.0.0",
     "angular": "^1.8.3",
     "angular-chart.js": "^1.1.1",
     "axios": "^1.2.0",

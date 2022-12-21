@@ -1,5 +1,6 @@
 import angular from "angular";
 import { ipcRenderer } from "electron";
+import * as signalR from "@microsoft/signalr";
 
 const logViewerApp = angular.module("logViewerApp", ["chart.js", "logViewerApp.resources"]);
 logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", function($scope, logViewerResource) {
@@ -21,6 +22,37 @@ logViewerApp.controller("LogViewerController", ["$scope", "logViewerResource", f
     vm.logOptions.filterExpression = "";
     vm.logOptions.sortOrder = "Descending";
     vm.logOptions.pageNumber = 1;
+
+    vm.fileHasUpdates = false;
+
+    // SignalR connection
+    // To be notified from the FileSystemWatcher changes
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("http://localhost:45678/log")
+        .build();
+
+    // Start signalR connection
+    connection
+        .start()
+        .catch((err) => {
+            console.error(err);
+        });
+
+    // SignalR on server will send us this
+    // Once it knows about a file change with FileSystemWatcher
+    connection.on("NotifyNewLogEntries", () => {
+        vm.fileHasUpdates = true;
+        $scope.$applyAsync();
+        console.log('FILE UPDATED');
+    });
+
+    vm.reload = () => {
+        // Hide the message that notified user there was file updates
+        vm.fileHasUpdates = false;
+
+        // Reload the file - send a message to MAIN via IPC
+        ipcRenderer.send("logviewer.reload-file-after-notify");
+    };
 
     vm.errorCountClick = () => {
         // When we click error count - Update filter expression & do NEW search
