@@ -34,7 +34,7 @@
     "eslint": "^8.48.0",
     "eslint-plugin-jsdoc": "^46.5.1",
     "eslint-plugin-prefer-arrow": "^1.2.3",
-    "typescript": "^5.1.6",
+    "typescript": "^5.2.2",
     "typescript-tslint-plugin": "^1.0.2"
   },
   "dependencies": {
