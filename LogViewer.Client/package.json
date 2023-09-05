@@ -31,7 +31,7 @@
     "@typescript-eslint/parser": "^5.62.0",
     "electron": "^26.1.0",
     "electron-builder": "^24.6.3",
-    "eslint": "^8.46.0",
+    "eslint": "^8.48.0",
     "eslint-plugin-jsdoc": "^46.5.1",
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "typescript": "^5.1.6",
