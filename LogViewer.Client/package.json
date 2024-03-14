@@ -30,7 +30,7 @@
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "electron": "^28.2.1",
-    "electron-builder": "^24.9.1",
+    "electron-builder": "^24.13.3",
     "eslint": "^8.57.0",
     "eslint-plugin-jsdoc": "^48.0.4",
     "eslint-plugin-prefer-arrow": "^1.2.3",
