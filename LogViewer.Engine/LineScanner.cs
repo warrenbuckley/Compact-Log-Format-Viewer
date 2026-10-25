@@ -168,7 +168,7 @@ internal static class LineScanner
         }
 
         if (template < 0)
-            template = r.TemplateTable.Intern(message ?? ReadOnlySpan<byte>.Empty);
+            template = r.TemplateTable.Intern(message is null ? ReadOnlySpan<byte>.Empty : EscapeBraces(message));
 
         if (r.Ticks.Count > 0 && ticks < r.Ticks[^1])
             r.Chronological = false;
@@ -180,6 +180,10 @@ internal static class LineScanner
         r.Templates.Add(template);
         r.Requests.Add(request);
     }
+
+    /// <summary>A line with only @m has no template; Serilog turns the rendered text into a literal template by doubling braces.</summary>
+    private static byte[] EscapeBraces(byte[] message)
+        => Encoding.UTF8.GetBytes(Encoding.UTF8.GetString(message).Replace("{", "{{").Replace("}", "}}"));
 
     private static Field Classify(ReadOnlySpan<byte> name, bool escaped)
     {

@@ -10,6 +10,7 @@
 
     <ItemGroup>
         <InternalsVisibleTo Include="LogViewer.Engine.Bench" />
+        <InternalsVisibleTo Include="LogViewer.Engine.Tests" />
     </ItemGroup>
 
     <ItemGroup>

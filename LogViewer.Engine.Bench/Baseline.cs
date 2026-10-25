@@ -35,7 +35,8 @@ internal sealed class Baseline
     /// <summary>Mirrors LogParser.Search: filter, count, sort the whole list, take a page, render it, and group templates.</summary>
     public (int total, int pageRows, int templates) Search(int pageNumber, int pageSize, string? filter)
     {
-        var predicate = FilterCompiler.Compile(filter);
+        var compiled = FilterCompiler.Compile(filter);
+        var predicate = compiled?.Matches;
         var filtered = predicate is null ? _logItems : _logItems.Where(predicate);
         var total = filtered.Count();
         var page = filtered

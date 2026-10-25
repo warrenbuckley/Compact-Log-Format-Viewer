@@ -8,6 +8,7 @@ using Microsoft.Win32.SafeHandles;
 using Newtonsoft.Json;
 using Serilog.Events;
 using Serilog.Formatting.Compact.Reader;
+using Serilog.Parsing;
 
 namespace LogViewer.Engine;
 
@@ -38,6 +39,8 @@ public sealed class LogIndex : IDisposable
 
     private Utf8Interner _templateTable = new();
     private Utf8Interner _requestTable = new();
+    private static readonly MessageTemplateParser TemplateParser = new();
+    private MessageTemplate?[] _templateObjects = Array.Empty<MessageTemplate?>(); // parsed lazily, shared by every event of that template
 
     private bool _chronological = true;
     private int[]? _order; // row ids sorted by time, only built when the file is not already in time order
@@ -116,7 +119,7 @@ public sealed class LogIndex : IDisposable
         _lock.EnterReadLock();
         try
         {
-            var columns = (long)_count * (8 + 4 + 8 + 1 + 4 + 4) + (_order?.Length ?? 0) * 4L;
+            var columns = (long)_offsets.Length * (8 + 4 + 8 + 1 + 4 + 4) + (_order?.Length ?? 0) * 4L;
             return new IndexStats(
                 _count, _malformed, _indexedBytes, _templateTable.Count, _requestTable.Count, _chronological,
                 columns + _templateTable.ApproxBytes() + _requestTable.ApproxBytes());
@@ -142,13 +145,13 @@ public sealed class LogIndex : IDisposable
     /// </summary>
     public RowSet Query(LogQuery query, CancellationToken ct = default)
     {
-        var predicate = FilterCompiler.Compile(query.Filter);
+        var filter = FilterCompiler.Compile(query.Filter);
 
         _lock.EnterReadLock();
         try
         {
             var rows = FilterByIndex(query, ct);
-            return predicate is null ? rows : Refine(rows, predicate, ct);
+            return filter is null ? rows : Refine(rows, filter, ct);
         }
         finally
         {
@@ -305,10 +308,11 @@ public sealed class LogIndex : IDisposable
             var skip = Math.Max(0, (pageNumber - 1) * pageSize);
             var take = Math.Max(0, Math.Min(pageSize, rows.Count - skip));
             var page = new List<LogEntry>(take);
+            var fast = new FastEventReader();
             for (var i = 0; i < take; i++)
             {
                 var position = sort == SortOrder.Ascending ? skip + i : rows.Count - 1 - skip - i;
-                page.Add(ReadEntry(rows.RowAt(position)));
+                page.Add(ReadEntry(rows.RowAt(position), fast));
             }
 
             return page;
@@ -322,8 +326,24 @@ public sealed class LogIndex : IDisposable
     public LogEntry ReadRow(int row)
     {
         _lock.EnterReadLock();
-        try { return ReadEntry(row); }
+        try { return ReadEntry(row, new FastEventReader()); }
         finally { _lock.ExitReadLock(); }
+    }
+
+    /// <summary>The line as stored in the file (UTF-8 decoded), for diagnostics and tests.</summary>
+    internal string ReadRawLine(int row)
+    {
+        _lock.EnterReadLock();
+        try
+        {
+            var bytes = new byte[_lengths[row]];
+            ReadExactly(bytes, _offsets[row]);
+            return Encoding.UTF8.GetString(bytes);
+        }
+        finally
+        {
+            _lock.ExitReadLock();
+        }
     }
 
     public void Dispose()
@@ -345,6 +365,7 @@ public sealed class LogIndex : IDisposable
         _count = 0;
         _templateTable = new Utf8Interner();
         _requestTable = new Utf8Interner();
+        _templateObjects = Array.Empty<MessageTemplate?>();
         _chronological = true;
         _order = null;
         _indexedBytes = 0;
@@ -418,6 +439,9 @@ public sealed class LogIndex : IDisposable
             _count += chunk.Count;
         }
 
+        if (_templateObjects.Length < _templateTable.Count)
+            Array.Resize(ref _templateObjects, _templateTable.Count + 64);
+
         _order = _chronological ? null : BuildOrder();
     }
 
@@ -442,7 +466,8 @@ public sealed class LogIndex : IDisposable
         if (needed <= _offsets.Length)
             return;
 
-        var capacity = Math.Max(needed, Math.Max(1024, _offsets.Length * 2));
+        // headroom, so the first append after open (live tail) does not have to copy every column
+        var capacity = Math.Max(needed + (needed >> 2) + 1024, _offsets.Length * 2);
         Array.Resize(ref _offsets, capacity);
         Array.Resize(ref _lengths, capacity);
         Array.Resize(ref _ticks, capacity);
@@ -635,7 +660,7 @@ public sealed class LogIndex : IDisposable
     }
 
     /// <summary>Parses the candidate lines in parallel (a few MB at a time, in file order) and keeps the ones the predicate accepts.</summary>
-    private RowSet Refine(RowSet candidates, Func<LogEvent, bool> predicate, CancellationToken ct)
+    private RowSet Refine(RowSet candidates, CompiledFilter filter, CancellationToken ct)
     {
         var n = candidates.Count;
         var keep = new bool[n];
@@ -643,7 +668,7 @@ public sealed class LogIndex : IDisposable
         Parallel.ForEach(
             Partitioner.Create(0, n, 2048),
             new ParallelOptions { CancellationToken = ct },
-            range => EvaluateRange(candidates, range.Item1, range.Item2, keep, predicate));
+            range => EvaluateRange(candidates, range.Item1, range.Item2, keep, filter));
 
         var kept = 0;
         foreach (var k in keep)
@@ -658,8 +683,10 @@ public sealed class LogIndex : IDisposable
         return new RowSet(rows);
     }
 
-    private void EvaluateRange(RowSet rows, int from, int to, bool[] keep, Func<LogEvent, bool> predicate)
+    private void EvaluateRange(RowSet rows, int from, int to, bool[] keep, CompiledFilter filter)
     {
+        var fast = new FastEventReader();
+        fast.KeepOnly(filter.Properties);
         byte[]? buffer = null;
         try
         {
@@ -699,7 +726,7 @@ public sealed class LogIndex : IDisposable
                 {
                     var row = rows.RowAt(k);
                     var line = buffer.AsSpan((int)(_offsets[row] - start), _lengths[row]);
-                    keep[k] = TryParse(line, out var evt) && predicate(evt);
+                    keep[k] = TryParse(line, TemplateFor(_templates[row]), fast, out var evt) && filter.Matches(evt);
                 }
 
                 i = j;
@@ -712,26 +739,43 @@ public sealed class LogIndex : IDisposable
         }
     }
 
-    private static bool TryParse(ReadOnlySpan<byte> line, out LogEvent evt)
+    /// <summary>Fast path first; any line it declines goes to Serilog's own reader, which decides what is readable.</summary>
+    private static bool TryParse(ReadOnlySpan<byte> line, MessageTemplate template, FastEventReader fast, out LogEvent evt)
     {
+        if (fast.TryRead(line, template, out evt))
+            return true;
+
         try
         {
             evt = LogEventReader.ReadFromString(Encoding.UTF8.GetString(line));
             return true;
         }
-        catch (Exception ex) when (ex is JsonReaderException or InvalidDataException)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            // Serilog's reader can also throw things like OverflowException for an out-of-range @i, not just the two documented types
             evt = null!;
             return false;
         }
     }
 
-    private LogEntry ReadEntry(int row)
+    private MessageTemplate TemplateFor(int id)
+    {
+        var template = _templateObjects[id];
+        if (template is null)
+        {
+            template = TemplateParser.Parse(TemplateText(id));
+            _templateObjects[id] = template; // a racing thread may parse the same template; the results are equivalent
+        }
+
+        return template;
+    }
+
+    private LogEntry ReadEntry(int row, FastEventReader fast)
     {
         var bytes = new byte[_lengths[row]];
         ReadExactly(bytes, _offsets[row]);
 
-        if (!TryParse(bytes, out var evt))
+        if (!TryParse(bytes, TemplateFor(_templates[row]), fast, out var evt))
             throw new InvalidDataException($"Row {row} could not be read back from {FilePath}.");
 
         return new LogEntry(

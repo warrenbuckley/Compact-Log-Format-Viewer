@@ -5,6 +5,8 @@ using LogViewer.Engine.Bench;
 // gen <path> <megabytes>        write a synthetic CLEF file
 // engine <path>                 time the new index
 // baseline <path>               time the current in-memory parser
+// open <path>                  open the index repeatedly, and the line scanner alone on one thread
+// parse <path>                  where the per-line cost of a parse-bound filter goes, single threaded and across cores
 // Run engine and baseline as separate processes so their memory numbers do not mix.
 
 if (args.Length < 2)
@@ -30,6 +32,14 @@ switch (mode)
 
     case "baseline":
         RunBaseline(path);
+        return 0;
+
+    case "open":
+        OpenProfile.Run(path);
+        return 0;
+
+    case "parse":
+        ParseProfile.Run(path);
         return 0;
 
     default:
