@@ -45,6 +45,40 @@ filter after open is slower.
 | Current parser | 11.1 s | 50.7 s | 104.8 s |
 | Index now | 0.39 s | 0.6 s | 0.7 - 1.1 s |
 
+## Exactness: the engine returns what the server returns
+
+Every search runs through Serilog.Expressions with the rules `LogParser` uses today (a plain word is `@m like '%word%' ci`, an expression that does not
+compile falls back to it, typed expressions see every property). `ExactnessTests` runs the **real** `LogViewer.Server` `LogParser` as the oracle over
+about 140 filter strings on two logs and compares the matching rows in order, the template list, level totals, error count and newest-first pages.
+It found two differences that a count comparison would have missed, both now matched:
+
+- rows that share a timestamp stay in file order in a newest-first page (the server's sort is stable);
+- templates with equal counts are listed by where they first appear among the matching rows.
+
+Heavy-tie logs, in and out of time order, are checked page by page in both directions.
+
+## Live files (a log that is still being written)
+
+`LiveFileTests` runs a writer thread (share-read, flushing after batches, with lines that are visible half written) against concurrent
+`Refresh`, `Query`, `ReadPage` and `GetHistogram` calls, in and out of time order, and then compares the finished file with the server's parser.
+
+Out-of-order timestamps are normal in real logs (threads log at slightly different moments), so the benchmark has a `jitter` option
+(about 3% of lines up to 60 ms early). Before and after the incremental time-order fix:
+
+| 1 GB, ~3% of lines slightly out of order | Before | After |
+|---|---|---|
+| Each refresh (+2,000 lines) | ~50 ms (re-sorted every row) | 2 - 4 ms |
+| First refresh after open | 53 ms | 2 - 4 ms |
+| 5 minute time range | 2.7 ms (linear scan) | 0.1 ms (binary search over the time order) |
+| Open | 0.52 s | 0.84 s (includes sorting the order once) |
+
+Also covered: a half-written last line is left for the next refresh; a truncated file is re-indexed; a file replaced by a larger, different file
+(or one that starts the same and differs later) is detected from fingerprints of its head and of the bytes before the indexed end, and
+`LogIndex.Generation` increases so the app knows earlier row ids are void; result sets taken before a refresh stay readable afterwards.
+
+Not covered here: Windows file sharing (this ran on Linux; the file is opened read-only with share read/write/delete, the same flags the current parser uses),
+and the file-system watcher that would trigger `Refresh` in the server.
+
 ## Where the time went
 
 Per line, single thread, 523-byte lines (`parse` mode):

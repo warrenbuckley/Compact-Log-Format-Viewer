@@ -43,7 +43,15 @@ public sealed class LogIndex : IDisposable
     private MessageTemplate?[] _templateObjects = Array.Empty<MessageTemplate?>(); // parsed lazily, shared by every event of that template
 
     private bool _chronological = true;
-    private int[]? _order; // row ids sorted by time, only built when the file is not already in time order
+    private int[]? _order; // row ids sorted by (time, row), only kept when the file is not already in time order
+    private int _orderCount;
+
+    // Fingerprints of the start of the file and of the bytes just before the indexed end, to notice a file that was replaced
+    private const int FingerprintBytes = 512;
+    private ulong _headHash;
+    private int _headLength;
+    private ulong _tailHash;
+    private int _tailLength;
     private long _indexedBytes;
     private int _malformed;
 
@@ -54,6 +62,9 @@ public sealed class LogIndex : IDisposable
     }
 
     public string FilePath { get; }
+
+    /// <summary>Increases whenever the index is thrown away and rebuilt because the file was truncated or replaced, so row ids from before no longer mean anything.</summary>
+    public int Generation { get; private set; }
 
     public int Count
     {
@@ -92,7 +103,7 @@ public sealed class LogIndex : IDisposable
         try
         {
             var length = RandomAccess.GetLength(_handle);
-            if (length < _indexedBytes)
+            if (length < _indexedBytes || (_indexedBytes > 0 && !FingerprintsMatch()))
                 Reset();
 
             if (length == _indexedBytes)
@@ -106,6 +117,7 @@ public sealed class LogIndex : IDisposable
             var chunks = ScanChunks(_indexedBytes, end, progress, ct);
             Append(chunks);
             _indexedBytes = end;
+            RememberFingerprints();
             return _count > before;
         }
         finally
@@ -403,8 +415,53 @@ public sealed class LogIndex : IDisposable
         _templateObjects = Array.Empty<MessageTemplate?>();
         _chronological = true;
         _order = null;
+        _orderCount = 0;
         _indexedBytes = 0;
         _malformed = 0;
+        _headLength = _tailLength = 0;
+        Generation++;
+    }
+
+    private ulong HashBytes(long offset, int length)
+    {
+        var buffer = new byte[length];
+        ReadExactly(buffer, offset);
+        var hash = 14695981039346656037UL;
+        foreach (var b in buffer)
+        {
+            hash ^= b;
+            hash *= 1099511628211UL;
+        }
+
+        return hash;
+    }
+
+    private void RememberFingerprints()
+    {
+        if (_headLength == 0)
+        {
+            _headLength = (int)Math.Min(FingerprintBytes, _indexedBytes);
+            _headHash = HashBytes(0, _headLength);
+        }
+
+        _tailLength = (int)Math.Min(FingerprintBytes, _indexedBytes);
+        _tailHash = HashBytes(_indexedBytes - _tailLength, _tailLength);
+    }
+
+    /// <summary>A log only ever grows at the end, so the bytes already indexed must be unchanged. A larger file that starts differently is a different file.</summary>
+    private bool FingerprintsMatch()
+    {
+        if (_headLength == 0 || _tailLength == 0)
+            return true;
+
+        try
+        {
+            return HashBytes(0, _headLength) == _headHash && HashBytes(_indexedBytes - _tailLength, _tailLength) == _tailHash;
+        }
+        catch (EndOfStreamException)
+        {
+            return false; // the file shrank while we were looking at it
+        }
     }
 
     private ChunkResult[] ScanChunks(long start, long end, IProgress<double>? progress, CancellationToken ct)
@@ -440,6 +497,7 @@ public sealed class LogIndex : IDisposable
     private void Append(ChunkResult[] chunks)
     {
         var added = chunks.Sum(c => c.Count);
+        var firstNewRow = _count;
         EnsureCapacity(_count + added);
 
         foreach (var chunk in chunks)
@@ -477,23 +535,95 @@ public sealed class LogIndex : IDisposable
         if (_templateObjects.Length < _templateTable.Count)
             Array.Resize(ref _templateObjects, _templateTable.Count + 64);
 
-        _order = _chronological ? null : BuildOrder();
+        UpdateOrder(firstNewRow);
     }
 
-    private int[] BuildOrder()
+    /// <summary>Row ids from <paramref name="from"/> up to <paramref name="to"/>, sorted by time with ties in file order.</summary>
+    private int[] SortedRows(int from, int to)
     {
-        var order = new int[_count];
-        for (var i = 0; i < order.Length; i++)
-            order[i] = i;
-
-        var ticks = _ticks;
-        Array.Sort(order, (a, b) =>
+        var n = to - from;
+        var keys = new long[n];
+        var rows = new int[n];
+        for (var i = 0; i < n; i++)
         {
-            var c = ticks[a].CompareTo(ticks[b]);
-            return c != 0 ? c : a.CompareTo(b);
-        });
+            keys[i] = _ticks[from + i];
+            rows[i] = from + i;
+        }
 
-        return order;
+        Array.Sort(keys, rows);
+
+        // Array.Sort is not stable; put each run of equal timestamps back into file order
+        for (var i = 0; i < n;)
+        {
+            var j = i + 1;
+            while (j < n && keys[j] == keys[i])
+                j++;
+
+            if (j - i > 1)
+                Array.Sort(rows, i, j - i);
+
+            i = j;
+        }
+
+        return rows;
+    }
+
+    /// <summary>
+    /// Keeps the time order up to date when rows are added. Logs written by several threads are slightly out of order all the time,
+    /// so this must not re-sort everything on every refresh: only the new rows are sorted and merged in.
+    /// </summary>
+    private void UpdateOrder(int firstNewRow)
+    {
+        if (_chronological)
+        {
+            _order = null;
+            _orderCount = 0;
+            return;
+        }
+
+        if (_order is null)
+        {
+            var sorted = SortedRows(0, _count);
+            _order = new int[_count + (_count >> 3) + 1024]; // headroom, so the first live append does not copy it
+            sorted.CopyTo(_order, 0);
+            _orderCount = _count;
+            return;
+        }
+
+        if (_count == firstNewRow)
+            return;
+
+        var added = SortedRows(firstNewRow, _count);
+        var capacity = _count + (_count >> 3) + 1024;
+
+        if (_ticks[added[0]] >= _ticks[_order[_orderCount - 1]])
+        {
+            // Every new row sorts after the existing ones, the usual case: append in place. Readers holding an older
+            // set only look below their own count, so they are unaffected.
+            if (_order.Length < _count)
+                Array.Resize(ref _order, capacity);
+
+            added.CopyTo(_order, _orderCount);
+        }
+        else
+        {
+            // Some new rows belong inside the existing order. Build a new array (older sets keep the old one) and merge;
+            // rows with equal times stay in file order because existing rows have the lower row ids.
+            var merged = new int[capacity];
+            int i = 0, j = 0, k = 0;
+            while (i < _orderCount && j < added.Length)
+                merged[k++] = _ticks[added[j]] < _ticks[_order[i]] ? added[j++] : _order[i++];
+
+            while (i < _orderCount)
+                merged[k++] = _order[i++];
+
+            while (j < added.Length)
+                merged[k++] = added[j++];
+
+            _order = merged;
+        }
+
+        _orderCount = _count;
     }
 
     private void EnsureCapacity(int needed)
@@ -622,15 +752,16 @@ public sealed class LogIndex : IDisposable
 
     private int RowAtPosition(int position) => _order is null ? position : _order[position];
 
-    private RowSet AllRows() => _order is null ? new RowSet(_count) : new RowSet(_order);
+    private RowSet AllRows() => _order is null ? new RowSet(_count) : new RowSet(_order, _orderCount);
 
+    /// <summary>First position, in time order, whose timestamp is at or after <paramref name="ticks"/>.</summary>
     private int LowerBound(long ticks)
     {
         int lo = 0, hi = _count;
         while (lo < hi)
         {
             var mid = (int)(((long)lo + hi) / 2);
-            if (_ticks[mid] < ticks)
+            if (_ticks[RowAtPosition(mid)] < ticks)
                 lo = mid + 1;
             else
                 hi = mid;
@@ -655,18 +786,10 @@ public sealed class LogIndex : IDisposable
         var matchRequest = q.RequestId is not null;
 
         int lo = 0, hi = _count;
-        var checkTime = false;
         if (timeFiltered)
         {
-            if (_chronological)
-            {
-                lo = LowerBound(from);
-                hi = to == long.MaxValue ? _count : LowerBound(to);
-            }
-            else
-            {
-                checkTime = true;
-            }
+            lo = LowerBound(from);
+            hi = to == long.MaxValue ? _count : LowerBound(to);
         }
 
         var rows = new List<int>();
@@ -683,9 +806,6 @@ public sealed class LogIndex : IDisposable
                 continue;
 
             if (matchRequest && _requests[row] != request)
-                continue;
-
-            if (checkTime && (_ticks[row] < from || _ticks[row] >= to))
                 continue;
 
             rows.Add(row);

@@ -33,7 +33,8 @@ internal static class Generator
         "Microsoft.AspNetCore.Hosting.Diagnostics", "Umbraco.Cms.Core.Security.BackOfficeUserManager", "Umbraco.Cms.Core.Services.MediaService",
     };
 
-    public static void Write(string path, long targetBytes)
+    /// <param name="jitter">About 3% of lines get a timestamp up to 60 ms earlier than the line before, like threads that log slightly out of order.</param>
+    public static void Write(string path, long targetBytes, bool jitter = false)
     {
         var rng = new Random(42);
         var stamp = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero);
@@ -59,8 +60,9 @@ internal static class Generator
             var level = roll switch { < 150 => "Verbose", < 750 => "Debug", < 950 => null, < 990 => "Warning", _ => "Error" };
             var duration = rng.Next(100) == 0 ? rng.Next(1000, 9000) : rng.Next(0, 300);
 
+            var shown = jitter && rng.Next(100) < 3 ? stamp.AddMilliseconds(-rng.Next(1, 60)) : stamp;
             sb.Clear();
-            sb.Append("{\"@t\":\"").Append(stamp.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffffff")).Append("Z\",\"@mt\":\"").Append(template).Append('"');
+            sb.Append("{\"@t\":\"").Append(shown.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffffff")).Append("Z\",\"@mt\":\"").Append(template).Append('"');
             if (level is not null)
                 sb.Append(",\"@l\":\"").Append(level).Append('"');
             if (level == "Error")

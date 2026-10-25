@@ -88,10 +88,15 @@ public sealed class RowSet
 
     internal RowSet(int count) => Count = count;
 
-    internal RowSet(int[] rows)
+    /// <summary>Only the first <paramref name="count"/> entries of <paramref name="rows"/> belong to this set; the index may append to the array beyond that.</summary>
+    internal RowSet(int[] rows, int count)
     {
         _rows = rows;
-        Count = rows.Length;
+        Count = count;
+    }
+
+    internal RowSet(int[] rows) : this(rows, rows.Length)
+    {
     }
 
     public int Count { get; }
