@@ -22,25 +22,8 @@ public class PruningTests
         Directory.CreateDirectory(_dir);
         _path = Path.Combine(_dir, "pruning.json");
 
-        var rng = new Random(7);
-        var t0 = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero);
-        var lines = new List<string>();
-        for (var i = 0; i < 6000; i++)
-        {
-            var t = $"\"@t\":\"{t0.AddMilliseconds(i * 13):O}\"";
-            lines.Add((i % 6) switch
-            {
-                // message only mentions Name; the filter below may only mention Duration
-                0 => $"{{{t},\"@mt\":\"Hello {{Name}} from {{City}}\",\"Name\":\"Person{i % 17}\",\"City\":\"Town{i % 5}\",\"Duration\":{rng.Next(0, 2500)},\"SourceContext\":\"Umbraco.Core.Thing{i % 3}\"}}",
-                1 => $"{{{t},\"@mt\":\"Took {{Duration}}ms\",\"@l\":\"Debug\",\"Duration\":{rng.Next(0, 2500)},\"SourceContext\":\"Umbraco.Web.Other\",\"Tags\":[\"a\",\"b{i % 4}\"]}}",
-                2 => $"{{{t},\"@mt\":\"Nested {{Info}}\",\"Info\":{{\"$type\":\"Info\",\"Id\":{i},\"Label\":\"label{i % 9}\"}},\"Duration\":{rng.Next(0, 2500)}}}",
-                3 => $"{{{t},\"@mt\":\"No properties used here\",\"@l\":\"Warning\",\"@@escaped\":{i % 3},\"Other\":{i}}}",
-                4 => $"{{{t},\"@mt\":\"Failure for {{Name}}\",\"@l\":\"Error\",\"@x\":\"System.Exception: nope {i}\",\"Name\":\"Person{i % 17}\"}}",
-                _ => $"{{{t},\"@mt\":\"Brace {{{{literal}}}} {{Name}}\",\"Name\":\"Bob {i}\",\"Duration\":{i % 3000}}}"
-            });
-        }
-
-        File.WriteAllLines(_path, lines);
+        TestData.WriteMixedLog(_path, 6000);
+        var lines = File.ReadAllLines(_path);
         _index = LogIndex.Open(_path);
         _events = lines.Select(l => LogEventReader.ReadFromString(l)).ToList();
     }

@@ -198,22 +198,32 @@ public sealed class LogIndex : IDisposable
         }
     }
 
-    /// <summary>Groups by message template, most frequent first.</summary>
+    /// <summary>
+    /// Groups by message template, most frequent first. Templates with the same count are ordered by where they first appear among
+    /// the rows, in file order, which is how the server has always listed them.
+    /// </summary>
     public IReadOnlyList<PatternCount> GetPatterns(RowSet rows)
     {
         _lock.EnterReadLock();
         try
         {
             var counts = new long[_templateTable.Count];
+            var firstRow = new int[counts.Length];
+            Array.Fill(firstRow, int.MaxValue);
             for (var i = 0; i < rows.Count; i++)
-                counts[_templates[rows.RowAt(i)]]++;
+            {
+                var row = rows.RowAt(i);
+                var template = _templates[row];
+                counts[template]++;
+                if (row < firstRow[template])
+                    firstRow[template] = row;
+            }
 
-            return counts
-                .Select((count, id) => (count, id))
-                .Where(x => x.count > 0)
-                .OrderByDescending(x => x.count)
-                .ThenBy(x => x.id)
-                .Select(x => new PatternCount(x.id, TemplateText(x.id), x.count))
+            return Enumerable.Range(0, counts.Length)
+                .Where(id => counts[id] > 0)
+                .OrderByDescending(id => counts[id])
+                .ThenBy(id => firstRow[id])
+                .Select(id => new PatternCount(id, TemplateText(id), counts[id]))
                 .ToList();
         }
         finally
@@ -309,17 +319,42 @@ public sealed class LogIndex : IDisposable
             var take = Math.Max(0, Math.Min(pageSize, rows.Count - skip));
             var page = new List<LogEntry>(take);
             var fast = new FastEventReader();
-            for (var i = 0; i < take; i++)
-            {
-                var position = sort == SortOrder.Ascending ? skip + i : rows.Count - 1 - skip - i;
+            var positions = sort == SortOrder.Ascending ? Enumerable.Range(skip, take) : NewestFirstPositions(rows, skip, take);
+            foreach (var position in positions)
                 page.Add(ReadEntry(rows.RowAt(position), fast));
-            }
 
             return page;
         }
         finally
         {
             _lock.ExitReadLock();
+        }
+    }
+
+    /// <summary>
+    /// Positions (in the chronological order of <paramref name="rows"/>) for a newest-first page. A plain reversal would flip rows that
+    /// share a timestamp; the server's stable descending sort keeps those in file order, so each run of equal timestamps is read forwards.
+    /// </summary>
+    private IEnumerable<int> NewestFirstPositions(RowSet rows, int skip, int take)
+    {
+        var total = rows.Count;
+        int runStart = 0, runEnd = -1;
+        for (var d = skip; d < skip + take; d++)
+        {
+            var p = total - 1 - d; // where a plain reversal would look
+            if (p < runStart || p > runEnd)
+            {
+                var ticks = _ticks[rows.RowAt(p)];
+                runStart = p;
+                while (runStart > 0 && _ticks[rows.RowAt(runStart - 1)] == ticks)
+                    runStart--;
+
+                runEnd = p;
+                while (runEnd < total - 1 && _ticks[rows.RowAt(runEnd + 1)] == ticks)
+                    runEnd++;
+            }
+
+            yield return runStart + (d - (total - 1 - runEnd));
         }
     }
 
