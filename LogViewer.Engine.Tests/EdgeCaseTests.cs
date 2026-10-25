@@ -204,3 +204,67 @@ public class EmptyCandidateTests
         }
     }
 }
+
+public class ReadEventsTests
+{
+    [Test]
+    public void Every_Event_Comes_Back_In_File_Order_Exactly_As_Serilog_Reads_Them()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "clef-events-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        try
+        {
+            // out of time order on purpose: an export is written in file order, not time order
+            var path = Path.Combine(dir, "mixed.json");
+            TestData.WriteMixedLog(path, 5000);
+            var lines = File.ReadAllLines(path).ToList();
+            (lines[10], lines[11]) = (lines[11], lines[10]);
+            lines.Insert(7, "this line is not json");
+            lines.Insert(8, "{\"@t\":\"2024-01-01T00:00:00Z\",\"@mt\":\"x\",\"@l\":\"Nope\"}");
+            File.WriteAllLines(path, lines);
+
+            using var index = LogIndex.Open(path);
+            var actual = index.ReadEvents().ToList();
+            var expected = lines
+                .Select(l => FastReaderTests.Reference(l))
+                .Where(e => e is not null).ToList();
+
+            Assert.AreEqual(expected.Count, actual.Count, "unreadable lines are skipped");
+            for (var i = 0; i < expected.Count; i++)
+                FastReaderTests.AssertSame(expected[i]!, actual[i], $"event {i}");
+        }
+        finally
+        {
+            Directory.Delete(dir, true);
+        }
+    }
+
+    [Test]
+    public void An_Empty_File_And_A_Cancelled_Read_Are_Handled()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "clef-events2-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        try
+        {
+            var empty = Path.Combine(dir, "empty.json");
+            File.WriteAllText(empty, "");
+            using var none = LogIndex.Open(empty);
+            Assert.IsEmpty(none.ReadEvents().ToList());
+
+            var path = Path.Combine(dir, "log.json");
+            TestData.WriteMixedLog(path, 5000);
+            using var index = LogIndex.Open(path);
+            using var cts = new CancellationTokenSource();
+            var seen = 0;
+            Assert.Throws<OperationCanceledException>(() =>
+            {
+                foreach (var _ in index.ReadEvents(cts.Token))
+                    if (++seen == 100) cts.Cancel();
+            });
+        }
+        finally
+        {
+            Directory.Delete(dir, true);
+        }
+    }
+}

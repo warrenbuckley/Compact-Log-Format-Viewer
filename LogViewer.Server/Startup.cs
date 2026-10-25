@@ -1,4 +1,6 @@
-﻿using LogViewer.Server.Hubs;
+﻿using System;
+using LogViewer.Server.Hubs;
+using LogViewer.Server.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +22,12 @@ namespace LogViewer.Server
         {
             services.AddControllers().AddNewtonsoftJson();
             services.AddSingleton<ILogParser, LogParser>();
+
+            // The index-based reader is the default. LOGVIEWER_PARSER=legacy goes back to the original in-memory parser.
+            if (string.Equals(Environment.GetEnvironmentVariable("LOGVIEWER_PARSER"), "legacy", StringComparison.OrdinalIgnoreCase))
+                services.AddSingleton<ILogService, LegacyLogService>();
+            else
+                services.AddSingleton<ILogService, IndexedLogService>();
             services.AddSignalR();
         }
 

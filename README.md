@@ -42,6 +42,15 @@ https://visualstudio.microsoft.com/vs/
 
 >**Note:** If you `npm run start` before you have compiled the TypeScript files then Electron will complain about not finding the entry point file. Additionally if you have also not run `dotnet publish` then the underlying WebAPI which we communicate with will not be running.
 
+## How the log is read
+
+The server reads the log through `LogViewer.Engine`: the file is indexed once (about a second per gigabyte) and a page, a count or a search then reads only what it needs. While a file is open it is watched, and new lines are picked up incrementally in milliseconds instead of re-reading everything. Search results are the same as the original parser's; `LogViewer.Server.Tests` and `tools/compare-parsers.py` check that.
+
+- **Fallback:** set the environment variable `LOGVIEWER_PARSER=legacy` and start the server to use the original in-memory parser instead (it is unchanged). It cannot do a time range.
+- **Time range:** `GET /api/Viewer/search` also takes optional `from` (inclusive) and `to` (exclusive) as ISO 8601 timestamps. They are not part of the filter expression.
+- **Comparing the two:** `python3 tools/compare-parsers.py <published server dir> <log dir> <out dir> [legacy]` asks a published server the questions the client asks and saves every response; run it once with `legacy` and once without, then `diff -r` the two output folders.
+- Benchmarks and measurements are in `LogViewer.Engine.Bench/RESULTS.md`.
+
 ## 3rd Party Libraries 💖💖
 This package uses the following libraries:
 - [Serilog.Formatting.Compact.Reader](https://github.com/serilog/serilog-formatting-compact-reader)

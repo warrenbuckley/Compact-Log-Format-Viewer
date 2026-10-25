@@ -469,6 +469,48 @@ public sealed class LogIndex : IDisposable
         }
     }
 
+    /// <summary>
+    /// Every readable event in file order, which is what an export writes. Rows are read in blocks of a megabyte or so, so a huge file is
+    /// never held in memory, and a line that cannot be read is skipped. The index may keep growing while this runs; rows added after it
+    /// started are not included.
+    /// </summary>
+    public IEnumerable<LogEvent> ReadEvents(CancellationToken ct = default)
+    {
+        const int Block = 2048;
+        var total = Count;
+        var fast = new FastEventReader();
+
+        for (var first = 0; first < total; first += Block)
+        {
+            ct.ThrowIfCancellationRequested();
+            var events = new List<LogEvent>(Block);
+
+            _lock.EnterReadLock();
+            try
+            {
+                var end = Math.Min(Math.Min(first + Block, total), _count);
+                if (end <= first)
+                    yield break; // the file was replaced and is now shorter
+
+                // rows are in file order here, so the block is one contiguous byte range
+                var start = _offsets[first];
+                var buffer = new byte[(int)(_offsets[end - 1] + _lengths[end - 1] - start)];
+                ReadExactly(buffer, start);
+
+                for (var row = first; row < end; row++)
+                    if (TryParse(buffer.AsSpan((int)(_offsets[row] - start), _lengths[row]), TemplateFor(_templates[row]), fast, out var evt))
+                        events.Add(evt);
+            }
+            finally
+            {
+                _lock.ExitReadLock();
+            }
+
+            foreach (var evt in events)
+                yield return evt;
+        }
+    }
+
     public LogEntry ReadRow(int row)
     {
         _lock.EnterReadLock();

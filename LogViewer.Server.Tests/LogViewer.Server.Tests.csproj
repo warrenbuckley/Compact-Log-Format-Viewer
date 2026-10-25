@@ -21,6 +21,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Real excerpts of logs written by actual Umbraco sites, shared with the engine tests -->
+    <None Include="..\LogViewer.Engine.Tests\fixtures\*.json" Link="fixtures\%(Filename)%(Extension)">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="UmbracoTraceLog.UNITTEST.20181112.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
