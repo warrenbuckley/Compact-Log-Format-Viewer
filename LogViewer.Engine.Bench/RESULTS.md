@@ -28,17 +28,22 @@ scans the full list. It does not include the HTTP and JSON serialisation the rea
 | Page 1, newest first (with patterns) | 1,590 ms | 9 ms | 3 ms |
 | Page 1000 | 1,654 ms | 6 ms | 1 ms |
 | Level = Error (index) | 1,594 ms | 2.4 ms | 2 ms |
-| `@l = 'Error'` expression | 1,594 ms | 7,356 ms | 805 ms |
-| `Duration > 1000` expression | 3,975 ms | 7,404 ms | 832 - 885 ms |
-| Plain word `timeout` | 7,734 ms | 7,998 ms | 772 - 813 ms |
-| Error level + word `timeout` | n/a | 157 ms | 60 ms |
+| `@l = 'Error'` expression | 1,594 ms | 7,356 ms | 1,595 - 1,635 ms |
+| `Duration > 1000` expression | 3,975 ms | 7,404 ms | 1,517 - 1,667 ms |
+| Plain word `timeout` | 7,734 ms | 7,998 ms | 1,146 - 1,435 ms |
+| Error level + word `timeout` | n/a | 157 ms | 73 - 75 ms |
 | 5 minute time range | n/a | 0.1 ms | 0.1 ms |
 | Histogram, 100 buckets | n/a | 9.6 ms | 6 ms |
 | Same request | n/a | 3.9 ms | 4 ms |
 | Live tail, +2,000 lines | full reload | 326 ms | 2 - 3 ms |
 
-"Index now" is the second profiling pass run with `DOTNET_TC_CallCountingDelayMs=0` (see below). Without it, open is 1.1 s cold and the first
-filter after open is slower.
+"Index now" runs with `DOTNET_TC_CallCountingDelayMs=0` (see below) and with exact server semantics (see "Exactness"). Without the setting, open is
+1.1 s cold and the first filter after open is slower.
+
+Exactness has a price. An earlier profiling pass reached 772 - 885 ms on these three filters by (a) replacing Serilog's `like` with a direct
+case-insensitive contains and (b) building only the properties an expression names. Both were removed so every search matches the server exactly:
+typed expressions now build every property, and a plain word runs the real `@m like '%word%' ci` expression. The remaining speed-up over the current
+parser comes from the faster line reader, parallel scanning, and the index narrowing candidates by level and time first.
 
 | Open time | 100 MB | 500 MB | 1 GB |
 |---|---|---|---|
@@ -92,7 +97,7 @@ Per line, single thread, 523-byte lines (`parse` mode):
 
 - Newtonsoft's `JObject` tree was ~95% of a parse-bound filter. Replaced by `FastEventReader`, which falls back to Serilog's own reader for any line outside the
   common shape (`@r`, `@tr`/`@sp`, `@m` without `@mt`, non-standard JSON, values Serilog rejects).
-- Filters build only the properties their expression names plus the ones in the line's own template (needed to render `@m`). `@p` or `Properties` keeps everything.
+- A plain-word search builds only the properties in each line's own template (all `@m` reads). Typed expressions build every property, because nothing is assumed about what they read. (An earlier version also pruned properties for typed expressions: ~2x faster, removed in favour of exactness.)
 - The index scanner itself runs at about 0.7 us per line and 730 MB/s per thread. A warm open of 500 MB takes ~290 ms; the rest of a cold open is JIT warm-up.
 - Live tail: the first refresh after open used to reallocate every column. Columns now get 25% headroom.
 - Scaling across 4 cores is about 3.1x on the parse path. GC settings (concurrent off, server GC, larger gen0) moved it by 10 - 25% at most and are not worth their memory cost.
@@ -113,5 +118,5 @@ ReadyToRun (~12% on its own, nothing on top of the delay setting).
 ## Caveats
 
 - Synthetic data, one 4-core VM. Open varies a lot run to run here: one 1 GB open took 2.1 s (cold page cache) against 0.7 - 1.1 s otherwise.
-- Filters that must parse lines now cost about 0.8 s per GB on 4 cores. They scale with file size; index-backed filters (level, time, template, request) do not.
+- Filters that must parse lines now cost about 1.1 - 1.7 s per GB on 4 cores. They scale with file size; index-backed filters (level, time, template, request) do not.
 - `@m`-only lines and a few edge cases follow Serilog's reader exactly by falling back to it; they are slower but correct.

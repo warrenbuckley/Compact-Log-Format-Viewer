@@ -47,7 +47,7 @@ internal static class ParseProfile
             var compiled = FilterCompiler.Compile(filter)!;
             var pruned = new FastEventReader();
             pruned.KeepOnly(compiled.Properties);
-            Single($"  + predicate {filter}, unused properties skipped", i => { pruned.TryRead(lines[i], templates[i], out var e); compiled.Matches(e); });
+            Single($"  + predicate {filter}, as the engine runs it", i => { pruned.TryRead(lines[i], templates[i], out var e); compiled.Matches(e); });
         }
 
         Console.WriteLine();
