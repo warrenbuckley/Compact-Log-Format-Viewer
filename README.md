@@ -49,6 +49,7 @@ The server reads the log through `LogViewer.Engine`: the file is indexed once (a
 - **Fallback:** set the environment variable `LOGVIEWER_PARSER=legacy` and start the server to use the original in-memory parser instead (it is unchanged). It cannot do a time range.
 - **Time range:** `GET /api/Viewer/search` also takes optional `from` (inclusive) and `to` (exclusive) as ISO 8601 timestamps. They are not part of the filter expression.
 - **Comparing the two:** `python3 tools/compare-parsers.py <published server dir> <log dir> <out dir> [legacy]` asks a published server the questions the client asks and saves every response; run it once with `legacy` and once without, then `diff -r` the two output folders.
+- **Live logs:** `dotnet run --project tools/live-check -- <published server dir> <scratch file>` plays an application that is still writing the log (steady, bursts, a half-written line, a continuous stream, truncation) against the published server with a real SignalR client.
 - Benchmarks and measurements are in `LogViewer.Engine.Bench/RESULTS.md`.
 
 ## 3rd Party Libraries 💖💖

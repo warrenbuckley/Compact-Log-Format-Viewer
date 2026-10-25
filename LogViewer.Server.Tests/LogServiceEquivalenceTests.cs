@@ -166,5 +166,66 @@ namespace LogViewer.Server.Tests
                 Assert.IsTrue(inRange.Logs.Items!.All(m => m.Timestamp >= from && m.Timestamp < to));
             }
         }
+
+        [Test]
+        public void An_Application_That_Logs_Continuously_Does_Not_Freeze_The_Viewer()
+        {
+            // A write every few milliseconds for several seconds: never quiet for a quarter of a second. The viewer must be told
+            // and kept up to date during the stream, not only after it ends (a debounce here never fires and the viewer freezes).
+            var path = Path.Combine(Path.GetTempPath(), "clef-stream-" + Guid.NewGuid().ToString("N") + ".json");
+            try
+            {
+                File.WriteAllLines(path, Enumerable.Range(0, 20).Select(n => $"{{\"@t\":\"2024-01-01T00:00:{n:00}Z\",\"@mt\":\"line {{N}}\",\"N\":{n}}}"));
+
+                var notifications = 0;
+                var proxy = new Mock<IClientProxy>();
+                proxy.Setup(p => p.SendCoreAsync("NotifyNewLogEntries", It.IsAny<object?[]>(), It.IsAny<System.Threading.CancellationToken>()))
+                    .Callback(() => System.Threading.Interlocked.Increment(ref notifications))
+                    .Returns(System.Threading.Tasks.Task.CompletedTask);
+                var clients = new Mock<IHubClients>();
+                clients.Setup(c => c.All).Returns(proxy.Object);
+                var hub = new Mock<IHubContext<LogHub>>();
+                hub.Setup(h => h.Clients).Returns(clients.Object);
+
+                using var indexed = new IndexedLogService(hub.Object);
+                Assert.AreEqual(20, indexed.Open(path));
+
+                var stop = false;
+                var written = 0;
+                var writer = new System.Threading.Thread(() =>
+                {
+                    using var fs = new FileStream(path, FileMode.Append, FileAccess.Write, FileShare.Read);
+                    while (!stop)
+                    {
+                        var line = System.Text.Encoding.UTF8.GetBytes($"{{\"@t\":\"2024-02-01T00:00:00.{written % 1000:000}Z\",\"@mt\":\"stream {{N}}\",\"N\":{written}}}\n");
+                        fs.Write(line, 0, line.Length);
+                        fs.Flush(true);
+                        written++;
+                        System.Threading.Thread.Sleep(5);
+                    }
+                });
+                writer.Start();
+
+                var seenWhileWriting = new System.Collections.Generic.List<int>();
+                for (var i = 0; i < 6; i++)
+                {
+                    System.Threading.Thread.Sleep(500);
+                    seenWhileWriting.Add((int)indexed.Search(1, 1).Logs.TotalItems - 20);
+                }
+
+                var notificationsDuringStream = notifications;
+                stop = true;
+                writer.Join();
+
+                Assert.GreaterOrEqual(notificationsDuringStream, 4, "notified repeatedly during the stream, not once at the end");
+                Assert.Greater(seenWhileWriting[2], 0, "rows are visible while the writer is still going");
+                CollectionAssert.AreEqual(seenWhileWriting.OrderBy(x => x), seenWhileWriting, "and the count only grows");
+                Assert.Greater(seenWhileWriting[5], seenWhileWriting[2]);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
     }
 }

@@ -26,6 +26,7 @@ namespace LogViewer.Server.Services
         private readonly FileSystemWatcher _watcher = new FileSystemWatcher();
         private readonly Timer _changeTimer;
         private volatile LogIndex? _index;
+        private int _refreshScheduled;
 
         public IndexedLogService(IHubContext<LogHub> hub)
         {
@@ -34,7 +35,14 @@ namespace LogViewer.Server.Services
 
             // The handler is added once. (The original parser added another on every open, so a file opened five times notified five times.)
             _watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size;
-            _watcher.Changed += (_, _) => _changeTimer!.Change(ChangeDelayMilliseconds, Timeout.Infinite);
+            // A throttle, not a debounce: the first change schedules a refresh and later changes do not push it back. An application that
+            // logs continuously is never quiet for a quarter of a second, so a debounce would never fire and the viewer would freeze until
+            // the application stopped. A change that arrives while a refresh is running schedules the next one, so none is lost.
+            _watcher.Changed += (_, _) =>
+            {
+                if (Interlocked.Exchange(ref _refreshScheduled, 1) == 0)
+                    _changeTimer!.Change(ChangeDelayMilliseconds, Timeout.Infinite);
+            };
             _changeTimer = new Timer(_ => OnFileChanged(), null, Timeout.Infinite, Timeout.Infinite);
         }
 
@@ -172,6 +180,8 @@ namespace LogViewer.Server.Services
 
         private void OnFileChanged()
         {
+            Interlocked.Exchange(ref _refreshScheduled, 0);
+
             try
             {
                 var index = _index;
