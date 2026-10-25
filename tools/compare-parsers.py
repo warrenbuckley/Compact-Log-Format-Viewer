@@ -17,6 +17,13 @@ os.makedirs(out_dir, exist_ok=True)
 
 FILTERS = [None, "", "Has(@x)", "Has(@Exception)", "Duration > 1000", "runtime", "RUNTIME", "@m like '%localhost%'",
            "@Level='Error' or @Level='Fatal' or Has(@Exception)",  # what the client's error button sends
+           "@Level = 'Verbose'", "@Level = 'Debug'", "@Level = 'Information'", "@Level = 'Warning'", "@Level = 'Error'", "@Level = 'Fatal'",  # clicking a level
+           "@MessageTemplate = '{EndMessage} ({Duration}ms) [Timing {TimingId}]'",  # clicking a template (the client sends the text unescaped)
+           "@MessageTemplate = '{LogPrefix} Task added {TaskType}'",
+           "@MessageTemplate = 'Request starting {Protocol} {Method} {Scheme}://{Host}{PathBase}{Path}{QueryString} - {ContentType} {ContentLength}'",
+           "@MessageTemplate = 'a template that is not in any file'", "@MessageTemplate = 'it's got a quote'",
+           "@Level = 'Error' and Has(@Exception)", "@Level = 'Warning' or @Level = 'Debug' and Has(@Exception)", "@l='error'", "@Level = 'Nope'",
+           "@Level = 'Debug' or Duration > 1000", "(@Level = 'Fatal' or Has(@x)) and @mt = 'plain'", "@Level = 'Error' OR @Level = 'Warning'",
            "StartsWith(SourceContext, 'Umbraco.Core')", "Not(@l = 'Verbose') and Not(@l = 'Debug')", "Has(@tr)", "@tr is not null",
            "Request starting", "Request", "50%", "(", "x=y", " ", "Duration >"]
 SORTS = ["Descending", "Ascending"]

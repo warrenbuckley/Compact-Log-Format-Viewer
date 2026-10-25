@@ -44,6 +44,9 @@ public sealed class LogQuery
 
     /// <summary>The search box: a plain word or a Serilog expression. This is the only part that re-reads lines.</summary>
     public string? Filter { get; init; }
+
+    /// <summary>For tests: false skips narrowing by what the index knows about the filter and builds every property, so the result can be compared with the plain path.</summary>
+    internal bool NarrowWithIndex { get; init; } = true;
 }
 
 public sealed record LogEntry(

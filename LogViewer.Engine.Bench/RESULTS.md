@@ -91,6 +91,35 @@ and about 160 filters including 26 on `@tr`/`@sp` compared against the real serv
 One difference from the old parser, in the more forgiving direction: a line with an id Serilog rejects (or other values its reader throws on) used to make the whole file fail to open;
 the engine reports that row as unreadable and carries on.
 
+## The clicks the Electron client sends
+
+The client builds three kinds of filter from clicks: the error badge (`@Level='Error' or @Level='Fatal' or Has(@Exception)`), a level (`@Level = 'Debug'`),
+and a template (`@MessageTemplate = '...'`). All three used to read every line. The index already knows level, exception and template per row,
+so it now says which rows could possibly match and only those are read; **the real Serilog expression still decides**, so the result is exact by construction
+(the index can only get speed wrong, never the answer, as long as it never excludes a matching row).
+
+In-process benchmark, ms (500 MB / 1 GB), before and after:
+
+| Click | Reading every line | Now |
+|---|---|---|
+| Error badge | 681 / 1,559 | **47 / 76** |
+| A level: Warning (4% of rows) | 694 / 1,361 | **39 / 77** |
+| A template | 663 / 1,268 | **50 / 94** |
+| A level: Debug (60% of rows) | 637 / 1,448 | 225 / 384 |
+
+Over HTTP on the published server (500 MB): error badge 1,514 -> 295 ms (includes first-call warm-up), Warning 627 -> 63, template 932 -> 75, Debug 1,107 -> 688.
+
+How it is kept exact:
+- A piece of the text is only turned into an index condition if it matches exactly `@Level = 'X'`, `Has(@Exception)` / `IsDefined(@x)`, or `@MessageTemplate = '...'`. Everything else means "any row".
+- `and` narrows to the pieces that were understood, `or` only narrows if every piece was understood, and a piece containing `not` or `if` at its top level is "any row".
+- Rows whose `@l` text is not one of the six level names carry a flag and are never excluded by level (Serilog accepts `"3"` as Warning).
+- A generated-expression test builds thousands of expressions (nested and/or, not, if, capitals, quotes in templates) over logs with deliberately awkward levels, exceptions and templates and
+  compares the result with the fully unoptimised path: 9,000 expressions, 0 differences after one real bug was found and fixed (it ignored capital `OR` and excluded rows).
+  Mutation tests: dropping case-insensitivity, the `if` guard, the unknown-level flag, quote unescaping, or turning `or` into `and` each fail it. Dropping the `not` guard does **not**
+  fail it: Serilog's `not` binds tighter than `and`, as assumed, so that guard is a safety margin, not a necessity.
+- When every piece was understood the expression cannot read an ordinary property, so the reader skips building them (the Debug row above, about twice as fast).
+- Over HTTP, original and new server returned byte-identical responses for 3,707 requests (27 MB of search JSON), including these filters, an unknown level, an unescaped quote that breaks the expression, and capital `OR`.
+
 ## What real Umbraco sites write, and following a request in any application
 
 Checked by building actual Umbraco sites from the published NuGet packages (SQLite, unattended install), sending requests, and reading the JSON log each one wrote

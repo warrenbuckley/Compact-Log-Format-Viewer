@@ -23,7 +23,6 @@ public sealed class LogIndex : IDisposable
     private const int MaxChunks = 512;
     private const int BatchBytes = 1 << 20;
     private const int LevelBits = 7;
-    private const byte HasExceptionFlag = 0x80;
     private static readonly System.Buffers.SearchValues<byte> Whitespace = System.Buffers.SearchValues.Create(" \t\r\n"u8);
 
     private readonly ReaderWriterLockSlim _lock = new();
@@ -179,7 +178,14 @@ public sealed class LogIndex : IDisposable
         try
         {
             var rows = FilterByIndex(query, ct);
-            return filter is null ? rows : Refine(rows, filter, ct);
+            if (filter is null)
+                return rows;
+
+            // Rows the index can already rule out are not read. This only removes rows that cannot match; the real filter still decides the rest.
+            if (query.NarrowWithIndex && filter.Condition is { } condition)
+                rows = Narrow(rows, condition, ct);
+
+            return Refine(rows, filter, query.NarrowWithIndex, ct);
         }
         finally
         {
@@ -214,7 +220,7 @@ public sealed class LogIndex : IDisposable
             for (var i = 0; i < rows.Count; i++)
             {
                 var level = _levels[rows.RowAt(i)];
-                if ((level & HasExceptionFlag) != 0 || (level & 7) >= 4)
+                if ((level & LevelByte.HasException) != 0 || (level & 7) >= 4)
                     errors++;
             }
 
@@ -410,7 +416,7 @@ public sealed class LogIndex : IDisposable
                 new DateTimeOffset(_ticks[row], TimeSpan.Zero),
                 (LogEventLevel)(level & 7),
                 TemplateText(_templates[row]),
-                (level & HasExceptionFlag) != 0,
+                (level & LevelByte.HasException) != 0,
                 _templates[row],
                 _traces[row]);
         }
@@ -997,8 +1003,70 @@ public sealed class LogIndex : IDisposable
         return new RowSet(rows.ToArray());
     }
 
+    private RowSet Narrow(RowSet rows, RowCondition condition, CancellationToken ct)
+    {
+        var test = BuildTest(condition);
+        var kept = new List<int>();
+        for (var i = 0; i < rows.Count; i++)
+        {
+            if ((i & 0xFFFF) == 0)
+                ct.ThrowIfCancellationRequested();
+
+            var row = rows.RowAt(i);
+            if (test(row))
+                kept.Add(row);
+        }
+
+        return kept.Count == rows.Count ? rows : new RowSet(kept.ToArray());
+    }
+
+    private Func<int, bool> BuildTest(RowCondition condition)
+    {
+        var levels = _levels;
+        var templates = _templates;
+
+        switch (condition)
+        {
+            case RowCondition.LevelIs level:
+                var wanted = (int)level.Level;
+                return row => (levels[row] & LevelByte.UnknownLevel) != 0 || (levels[row] & LevelByte.LevelMask) == wanted;
+
+            case RowCondition.HasException:
+                return row => (levels[row] & LevelByte.HasException) != 0;
+
+            case RowCondition.TemplateIs template:
+                var id = _templateTable.Find(Encoding.UTF8.GetBytes(template.Text));
+                return id < 0 ? _ => false : row => templates[row] == id;
+
+            case RowCondition.AnyOf any:
+                var anyParts = any.Parts.Select(BuildTest).ToArray();
+                return row =>
+                {
+                    foreach (var part in anyParts)
+                        if (part(row))
+                            return true;
+
+                    return false;
+                };
+
+            case RowCondition.AllOf every:
+                var everyParts = every.Parts.Select(BuildTest).ToArray();
+                return row =>
+                {
+                    foreach (var part in everyParts)
+                        if (!part(row))
+                            return false;
+
+                    return true;
+                };
+
+            default:
+                return _ => true;
+        }
+    }
+
     /// <summary>Parses the candidate lines in parallel (a few MB at a time, in file order) and keeps the ones the predicate accepts.</summary>
-    private RowSet Refine(RowSet candidates, CompiledFilter filter, CancellationToken ct)
+    private RowSet Refine(RowSet candidates, CompiledFilter filter, bool optimise, CancellationToken ct)
     {
         var n = candidates.Count;
         if (n == 0)
@@ -1009,7 +1077,7 @@ public sealed class LogIndex : IDisposable
         Parallel.ForEach(
             Partitioner.Create(0, n, 2048),
             new ParallelOptions { CancellationToken = ct },
-            range => EvaluateRange(candidates, range.Item1, range.Item2, keep, filter));
+            range => EvaluateRange(candidates, range.Item1, range.Item2, keep, filter, optimise));
 
         var kept = 0;
         foreach (var k in keep)
@@ -1024,10 +1092,10 @@ public sealed class LogIndex : IDisposable
         return new RowSet(rows);
     }
 
-    private void EvaluateRange(RowSet rows, int from, int to, bool[] keep, CompiledFilter filter)
+    private void EvaluateRange(RowSet rows, int from, int to, bool[] keep, CompiledFilter filter, bool optimise)
     {
         var fast = new FastEventReader();
-        fast.KeepOnly(filter.Properties);
+        fast.KeepOnly(optimise ? filter.Properties : null); // null builds every property: the plain path the optimised one is compared with
         byte[]? buffer = null;
         try
         {

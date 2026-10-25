@@ -126,6 +126,20 @@ static void RunEngine(string path)
     Row("filter: @l = 'Error' (parses every line)", Median(() => rows = index.Query(new LogQuery { Filter = "@l = 'Error'" })), $"{rows.Count:N0} rows");
     Row("filter: Duration > 1000", Median(() => rows = index.Query(new LogQuery { Filter = "Duration > 1000" })), $"{rows.Count:N0} rows");
     Row("filter: plain word 'timeout'", Median(() => rows = index.Query(new LogQuery { Filter = "timeout" })), $"{rows.Count:N0} rows");
+    // The three filters the Electron client sends from clicks, with and without the index narrowing which rows have to be read
+    foreach (var (label, text) in new[]
+    {
+        ("client: error badge", "@Level='Error' or @Level='Fatal' or Has(@Exception)"),
+        ("client: click a level (Debug)", "@Level = 'Debug'"),
+        ("client: click a level (Warning)", "@Level = 'Warning'"),
+        ("client: click a template", "@MessageTemplate = '{EndMessage} ({Duration}ms) [Timing {TimingId}]'"),
+        ("client: click a template (unknown)", "@MessageTemplate = 'Cache miss for key {CacheKey}'"),
+    })
+    {
+        Row($"{label}, reading every line", Median(() => rows = index.Query(new LogQuery { Filter = text, NarrowWithIndex = false })), $"{rows.Count:N0} rows");
+        Row($"{label}, narrowed by the index", Median(() => rows = index.Query(new LogQuery { Filter = text })), $"{rows.Count:N0} rows");
+    }
+
     Row("filter: Error level + word 'timeout'", Median(() => rows = index.Query(new LogQuery { Levels = LogLevelMask.Error, Filter = "timeout" })), $"{rows.Count:N0} rows");
 
     var middle = index.GetRowInfo(index.Count / 2).Timestamp;

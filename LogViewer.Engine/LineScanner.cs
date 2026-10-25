@@ -11,7 +11,6 @@ namespace LogViewer.Engine;
 /// </summary>
 internal static class LineScanner
 {
-    private const byte HasExceptionFlag = 0x80;
     private static readonly byte[] Bom = { 0xEF, 0xBB, 0xBF };
 
     private enum Field { Other, Timestamp, Level, Template, Message, Exception, Trace }
@@ -94,6 +93,7 @@ internal static class LineScanner
         long ticks = 0;
         var hasTicks = false;
         byte level = 2; // CLEF omits @l for Information
+        var unknownLevel = false;
         var hasException = false;
         var template = -1;
         var trace = -1;
@@ -134,7 +134,8 @@ internal static class LineScanner
                         break;
 
                     case Field.Level when reader.TokenType == JsonTokenType.String:
-                        level = ParseLevel(reader.ValueIsEscaped ? Encoding.UTF8.GetBytes(reader.GetString()!) : reader.ValueSpan);
+                        level = ParseLevel(reader.ValueIsEscaped ? Encoding.UTF8.GetBytes(reader.GetString()!) : reader.ValueSpan, out var recognised);
+                        unknownLevel = !recognised;
                         break;
 
                     case Field.Template when reader.TokenType == JsonTokenType.String:
@@ -185,7 +186,7 @@ internal static class LineScanner
         r.Offsets.Add(offset);
         r.Lengths.Add(line.Length);
         r.Ticks.Add(ticks);
-        r.Levels.Add((byte)(level | (hasException ? HasExceptionFlag : 0)));
+        r.Levels.Add((byte)(level | (hasException ? LevelByte.HasException : 0) | (unknownLevel ? LevelByte.UnknownLevel : 0)));
         r.Templates.Add(template);
         r.Traces.Add(trace);
         for (var i = 0; i < correlation.Length; i++)
@@ -219,20 +220,18 @@ internal static class LineScanner
         return -1;
     }
 
-    private static byte ParseLevel(ReadOnlySpan<byte> value)
+    /// <summary>The six level names, case-insensitively, as Serilog's reader accepts them. Anything else is flagged so the row is never excluded by its level.</summary>
+    private static byte ParseLevel(ReadOnlySpan<byte> value, out bool recognised)
     {
-        if (value.IsEmpty)
-            return 2;
+        recognised = true;
+        if (System.Text.Ascii.EqualsIgnoreCase(value, "Information"u8)) return 2;
+        if (System.Text.Ascii.EqualsIgnoreCase(value, "Debug"u8)) return 1;
+        if (System.Text.Ascii.EqualsIgnoreCase(value, "Warning"u8)) return 3;
+        if (System.Text.Ascii.EqualsIgnoreCase(value, "Error"u8)) return 4;
+        if (System.Text.Ascii.EqualsIgnoreCase(value, "Verbose"u8)) return 0;
+        if (System.Text.Ascii.EqualsIgnoreCase(value, "Fatal"u8)) return 5;
 
-        return (value[0] | 0x20) switch
-        {
-            'v' => 0,
-            'd' => 1,
-            'i' => 2,
-            'w' => 3,
-            'e' => 4,
-            'f' => 5,
-            _ => 2
-        };
+        recognised = false;
+        return 2;
     }
 }
