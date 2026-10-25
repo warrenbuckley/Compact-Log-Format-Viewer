@@ -35,10 +35,12 @@ public sealed class LogIndex : IDisposable
     private byte[] _levels = Array.Empty<byte>();
     private int[] _templates = Array.Empty<int>();
     private int[] _requests = Array.Empty<int>();
+    private int[] _traces = Array.Empty<int>();
     private int _count;
 
     private Utf8Interner _templateTable = new();
     private Utf8Interner _requestTable = new();
+    private Utf8Interner _traceTable = new();
     private static readonly MessageTemplateParser TemplateParser = new();
     private MessageTemplate?[] _templateObjects = Array.Empty<MessageTemplate?>(); // parsed lazily, shared by every event of that template
 
@@ -131,10 +133,10 @@ public sealed class LogIndex : IDisposable
         _lock.EnterReadLock();
         try
         {
-            var columns = (long)_offsets.Length * (8 + 4 + 8 + 1 + 4 + 4) + (_order?.Length ?? 0) * 4L;
+            var columns = (long)_offsets.Length * (8 + 4 + 8 + 1 + 4 + 4 + 4) + (_order?.Length ?? 0) * 4L;
             return new IndexStats(
-                _count, _malformed, _indexedBytes, _templateTable.Count, _requestTable.Count, _chronological,
-                columns + _templateTable.ApproxBytes() + _requestTable.ApproxBytes());
+                _count, _malformed, _indexedBytes, _templateTable.Count, _requestTable.Count, _traceTable.Count, _chronological,
+                columns + _templateTable.ApproxBytes() + _requestTable.ApproxBytes() + _traceTable.ApproxBytes());
         }
         finally
         {
@@ -300,6 +302,43 @@ public sealed class LogIndex : IDisposable
         }
     }
 
+    /// <summary>For "same trace": the id of a trace id string (32 hex digits), or null if no row carries it.</summary>
+    public int? FindTraceId(string traceId)
+    {
+        _lock.EnterReadLock();
+        try
+        {
+            var id = _traceTable.Find(Encoding.UTF8.GetBytes(traceId));
+            return id < 0 ? null : id;
+        }
+        finally
+        {
+            _lock.ExitReadLock();
+        }
+    }
+
+    /// <summary>The text behind a <see cref="RowInfo.TraceId"/>, or null for -1 (the row has none).</summary>
+    public string? GetTraceText(int traceId) => TextOf(_traceTable, traceId);
+
+    /// <summary>The text behind a <see cref="RowInfo.RequestId"/>, or null for -1 (the row has none).</summary>
+    public string? GetRequestText(int requestId) => TextOf(_requestTable, requestId);
+
+    private string? TextOf(Utf8Interner table, int id)
+    {
+        if (id < 0)
+            return null;
+
+        _lock.EnterReadLock();
+        try
+        {
+            return Encoding.UTF8.GetString(table[id]);
+        }
+        finally
+        {
+            _lock.ExitReadLock();
+        }
+    }
+
     /// <summary>Index-only facts about a row, with no parsing and no file access.</summary>
     public RowInfo GetRowInfo(int row)
     {
@@ -313,7 +352,8 @@ public sealed class LogIndex : IDisposable
                 TemplateText(_templates[row]),
                 (level & HasExceptionFlag) != 0,
                 _templates[row],
-                _requests[row]);
+                _requests[row],
+                _traces[row]);
         }
         finally
         {
@@ -409,9 +449,11 @@ public sealed class LogIndex : IDisposable
         _levels = Array.Empty<byte>();
         _templates = Array.Empty<int>();
         _requests = Array.Empty<int>();
+        _traces = Array.Empty<int>();
         _count = 0;
         _templateTable = new Utf8Interner();
         _requestTable = new Utf8Interner();
+        _traceTable = new Utf8Interner();
         _templateObjects = Array.Empty<MessageTemplate?>();
         _chronological = true;
         _order = null;
@@ -514,6 +556,10 @@ public sealed class LogIndex : IDisposable
             for (var i = 0; i < requestMap.Length; i++)
                 requestMap[i] = _requestTable.Intern(chunk.RequestTable[i]);
 
+            var traceMap = new int[chunk.TraceTable.Count];
+            for (var i = 0; i < traceMap.Length; i++)
+                traceMap[i] = _traceTable.Intern(chunk.TraceTable[i]);
+
             if (!chunk.Chronological || (_count > 0 && chunk.Ticks[0] < _ticks[_count - 1]))
                 _chronological = false;
 
@@ -527,6 +573,8 @@ public sealed class LogIndex : IDisposable
                 _templates[_count + i] = templateMap[chunk.Templates[i]];
                 var request = chunk.Requests[i];
                 _requests[_count + i] = request < 0 ? -1 : requestMap[request];
+                var trace = chunk.Traces[i];
+                _traces[_count + i] = trace < 0 ? -1 : traceMap[trace];
             }
 
             _count += chunk.Count;
@@ -639,6 +687,7 @@ public sealed class LogIndex : IDisposable
         Array.Resize(ref _levels, capacity);
         Array.Resize(ref _templates, capacity);
         Array.Resize(ref _requests, capacity);
+        Array.Resize(ref _traces, capacity);
     }
 
     private long FindNextLineStart(long position, long end)
@@ -776,7 +825,7 @@ public sealed class LogIndex : IDisposable
         var allLevels = mask == (int)LogLevelMask.All;
         var timeFiltered = q.From is not null || q.To is not null;
 
-        if (allLevels && !timeFiltered && q.TemplateId is null && q.RequestId is null)
+        if (allLevels && !timeFiltered && q.TemplateId is null && q.RequestId is null && q.TraceId is null)
             return AllRows();
 
         var from = q.From?.UtcTicks ?? long.MinValue;
@@ -784,6 +833,8 @@ public sealed class LogIndex : IDisposable
         int template = q.TemplateId ?? -1, request = q.RequestId ?? -1;
         var matchTemplate = q.TemplateId is not null;
         var matchRequest = q.RequestId is not null;
+        var matchTrace = q.TraceId is not null;
+        var trace = q.TraceId ?? -1;
 
         int lo = 0, hi = _count;
         if (timeFiltered)
@@ -806,6 +857,9 @@ public sealed class LogIndex : IDisposable
                 continue;
 
             if (matchRequest && _requests[row] != request)
+                continue;
+
+            if (matchTrace && _traces[row] != trace)
                 continue;
 
             rows.Add(row);
@@ -940,7 +994,9 @@ public sealed class LogIndex : IDisposable
             evt.MessageTemplate.Text,
             evt.RenderMessage(),
             evt.Exception?.ToString(),
-            evt.Properties);
+            evt.Properties,
+            evt.TraceId?.ToHexString(),
+            evt.SpanId?.ToHexString());
     }
 
     private string TemplateText(int id) => Encoding.UTF8.GetString(_templateTable[id]);

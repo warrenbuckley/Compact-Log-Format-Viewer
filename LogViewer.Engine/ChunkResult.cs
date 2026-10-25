@@ -9,9 +9,11 @@ internal sealed class ChunkResult
     public readonly List<byte> Levels = new();
     public readonly List<int> Templates = new();
     public readonly List<int> Requests = new();
+    public readonly List<int> Traces = new();
 
     public readonly Utf8Interner TemplateTable = new();
     public readonly Utf8Interner RequestTable = new();
+    public readonly Utf8Interner TraceTable = new();
 
     public int Malformed;
     public bool Chronological = true;

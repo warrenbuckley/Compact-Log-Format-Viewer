@@ -38,6 +38,9 @@ public sealed class LogQuery
 
     public int? RequestId { get; init; }
 
+    /// <summary>Rows carrying this trace id (@tr). Files written outside a request, or by an older logger, simply have no trace ids.</summary>
+    public int? TraceId { get; init; }
+
     /// <summary>The search box: a plain word or a Serilog expression. This is the only part that re-reads lines.</summary>
     public string? Filter { get; init; }
 }
@@ -49,7 +52,9 @@ public sealed record LogEntry(
     string MessageTemplate,
     string RenderedMessage,
     string? Exception,
-    IReadOnlyDictionary<string, LogEventPropertyValue> Properties);
+    IReadOnlyDictionary<string, LogEventPropertyValue> Properties,
+    string? TraceId = null,
+    string? SpanId = null);
 
 public readonly record struct RowInfo(
     DateTimeOffset Timestamp,
@@ -57,7 +62,8 @@ public readonly record struct RowInfo(
     string MessageTemplate,
     bool HasException,
     int TemplateId,
-    int RequestId);
+    int RequestId,
+    int TraceId);
 
 public readonly record struct LevelCounts(long Verbose, long Debug, long Information, long Warning, long Error, long Fatal)
 {
@@ -76,6 +82,7 @@ public sealed record IndexStats(
     long IndexedBytes,
     int TemplateCount,
     int RequestCount,
+    int TraceCount,
     bool Chronological,
     long ApproxIndexMemoryBytes);
 

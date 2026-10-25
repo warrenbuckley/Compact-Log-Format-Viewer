@@ -2,7 +2,7 @@ using System.Diagnostics;
 using LogViewer.Engine;
 using LogViewer.Engine.Bench;
 
-// gen <path> <MB> [jitter]      write a synthetic CLEF file (jitter: ~3% of lines slightly out of time order)
+// gen <path> <MB> [jitter] [traces]   write a synthetic CLEF file (jitter: ~3% of lines slightly out of time order; traces: ~75% of requests carry @tr/@sp)
 // engine <path>                 time the new index
 // baseline <path>               time the current in-memory parser
 // open <path>                  open the index repeatedly, and the line scanner alone on one thread
@@ -22,7 +22,7 @@ switch (mode)
 {
     case "gen":
         var sw = Stopwatch.StartNew();
-        Generator.Write(path, long.Parse(args[2]) * 1024 * 1024, args.Length > 3 && args[3] == "jitter");
+        Generator.Write(path, long.Parse(args[2]) * 1024 * 1024, args.Contains("jitter"), args.Contains("traces"));
         Console.WriteLine($"wrote {new FileInfo(path).Length / 1024 / 1024} MB in {sw.Elapsed.TotalSeconds:0.0}s");
         return 0;
 

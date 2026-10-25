@@ -24,8 +24,10 @@ public class ExactnessTests
 
         var mixed = Path.Combine(_dir, "mixed.json");
         TestData.WriteMixedLog(mixed, 6000);
+        var traces = Path.Combine(_dir, "traces.json");
+        TestData.WriteTraceLog(traces, 6000);
 
-        foreach (var path in new[] { Path.Combine(TestContext.CurrentContext.TestDirectory, "UmbracoTraceLog.UNITTEST.20181112.json"), mixed })
+        foreach (var path in new[] { Path.Combine(TestContext.CurrentContext.TestDirectory, "UmbracoTraceLog.UNITTEST.20181112.json"), mixed, traces })
         {
             var old = new LogParser(new Mock<IHubContext<LogHub>>().Object);
             old.ReadLogs(path);
@@ -70,9 +72,20 @@ public class ExactnessTests
         "Duration >", "Name = ", "@l = 'Nope'", "@t > 5", "1 = 1", "true", "false", "@x like '%nope 4%'", "Contains(@x, 'nope')",
     };
 
+    /// <summary>Filters that look at trace and span ids, run on a log where some requests have them, some have half, and some have none.</summary>
+    public static IEnumerable<string> TraceFilters => new[]
+    {
+        "Has(@tr)", "Not(Has(@tr))", "Has(@sp)", "IsDefined(@tr)", "@tr is null", "@sp is null", "@tr is not null", "@sp is not null",
+        $"@tr = '{TestData.TraceOf(1)}'", $"@tr = '{TestData.TraceOf(2)}'", $"@tr = '{TestData.TraceOf(9)}'", $"@sp = '{TestData.SpanOf(11)}'",
+        $"@sp = '{TestData.SpanOf(33)}'", "StartsWith(@tr, '0000000000000000000000000000000')", "@tr like '%1'", "Coalesce(@tr, 'none') = 'none'",
+        "Has(@tr) and Has(@sp)", "Has(@tr) and Not(Has(@sp))", "Has(@sp) and Not(Has(@tr))", $"@tr = '{TestData.TraceOf(1)}' and @l = 'Warning'",
+        "@tr", "Length(@tr) = 32", "TypeOf(@tr) = 'ActivityTraceId'", "@tr = @tr", "Duration > 60 and Has(@tr)", "@m like '%page%' and Has(@sp)",
+    };
+
     public static IEnumerable<TestCaseData> Cases =>
-        new[] { "UmbracoTraceLog.UNITTEST.20181112.json", "mixed.json" }
-            .SelectMany(file => Filters.Select(filter => new TestCaseData(file, filter).SetName($"{file} :: {(filter.Length == 0 ? "<empty>" : filter)}")));
+        new[] { "UmbracoTraceLog.UNITTEST.20181112.json", "mixed.json", "traces.json" }
+            .SelectMany(file => (file == "traces.json" ? Filters.Concat(TraceFilters) : Filters)
+                .Select(filter => new TestCaseData(file, filter).SetName($"{file} :: {(filter.Length == 0 ? "<empty>" : filter)}")));
 
     [TestCaseSource(nameof(Cases))]
     public void Search_Returns_What_The_Server_Returns_Today(string file, string filter)
@@ -95,6 +108,7 @@ public class ExactnessTests
 
     [TestCase("UmbracoTraceLog.UNITTEST.20181112.json")]
     [TestCase("mixed.json")]
+    [TestCase("traces.json")]
     public void Totals_Match_The_Server(string file)
     {
         var (old, index) = _files[file];
@@ -109,6 +123,7 @@ public class ExactnessTests
 
     [TestCase("UmbracoTraceLog.UNITTEST.20181112.json")]
     [TestCase("mixed.json")]
+    [TestCase("traces.json")]
     public void Newest_First_Pages_Match_The_Server(string file)
     {
         var (old, index) = _files[file];

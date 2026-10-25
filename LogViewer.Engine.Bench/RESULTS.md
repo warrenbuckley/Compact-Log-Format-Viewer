@@ -68,6 +68,29 @@ failed at startup (`IsEnhancedModelMetadataSupported`), and the documented featu
 found by running the published binary. The server is now published untrimmed (97 MB single file instead of 34 MB), and the published build was checked over HTTP:
 `open`, `search` with `Has()`, `IsDefined()`, `like`, and numeric and string expressions, `totals` and `errors` all return the expected values.
 
+## Trace and span ids: files with them, without them, or both
+
+Loggers that write from inside an ASP.NET Core request add `@tr` (trace id) and `@sp` (span id) to the line; older loggers and background work do not,
+and one file can hold both kinds. The fast reader first declined every line with them and left those to Serilog's slower reader.
+500 MB, ~75% of requests carrying ids on every line (the `traces` option of the generator), parse-bound filters:
+
+| | File without trace ids | File with trace ids, before | File with trace ids, after |
+|---|---|---|---|
+| `@l = 'Error'` expression | 619 ms | 3,009 ms | 656 ms |
+| `Duration > 1000` expression | 626 ms | 3,060 ms | 638 ms |
+| Plain word `timeout` | 498 ms | 3,253 ms | 538 ms |
+
+The file without ids is unchanged by the work (620 / 633 / 487 ms after). Cost: one more 4-byte column per row (~4 MB per million rows).
+
+What was added: `@tr`/`@sp` in the fast reader (same `LogEvent` trace and span ids as Serilog's reader, strict about what Serilog accepts: 32 or 16 lowercase hex digits,
+not all zeros), a trace id column in the index with `LogQuery.TraceId`, `FindTraceId`, `GetTraceText`, `GetRequestText`, `RowInfo.TraceId`, and `LogEntry.TraceId`/`SpanId`.
+The index filter and a typed `@tr = '...'` expression return identical rows (tested), so both ways of asking for a trace agree.
+Tested for: no ids anywhere, ids on every line, `@tr` alone, `@sp` alone, `null`, escaped digits, ids Serilog rejects, a live file that gains or loses ids, a file replaced by one with none,
+and about 160 filters including 26 on `@tr`/`@sp` compared against the real server parser.
+
+One difference from the old parser, in the more forgiving direction: a line with an id Serilog rejects (or other values its reader throws on) used to make the whole file fail to open;
+the engine reports that row as unreadable and carries on.
+
 ## Exactness: the engine returns what the server returns
 
 Every search runs through Serilog.Expressions with the rules `LogParser` uses today (a plain word is `@m like '%word%' ci`, an expression that does not

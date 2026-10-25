@@ -15,17 +15,19 @@ public class FastReaderTests
 {
     private static readonly MessageTemplateParser Parser = new();
 
-    private static LogEvent? Reference(string line)
+    internal static LogEvent? Reference(string line)
     {
         try { return LogEventReader.ReadFromString(line); }
         catch (Exception) { return null; }
     }
 
-    private static void AssertSame(LogEvent expected, LogEvent actual, string context)
+    internal static void AssertSame(LogEvent expected, LogEvent actual, string context)
     {
         Assert.AreEqual(expected.Timestamp, actual.Timestamp, context + " timestamp");
         Assert.AreEqual(expected.Timestamp.Offset, actual.Timestamp.Offset, context + " offset");
         Assert.AreEqual(expected.Level, actual.Level, context + " level");
+        Assert.AreEqual(expected.TraceId, actual.TraceId, context + " trace id");
+        Assert.AreEqual(expected.SpanId, actual.SpanId, context + " span id");
         Assert.AreEqual(expected.MessageTemplate.Text, actual.MessageTemplate.Text, context + " template");
         Assert.AreEqual(expected.Exception?.ToString(), actual.Exception?.ToString(), context + " exception");
         Assert.AreEqual(expected.RenderMessage(), actual.RenderMessage(), context + " rendered message");
@@ -65,7 +67,7 @@ public class FastReaderTests
         Assert.AreEqual(expected.ToString(), actual.ToString(), context + " text");
     }
 
-    private static bool FastPath(string line, out LogEvent evt)
+    internal static bool FastPath(string line, out LogEvent evt)
     {
         var reference = Reference(line);
         var template = reference?.MessageTemplate ?? Parser.Parse("(unused)");

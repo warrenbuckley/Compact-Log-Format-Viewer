@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
@@ -10,8 +11,9 @@ namespace LogViewer.Engine;
 /// Builds a <see cref="LogEvent"/> straight from the UTF-8 bytes of one CLEF line, producing the same event as
 /// Serilog.Formatting.Compact.Reader but without the JObject tree and without re-parsing the message template
 /// (the caller supplies the cached template). Anything outside the common shape returns false so the caller can
-/// hand the line to Serilog's own reader, which stays the reference for odd input: renderings (@r), trace and span ids,
-/// @m without @mt, malformed or non-standard JSON, and values Serilog would reject.
+/// hand the line to Serilog's own reader, which stays the reference for odd input: renderings (@r), @m without @mt,
+/// malformed or non-standard JSON, and values Serilog would reject (such as a trace id that is not 32 lowercase hex digits).
+/// Trace and span ids (@tr, @sp) are read here; a file may have them on every line, on some, or on none.
 /// An instance keeps a small property-name cache, so use one per thread.
 /// </summary>
 internal sealed class FastEventReader
@@ -39,7 +41,7 @@ internal sealed class FastEventReader
         _neededByTemplate.Clear();
     }
 
-    private enum Field { Property, Timestamp, MessageTemplate, Message, Level, Exception, EventId, Unsupported }
+    private enum Field { Property, Timestamp, MessageTemplate, Message, Level, Exception, EventId, TraceId, SpanId, Unsupported }
 
     public bool TryRead(ReadOnlySpan<byte> line, Serilog.Events.MessageTemplate template, out LogEvent evt)
     {
@@ -67,6 +69,8 @@ internal sealed class FastEventReader
         var level = LogEventLevel.Information;
         Exception? exception = null;
         object? eventId = null;
+        var traceId = default(ActivityTraceId);
+        var spanId = default(ActivitySpanId);
         var properties = new List<LogEventProperty>(24);
         var needed = _wanted is null ? null : NeededFor(template);
 
@@ -129,6 +133,20 @@ internal sealed class FastEventReader
                     exception = new TextException(reader.GetString()!);
                     break;
 
+                case Field.TraceId:
+                    RequireString(ref reader);
+                    traceId = reader.ValueIsEscaped
+                        ? ActivityTraceId.CreateFromString(reader.GetString())
+                        : IsLowerHexId(reader.ValueSpan, 32) ? ActivityTraceId.CreateFromUtf8String(reader.ValueSpan) : throw new FormatException("trace id");
+                    break;
+
+                case Field.SpanId:
+                    RequireString(ref reader);
+                    spanId = reader.ValueIsEscaped
+                        ? ActivitySpanId.CreateFromString(reader.GetString())
+                        : IsLowerHexId(reader.ValueSpan, 16) ? ActivitySpanId.CreateFromUtf8String(reader.ValueSpan) : throw new FormatException("span id");
+                    break;
+
                 case Field.EventId:
                     eventId = reader.TokenType switch
                     {
@@ -146,7 +164,7 @@ internal sealed class FastEventReader
         if (eventId is not null)
             properties.Add(new LogEventProperty("@i", new ScalarValue(eventId)));
 
-        return new LogEvent(timestamp, level, exception, template, properties);
+        return new LogEvent(timestamp, level, exception, template, properties, traceId, spanId);
     }
 
     private LogEventPropertyValue ReadValue(ref Utf8JsonReader reader)
@@ -240,6 +258,28 @@ internal sealed class FastEventReader
         return DateTimeOffset.TryParse(reader.GetString(), out stamp) ? stamp : throw new FormatException("timestamp");
     }
 
+    /// <summary>
+    /// What ActivityTraceId.CreateFromString (which Serilog's reader calls) accepts: exactly <paramref name="length"/> lowercase hex digits,
+    /// not all zeros. The UTF-8 overload is more lenient, so the check is done here to keep a line Serilog rejects rejected.
+    /// </summary>
+    private static bool IsLowerHexId(ReadOnlySpan<byte> id, int length)
+    {
+        if (id.Length != length)
+            return false;
+
+        var allZero = true;
+        foreach (var b in id)
+        {
+            if (b is not ((>= (byte)'0' and <= (byte)'9') or (>= (byte)'a' and <= (byte)'f')))
+                return false;
+
+            if (b != (byte)'0')
+                allZero = false;
+        }
+
+        return !allZero;
+    }
+
     private static int FractionDigits(ReadOnlySpan<byte> text)
     {
         var dot = text.IndexOf((byte)'.');
@@ -287,7 +327,9 @@ internal sealed class FastEventReader
         if (name.SequenceEqual("@l"u8)) return Field.Level;
         if (name.SequenceEqual("@x"u8)) return Field.Exception;
         if (name.SequenceEqual("@i"u8)) return Field.EventId;
-        if (name.SequenceEqual("@r"u8) || name.SequenceEqual("@tr"u8) || name.SequenceEqual("@sp"u8)) return Field.Unsupported;
+        if (name.SequenceEqual("@tr"u8)) return Field.TraceId;
+        if (name.SequenceEqual("@sp"u8)) return Field.SpanId;
+        if (name.SequenceEqual("@r"u8)) return Field.Unsupported;
         return Field.Property; // "@@x" and unknown "@x" names are ordinary properties
     }
 

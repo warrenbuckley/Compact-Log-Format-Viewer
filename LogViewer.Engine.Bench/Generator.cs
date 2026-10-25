@@ -34,14 +34,19 @@ internal static class Generator
     };
 
     /// <param name="jitter">About 3% of lines get a timestamp up to 60 ms earlier than the line before, like threads that log slightly out of order.</param>
-    public static void Write(string path, long targetBytes, bool jitter = false)
+    /// <param name="traces">About 75% of requests carry @tr and @sp on every line, the way an ASP.NET Core app writes them from inside a request: one trace per request, a new span per line. The rest (background work) carry neither.</param>
+    public static void Write(string path, long targetBytes, bool jitter = false, bool traces = false)
     {
         var rng = new Random(42);
         var stamp = new DateTimeOffset(2024, 1, 1, 0, 0, 0, TimeSpan.Zero);
         var request = Guid.NewGuid();
         var requestNumber = 1;
         var rowsLeftInRequest = 0;
+        var trace = "";
+        var inRequest = false;
         var sb = new StringBuilder(2048);
+
+        string Hex(int bytes) => string.Concat(Enumerable.Range(0, bytes).Select(_ => rng.Next(256).ToString("x2")));
 
         using var writer = new StreamWriter(path, false, new UTF8Encoding(false), 1 << 20);
         long written = 0;
@@ -52,6 +57,8 @@ internal static class Generator
                 request = new Guid(Enumerable.Range(0, 16).Select(_ => (byte)rng.Next(256)).ToArray());
                 requestNumber++;
                 rowsLeftInRequest = rng.Next(1, 60);
+                trace = Hex(16);
+                inRequest = rng.Next(100) < 75;
             }
 
             stamp = stamp.AddMilliseconds(rng.Next(1, 40));
@@ -67,6 +74,9 @@ internal static class Generator
                 sb.Append(",\"@l\":\"").Append(level).Append('"');
             if (level == "Error")
                 sb.Append(",\"@x\":\"System.InvalidOperationException: Something went wrong\\n   at Umbraco.Cms.Core.Services.ContentService.Save(IContent content, Int32 userId)\\n   at Umbraco.Cms.Web.BackOffice.Controllers.ContentController.PostSave(ContentItemSave contentItem)\\n   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.Execute(IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)\"");
+
+            if (traces && inRequest)
+                sb.Append(",\"@tr\":\"").Append(trace).Append("\",\"@sp\":\"").Append(Hex(8)).Append('"');
 
             sb.Append(",\"LogPrefix\":\"[Scheduler]\",\"TaskType\":\"Umbraco.Cms.Core.Sync.").Append(rng.Next(50)).Append("\",\"Duration\":").Append(duration)
               .Append(",\"TimingId\":\"").Append(rng.Next(0x1000000).ToString("x6")).Append("\",\"Host\":\"search-").Append(rng.Next(8)).Append(".internal\"")
