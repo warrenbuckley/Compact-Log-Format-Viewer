@@ -91,6 +91,26 @@ and about 160 filters including 26 on `@tr`/`@sp` compared against the real serv
 One difference from the old parser, in the more forgiving direction: a line with an id Serilog rejects (or other values its reader throws on) used to make the whole file fail to open;
 the engine reports that row as unreadable and carries on.
 
+## Time ranges
+
+**Serilog.Expressions 5.0.0 cannot filter by time.** Tested against the sample log with positive controls: `@t < Now()`, `@t > '2018-11-12T08:35:00Z'`, `UtcDateTime(@t) < UtcDateTime(Now())`
+and `@t - Now() < 0` all compile and silently match 0 rows (comparison operators are numeric only); `DateTime(...)` and `TimeSpan(...)` throw "function name not recognized". Only text
+tricks work, for ranges aligned to a time prefix: `StartsWith(ToString(@t, 'yyyy-MM-ddTHH:mm'), '2018-11-12T08:3')` (401 rows).
+
+**Seq's query language can**, per its documentation: duration literals (`30d`, `1h30m`, `100ms`), `Now()`, `DateTime('2021-03-16T14:37:45.001')`, date arithmetic and comparison
+(`@Timestamp >= Now() - 1h`), `OffsetIn()` for time zones, and `group by time(...)`. Its UI also has a separate time range selector. Serilog itself is a writer; its only time concept is file rolling.
+
+So here a time range is not part of the Serilog expression. It is chosen in the UI or typed as tokens, and both become `LogQuery.From`/`To`, answered from the index (0.1 ms):
+
+- `last:15m` (units s, m, h, d, w) counts back from the **newest entry in the file**, so an old file still works; the newest entry is included.
+- `from:` is inclusive and `to:` exclusive. No offset means **UTC**; `Z` and `+01:00` are honoured. A date alone is midnight for `from:` and the whole day for `to:`;
+  `14:00` means that time on the newest entry's date.
+- Recognised only at the start or end of the text, outside single quotes, and only when the whole value is understood. Text without tokens comes back byte for byte unchanged,
+  so existing searches behave exactly as before. `LogIndex.QueryText` applies this; `LogIndex.Query` is untouched.
+- Tested in four time zones (UTC, +5:30, -7, +13): the UTC rule holds wherever the app runs.
+
+This is our own convention, not Serilog or Seq syntax, and is a thin layer over `SearchText.Parse`; dropping it does not affect anything else.
+
 ## Exactness: the engine returns what the server returns
 
 Every search runs through Serilog.Expressions with the rules `LogParser` uses today (a plain word is `@m like '%word%' ci`, an expression that does not

@@ -158,3 +158,48 @@ public class EdgeCaseTests
         Assert.AreEqual(0, index.ReadPage(index.All(), 1, 100, SortOrder.Descending).Count);
     }
 }
+
+public class EmptyCandidateTests
+{
+    [Test]
+    public void A_Filter_Over_Rows_The_Index_Has_Already_Ruled_Out_Returns_Nothing_Instead_Of_Crashing()
+    {
+        var dir = Path.Combine(Path.GetTempPath(), "clef-empty-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(dir);
+        try
+        {
+            var path = Path.Combine(dir, "log.json");
+            TestData.WriteMixedLog(path, 600);
+            using var index = LogIndex.Open(path);
+            var t = index.GetRowInfo(0).Timestamp;
+
+            // Every one of these narrows to zero rows with the index alone and then still has a text filter to apply
+            var empty = new[]
+            {
+                new LogQuery { Levels = LogLevelMask.Fatal, Filter = "Hello" },
+                new LogQuery { Levels = LogLevelMask.Fatal, Filter = "Duration > 10" },
+                new LogQuery { From = t.AddYears(5), Filter = "Hello" },
+                new LogQuery { To = t.AddYears(-5), Filter = "Hello" },
+                new LogQuery { TemplateId = 9999, Filter = "Hello" },
+                new LogQuery { RequestId = 9999, Filter = "Hello" },
+                new LogQuery { TraceId = 9999, Filter = "Hello" },
+            };
+
+            foreach (var query in empty)
+            {
+                var rows = index.Query(query);
+                Assert.AreEqual(0, rows.Count);
+                Assert.AreEqual(0, index.ReadPage(rows, 1, 50, SortOrder.Descending).Count);
+                Assert.AreEqual(0, index.GetPatterns(rows).Count);
+                Assert.AreEqual(0, index.GetHistogram(rows, 10).Buckets.Count);
+            }
+
+            // and through the typed search box
+            Assert.AreEqual(0, index.QueryText("Hello from:2999-01-01").Count);
+        }
+        finally
+        {
+            Directory.Delete(dir, true);
+        }
+    }
+}

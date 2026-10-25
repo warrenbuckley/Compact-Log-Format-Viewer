@@ -287,6 +287,29 @@ public sealed class LogIndex : IDisposable
         }
     }
 
+    /// <summary>The timestamp of the oldest row, or null for an empty index.</summary>
+    public DateTimeOffset? OldestTimestamp => EdgeTimestamp(newest: false);
+
+    /// <summary>The timestamp of the newest row (what <c>last:</c> counts back from), or null for an empty index.</summary>
+    public DateTimeOffset? NewestTimestamp => EdgeTimestamp(newest: true);
+
+    private DateTimeOffset? EdgeTimestamp(bool newest)
+    {
+        _lock.EnterReadLock();
+        try { return _count == 0 ? null : new DateTimeOffset(_ticks[RowAtPosition(newest ? _count - 1 : 0)], TimeSpan.Zero); }
+        finally { _lock.ExitReadLock(); }
+    }
+
+    /// <summary>
+    /// Runs what was typed in the search box: time tokens (<see cref="SearchText"/>) become the index time range, and the rest is the
+    /// ordinary filter, so text without tokens behaves exactly as <see cref="Query"/> with that filter.
+    /// </summary>
+    public RowSet QueryText(string? text, LogLevelMask levels = LogLevelMask.All, CancellationToken ct = default)
+    {
+        var parsed = SearchText.Parse(text, NewestTimestamp ?? DateTimeOffset.UtcNow);
+        return Query(new LogQuery { Levels = levels, From = parsed.From, To = parsed.To, Filter = parsed.Filter }, ct);
+    }
+
     /// <summary>For "same request": the id of a request id string, or null if no row carries it.</summary>
     public int? FindRequestId(string requestId)
     {
@@ -872,6 +895,9 @@ public sealed class LogIndex : IDisposable
     private RowSet Refine(RowSet candidates, CompiledFilter filter, CancellationToken ct)
     {
         var n = candidates.Count;
+        if (n == 0)
+            return candidates; // the index filters already ruled every row out; there is nothing to read (and no partition to make)
+
         var keep = new bool[n];
 
         Parallel.ForEach(
