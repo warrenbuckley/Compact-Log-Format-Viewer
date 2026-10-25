@@ -128,10 +128,10 @@ public class ParityTests
     [Test]
     public void Same_Request_Finds_Every_Row_Of_That_Request()
     {
-        var request = _index.FindRequestId("557f45ba-0888-4216-8723-e226d795a2f7");
+        var request = _index.FindCorrelation("HttpRequestId", "557f45ba-0888-4216-8723-e226d795a2f7");
         Assert.IsNotNull(request);
 
-        var rows = _index.Query(new LogQuery { RequestId = request });
+        var rows = _index.Query(new LogQuery { Correlation = request });
         Assert.Greater(rows.Count, 1);
 
         var viaFilter = _index.Query(new LogQuery { Filter = "HttpRequestId = '557f45ba-0888-4216-8723-e226d795a2f7'" });

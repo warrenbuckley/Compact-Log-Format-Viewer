@@ -22,9 +22,10 @@ internal static class OpenProfile
         var range = Math.Min(length, 64L * 1024 * 1024);
         for (var run = 1; run <= 3; run++)
         {
-            var result = new ChunkResult();
+            var names = new LogIndexOptions().CorrelationProperties.Select(System.Text.Encoding.UTF8.GetBytes).ToArray();
+            var result = new ChunkResult(names.Length);
             var sw = Stopwatch.StartNew();
-            LineScanner.ScanRange(handle, 0, range, result, CancellationToken.None, null);
+            LineScanner.ScanRange(handle, 0, range, result, names, CancellationToken.None, null);
             Console.WriteLine($"  scanner, 1 thread, {range / 1024 / 1024} MB, run {run}: {sw.Elapsed.TotalMilliseconds,6:N0} ms  ({range / 1024.0 / 1024 / sw.Elapsed.TotalSeconds,5:N0} MB/s, {sw.Elapsed.TotalMilliseconds * 1000 / result.Count:N2} us/line, {result.Count:N0} rows)");
         }
     }

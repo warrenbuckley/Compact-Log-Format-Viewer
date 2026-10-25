@@ -34,12 +34,15 @@ public sealed class LogIndex : IDisposable
     private long[] _ticks = Array.Empty<long>();
     private byte[] _levels = Array.Empty<byte>();
     private int[] _templates = Array.Empty<int>();
-    private int[] _requests = Array.Empty<int>();
+    private readonly string[] _correlationNames;
+    private readonly byte[][] _correlationNamesUtf8;
+    private int[]?[] _correlation; // one column per correlation property, null until a row has a value for it; -1 where a row has none
+    private Utf8Interner[] _correlationTables;
+    private long[] _correlationLines;
     private int[] _traces = Array.Empty<int>();
     private int _count;
 
     private Utf8Interner _templateTable = new();
-    private Utf8Interner _requestTable = new();
     private Utf8Interner _traceTable = new();
     private static readonly MessageTemplateParser TemplateParser = new();
     private MessageTemplate?[] _templateObjects = Array.Empty<MessageTemplate?>(); // parsed lazily, shared by every event of that template
@@ -57,13 +60,22 @@ public sealed class LogIndex : IDisposable
     private long _indexedBytes;
     private int _malformed;
 
-    private LogIndex(string path)
+    private LogIndex(string path, LogIndexOptions options)
     {
+        options.Validate();
+        _correlationNames = options.CorrelationProperties.ToArray();
+        _correlationNamesUtf8 = _correlationNames.Select(Encoding.UTF8.GetBytes).ToArray();
+        _correlation = new int[]?[_correlationNames.Length];
+        _correlationTables = NewTables();
+        _correlationLines = new long[_correlationNames.Length];
+
         FilePath = path;
         _handle = File.OpenHandle(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete, FileOptions.RandomAccess);
     }
 
     public string FilePath { get; }
+
+    private Utf8Interner[] NewTables() => _correlationNames.Select(_ => new Utf8Interner()).ToArray();
 
     /// <summary>Increases whenever the index is thrown away and rebuilt because the file was truncated or replaced, so row ids from before no longer mean anything.</summary>
     public int Generation { get; private set; }
@@ -79,9 +91,9 @@ public sealed class LogIndex : IDisposable
     }
 
     /// <summary>Indexes the whole file. Lines that are not valid CLEF are skipped and counted in <see cref="IndexStats.MalformedLines"/>.</summary>
-    public static LogIndex Open(string path, IProgress<double>? progress = null, CancellationToken ct = default)
+    public static LogIndex Open(string path, IProgress<double>? progress = null, CancellationToken ct = default, LogIndexOptions? options = null)
     {
-        var index = new LogIndex(path);
+        var index = new LogIndex(path, options ?? new LogIndexOptions());
         try
         {
             index.Refresh(progress, ct);
@@ -133,10 +145,12 @@ public sealed class LogIndex : IDisposable
         _lock.EnterReadLock();
         try
         {
-            var columns = (long)_offsets.Length * (8 + 4 + 8 + 1 + 4 + 4 + 4) + (_order?.Length ?? 0) * 4L;
+            var columns = (long)_offsets.Length * (8 + 4 + 8 + 1 + 4 + 4) + (_order?.Length ?? 0) * 4L
+                          + _correlation.Sum(c => c is null ? 0L : (long)c.Length * 4);
+            var correlations = _correlationNames.Select((name, i) => new CorrelationStats(name, _correlationLines[i], _correlationTables[i].Count)).ToList();
             return new IndexStats(
-                _count, _malformed, _indexedBytes, _templateTable.Count, _requestTable.Count, _traceTable.Count, _chronological,
-                columns + _templateTable.ApproxBytes() + _requestTable.ApproxBytes() + _traceTable.ApproxBytes());
+                _count, _malformed, _indexedBytes, _templateTable.Count, correlations, _traceTable.Count, _chronological,
+                columns + _templateTable.ApproxBytes() + _traceTable.ApproxBytes() + _correlationTables.Sum(t => t.ApproxBytes()));
         }
         finally
         {
@@ -310,14 +324,40 @@ public sealed class LogIndex : IDisposable
         return Query(new LogQuery { Levels = levels, From = parsed.From, To = parsed.To, Filter = parsed.Filter }, ct);
     }
 
-    /// <summary>For "same request": the id of a request id string, or null if no row carries it.</summary>
-    public int? FindRequestId(string requestId)
+    /// <summary>
+    /// For "same request" (or any other correlation property): the value to pass as <see cref="LogQuery.Correlation"/>, or null when the
+    /// property is not indexed (see <see cref="LogIndexOptions.CorrelationProperties"/>) or no row carries that value.
+    /// </summary>
+    public CorrelationFilter? FindCorrelation(string property, string value)
     {
+        var column = Array.IndexOf(_correlationNames, property);
+        if (column < 0)
+            return null;
+
         _lock.EnterReadLock();
         try
         {
-            var id = _requestTable.Find(Encoding.UTF8.GetBytes(requestId));
-            return id < 0 ? null : id;
+            var id = _correlationTables[column].Find(Encoding.UTF8.GetBytes(value));
+            return id < 0 ? null : new CorrelationFilter(property, id);
+        }
+        finally
+        {
+            _lock.ExitReadLock();
+        }
+    }
+
+    /// <summary>The value one row has for a correlation property, or null if the row has none or the property is not indexed.</summary>
+    public string? GetCorrelationValue(int row, string property)
+    {
+        var column = Array.IndexOf(_correlationNames, property);
+        if (column < 0)
+            return null;
+
+        _lock.EnterReadLock();
+        try
+        {
+            var id = _correlation[column]?[row] ?? -1;
+            return id < 0 ? null : Encoding.UTF8.GetString(_correlationTables[column][id]);
         }
         finally
         {
@@ -342,9 +382,6 @@ public sealed class LogIndex : IDisposable
 
     /// <summary>The text behind a <see cref="RowInfo.TraceId"/>, or null for -1 (the row has none).</summary>
     public string? GetTraceText(int traceId) => TextOf(_traceTable, traceId);
-
-    /// <summary>The text behind a <see cref="RowInfo.RequestId"/>, or null for -1 (the row has none).</summary>
-    public string? GetRequestText(int requestId) => TextOf(_requestTable, requestId);
 
     private string? TextOf(Utf8Interner table, int id)
     {
@@ -375,7 +412,6 @@ public sealed class LogIndex : IDisposable
                 TemplateText(_templates[row]),
                 (level & HasExceptionFlag) != 0,
                 _templates[row],
-                _requests[row],
                 _traces[row]);
         }
         finally
@@ -471,11 +507,12 @@ public sealed class LogIndex : IDisposable
         _ticks = Array.Empty<long>();
         _levels = Array.Empty<byte>();
         _templates = Array.Empty<int>();
-        _requests = Array.Empty<int>();
         _traces = Array.Empty<int>();
         _count = 0;
         _templateTable = new Utf8Interner();
-        _requestTable = new Utf8Interner();
+        _correlation = new int[]?[_correlationNames.Length];
+        _correlationTables = NewTables();
+        _correlationLines = new long[_correlationNames.Length];
         _traceTable = new Utf8Interner();
         _templateObjects = Array.Empty<MessageTemplate?>();
         _chronological = true;
@@ -551,8 +588,8 @@ public sealed class LogIndex : IDisposable
 
         Parallel.For(0, chunkCount, new ParallelOptions { CancellationToken = ct }, i =>
         {
-            var chunk = new ChunkResult();
-            LineScanner.ScanRange(_handle, bounds[i], bounds[i + 1], chunk, ct, onRead);
+            var chunk = new ChunkResult(_correlationNames.Length);
+            LineScanner.ScanRange(_handle, bounds[i], bounds[i + 1], chunk, _correlationNamesUtf8, ct, onRead);
             results[i] = chunk;
         });
 
@@ -575,10 +612,6 @@ public sealed class LogIndex : IDisposable
             for (var i = 0; i < templateMap.Length; i++)
                 templateMap[i] = _templateTable.Intern(chunk.TemplateTable[i]);
 
-            var requestMap = new int[chunk.RequestTable.Count];
-            for (var i = 0; i < requestMap.Length; i++)
-                requestMap[i] = _requestTable.Intern(chunk.RequestTable[i]);
-
             var traceMap = new int[chunk.TraceTable.Count];
             for (var i = 0; i < traceMap.Length; i++)
                 traceMap[i] = _traceTable.Intern(chunk.TraceTable[i]);
@@ -594,10 +627,34 @@ public sealed class LogIndex : IDisposable
             for (var i = 0; i < chunk.Count; i++)
             {
                 _templates[_count + i] = templateMap[chunk.Templates[i]];
-                var request = chunk.Requests[i];
-                _requests[_count + i] = request < 0 ? -1 : requestMap[request];
                 var trace = chunk.Traces[i];
                 _traces[_count + i] = trace < 0 ? -1 : traceMap[trace];
+            }
+
+            for (var c = 0; c < _correlationNames.Length; c++)
+            {
+                var values = chunk.Correlations[c];
+                var map = new int[chunk.CorrelationTables[c].Count];
+                for (var i = 0; i < map.Length; i++)
+                    map[i] = _correlationTables[c].Intern(chunk.CorrelationTables[c][i]);
+
+                var column = _correlation[c];
+                if (column is null)
+                {
+                    if (map.Length == 0)
+                        continue; // nothing in this chunk either; the column stays unallocated and every row reads as "none"
+
+                    column = _correlation[c] = new int[_offsets.Length];
+                    Array.Fill(column, -1, 0, _count);
+                }
+
+                for (var i = 0; i < values.Count; i++)
+                {
+                    var value = values[i];
+                    column[_count + i] = value < 0 ? -1 : map[value];
+                    if (value >= 0)
+                        _correlationLines[c]++;
+                }
             }
 
             _count += chunk.Count;
@@ -709,8 +766,10 @@ public sealed class LogIndex : IDisposable
         Array.Resize(ref _ticks, capacity);
         Array.Resize(ref _levels, capacity);
         Array.Resize(ref _templates, capacity);
-        Array.Resize(ref _requests, capacity);
         Array.Resize(ref _traces, capacity);
+        for (var c = 0; c < _correlation.Length; c++)
+            if (_correlation[c] is not null)
+                Array.Resize(ref _correlation[c], capacity);
     }
 
     private long FindNextLineStart(long position, long end)
@@ -848,14 +907,19 @@ public sealed class LogIndex : IDisposable
         var allLevels = mask == (int)LogLevelMask.All;
         var timeFiltered = q.From is not null || q.To is not null;
 
-        if (allLevels && !timeFiltered && q.TemplateId is null && q.RequestId is null && q.TraceId is null)
+        if (allLevels && !timeFiltered && q.TemplateId is null && q.Correlation is null && q.TraceId is null)
             return AllRows();
 
         var from = q.From?.UtcTicks ?? long.MinValue;
         var to = q.To?.UtcTicks ?? long.MaxValue;
-        int template = q.TemplateId ?? -1, request = q.RequestId ?? -1;
+        var template = q.TemplateId ?? -1;
         var matchTemplate = q.TemplateId is not null;
-        var matchRequest = q.RequestId is not null;
+        var matchCorrelation = q.Correlation is not null;
+        var correlationColumn = matchCorrelation ? Array.IndexOf(_correlationNames, q.Correlation!.Value.Property) : -1;
+        var correlationId = q.Correlation?.ValueId ?? -1;
+        int[]? correlation = correlationColumn >= 0 ? _correlation[correlationColumn] : null;
+        if (matchCorrelation && correlation is null)
+            return new RowSet(Array.Empty<int>()); // the property is not indexed, or no row has a value for it: nothing can match
         var matchTrace = q.TraceId is not null;
         var trace = q.TraceId ?? -1;
 
@@ -879,7 +943,7 @@ public sealed class LogIndex : IDisposable
             if (matchTemplate && _templates[row] != template)
                 continue;
 
-            if (matchRequest && _requests[row] != request)
+            if (matchCorrelation && correlation![row] != correlationId)
                 continue;
 
             if (matchTrace && _traces[row] != trace)

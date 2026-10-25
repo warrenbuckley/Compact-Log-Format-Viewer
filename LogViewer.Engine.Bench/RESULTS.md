@@ -91,6 +91,32 @@ and about 160 filters including 26 on `@tr`/`@sp` compared against the real serv
 One difference from the old parser, in the more forgiving direction: a line with an id Serilog rejects (or other values its reader throws on) used to make the whole file fail to open;
 the engine reports that row as unreadable and carries on.
 
+## What real Umbraco sites write, and following a request in any application
+
+Checked by building actual Umbraco sites from the published NuGet packages (SQLite, unattended install), sending requests, and reading the JSON log each one wrote
+(`UmbracoTraceLog.<machine>.<date>.json`, written through a plain `CompactJsonFormatter`):
+
+| Umbraco | Lines | With `@tr`/`@sp` | Notes |
+|---|---|---|---|
+| 12.3.10 | 3,929 | **0** | negative control: package versions predicted none, and there were none |
+| 13.16.2 | 868 | 174 | first release that writes them (Compact 2.0.0 + Serilog 3.1.1) |
+| 17.7.1 | 1,149 | 350 | |
+| 18.2.1 | 1,165 | 351 | |
+
+- Trace ids appear only on lines logged inside a request; startup and background lines have none, so one file is always a mix.
+- In these logs every line that has `HttpRequestId` also has `@tr`, a trace was one request, and each trace had **one** span: all lines of a request shared one span id, so a
+  span-per-lane view would draw a single bar. Spans only carry structure where an app creates child activities.
+- Umbraco's `HttpRequestId` is its own GUID and is **missing from the first and last line of a request** ("Request starting", "Request finished"); ASP.NET Core's `RequestId`
+  and `@tr` cover every line.
+- The engine knows nothing about Umbraco. `@tr`/`@sp` are standard Serilog compact fields and are read from any application's log. Other applications correlate with other names,
+  so the index tracks a configurable list of ordinary properties (`LogIndexOptions.CorrelationProperties`, default `HttpRequestId`, `RequestId`, `CorrelationId`, `TraceId`),
+  each in its own column, and `IndexStats.Correlations` says how many lines each one covers so the UI can offer the best one or let the user choose.
+
+**A bug this found.** The first version put `HttpRequestId` and `RequestId` into one column. On real Umbraco 13, 17 and 18 logs every request was split across two id spaces and
+"same request" returned 3 rows of a 38-line request. Synthetic test data had only one such property, so tests missed it. Fixed by one column per property; the regression is covered by
+real excerpts of the logs above (`LogViewer.Engine.Tests/fixtures`) checked against an independent `System.Text.Json` count, and reintroducing the merge fails 20 of 26 tests.
+A column is only allocated once a row has a value for it, so unused properties cost nothing (open 438 - 457 ms and the same memory as before on 500 MB).
+
 ## Time ranges
 
 **Serilog.Expressions 5.0.0 cannot filter by time.** Tested against the sample log with positive controls: `@t < Now()`, `@t > '2018-11-12T08:35:00Z'`, `UtcDateTime(@t) < UtcDateTime(Now())`

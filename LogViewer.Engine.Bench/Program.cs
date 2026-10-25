@@ -106,7 +106,7 @@ static void RunEngine(string path)
     Row("open (index every line)", Time(() => index = LogIndex.Open(path)), $"{index.Count:N0} rows");
     Memory("after open");
     var stats = index.GetStats();
-    Console.WriteLine($"|   index columns ~{stats.ApproxIndexMemoryBytes / 1024.0 / 1024.0:N0} MB, {stats.TemplateCount} templates, {stats.RequestCount:N0} request ids, chronological={stats.Chronological}");
+    Console.WriteLine($"|   index columns ~{stats.ApproxIndexMemoryBytes / 1024.0 / 1024.0:N0} MB, {stats.TemplateCount} templates, {string.Join(", ", stats.Correlations.Select(c => $"{c.Property} {c.Lines:N0} lines/{c.DistinctValues:N0} values"))}, chronological={stats.Chronological}");
 
     var all = index.All();
     LevelCounts counts = default;
@@ -134,8 +134,8 @@ static void RunEngine(string path)
     Row("histogram, 100 buckets, whole file", Median(() => histogram = index.GetHistogram(all, 100)), $"{histogram.Buckets.Count} buckets");
 
     var sample = index.ReadRow(index.Count / 2);
-    var requestId = index.FindRequestId(sample.Properties["HttpRequestId"].ToString().Trim('"'));
-    Row("same request", Median(() => rows = index.Query(new LogQuery { RequestId = requestId })), $"{rows.Count:N0} rows");
+    var requestId = index.FindCorrelation("HttpRequestId", sample.Properties["HttpRequestId"].ToString().Trim('"'));
+    Row("same request", Median(() => rows = index.Query(new LogQuery { Correlation = requestId })), $"{rows.Count:N0} rows");
 
     // Tail: append 2,000 lines to a copy, five times, and pick them up each time
     var tailPath = path + ".tail";

@@ -122,12 +122,12 @@ public class EdgeCaseTests
         Assert.AreEqual(rows, index.Count);
         Assert.IsTrue(index.GetStats().Chronological);
         Assert.AreEqual(1600, index.CountErrors(index.All()));
-        Assert.AreEqual(rows / 25, index.GetStats().RequestCount);
+        Assert.AreEqual(rows / 25, index.GetStats().Correlations.Single(c => c.Property == "HttpRequestId").DistinctValues);
 
         for (var row = 0; row < rows; row += 7919)
             Assert.AreEqual(T0.AddMilliseconds(row * 10), index.GetRowInfo(row).Timestamp);
 
-        var sameRequest = index.Query(new LogQuery { RequestId = index.FindRequestId("req-1234") });
+        var sameRequest = index.Query(new LogQuery { Correlation = index.FindCorrelation("HttpRequestId", "req-1234") });
         Assert.AreEqual(25, sameRequest.Count);
         Assert.AreEqual(1234 * 25, sameRequest.RowAt(0));
 
@@ -145,7 +145,7 @@ public class EdgeCaseTests
         var patterns = index.GetPatterns(index.All());
         Assert.AreEqual(1, patterns.Count, "both spellings are the same template");
         Assert.AreEqual("Quote \"{N}\" and é", patterns[0].Template);
-        Assert.AreEqual(1, index.GetStats().RequestCount);
+        Assert.AreEqual(1, index.GetStats().Correlations.Single(c => c.Property == "HttpRequestId").DistinctValues);
     }
 
     [Test]
@@ -181,7 +181,8 @@ public class EmptyCandidateTests
                 new LogQuery { From = t.AddYears(5), Filter = "Hello" },
                 new LogQuery { To = t.AddYears(-5), Filter = "Hello" },
                 new LogQuery { TemplateId = 9999, Filter = "Hello" },
-                new LogQuery { RequestId = 9999, Filter = "Hello" },
+                new LogQuery { Correlation = new CorrelationFilter("HttpRequestId", 9999), Filter = "Hello" },
+                new LogQuery { Correlation = new CorrelationFilter("NotIndexed", 0), Filter = "Hello" },
                 new LogQuery { TraceId = 9999, Filter = "Hello" },
             };
 

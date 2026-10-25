@@ -36,7 +36,8 @@ public sealed class LogQuery
 
     public int? TemplateId { get; init; }
 
-    public int? RequestId { get; init; }
+    /// <summary>Rows whose value of one correlation property is this one; see <see cref="LogIndex.FindCorrelation"/>.</summary>
+    public CorrelationFilter? Correlation { get; init; }
 
     /// <summary>Rows carrying this trace id (@tr). Files written outside a request, or by an older logger, simply have no trace ids.</summary>
     public int? TraceId { get; init; }
@@ -62,13 +63,18 @@ public readonly record struct RowInfo(
     string MessageTemplate,
     bool HasException,
     int TemplateId,
-    int RequestId,
     int TraceId);
 
 public readonly record struct LevelCounts(long Verbose, long Debug, long Information, long Warning, long Error, long Fatal)
 {
     public long Total => Verbose + Debug + Information + Warning + Error + Fatal;
 }
+
+/// <summary>One value of one correlation property, as found by <see cref="LogIndex.FindCorrelation"/>.</summary>
+public readonly record struct CorrelationFilter(string Property, int ValueId);
+
+/// <summary>How much of the file one correlation property covers: pick the one with the most lines, or let the user choose.</summary>
+public sealed record CorrelationStats(string Property, long Lines, int DistinctValues);
 
 public sealed record PatternCount(int TemplateId, string Template, long Count);
 
@@ -81,7 +87,7 @@ public sealed record IndexStats(
     int MalformedLines,
     long IndexedBytes,
     int TemplateCount,
-    int RequestCount,
+    IReadOnlyList<CorrelationStats> Correlations,
     int TraceCount,
     bool Chronological,
     long ApproxIndexMemoryBytes);

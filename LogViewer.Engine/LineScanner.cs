@@ -14,9 +14,9 @@ internal static class LineScanner
     private const byte HasExceptionFlag = 0x80;
     private static readonly byte[] Bom = { 0xEF, 0xBB, 0xBF };
 
-    private enum Field { Other, Timestamp, Level, Template, Message, Exception, Request, Trace }
+    private enum Field { Other, Timestamp, Level, Template, Message, Exception, Trace }
 
-    public static void ScanRange(SafeFileHandle handle, long start, long end, ChunkResult result, CancellationToken ct, Action<int>? onBytesRead)
+    public static void ScanRange(SafeFileHandle handle, long start, long end, ChunkResult result, byte[][] correlationNames, CancellationToken ct, Action<int>? onBytesRead)
     {
         var buf = new byte[1 << 20];
         var have = 0;
@@ -50,14 +50,14 @@ internal static class LineScanner
                 if (nl < 0)
                     break;
 
-                AddRaw(buf.AsSpan(pos, nl), bufOffset + pos, result);
+                AddRaw(buf.AsSpan(pos, nl), bufOffset + pos, result, correlationNames);
                 pos += nl + 1;
             }
 
             if (filePos >= end)
             {
                 if (have - pos > 0)
-                    AddRaw(buf.AsSpan(pos, have - pos), bufOffset + pos, result);
+                    AddRaw(buf.AsSpan(pos, have - pos), bufOffset + pos, result, correlationNames);
 
                 break;
             }
@@ -72,7 +72,7 @@ internal static class LineScanner
         }
     }
 
-    private static void AddRaw(ReadOnlySpan<byte> line, long offset, ChunkResult r)
+    private static void AddRaw(ReadOnlySpan<byte> line, long offset, ChunkResult r, byte[][] correlationNames)
     {
         if (line.Length > 0 && line[^1] == (byte)'\r')
             line = line[..^1];
@@ -86,18 +86,19 @@ internal static class LineScanner
         if (line.IndexOfAnyExcept((byte)' ', (byte)'\t') < 0)
             return; // blank line
 
-        AddLine(line, offset, r);
+        AddLine(line, offset, r, correlationNames);
     }
 
-    private static void AddLine(ReadOnlySpan<byte> line, long offset, ChunkResult r)
+    private static void AddLine(ReadOnlySpan<byte> line, long offset, ChunkResult r, byte[][] correlationNames)
     {
         long ticks = 0;
         var hasTicks = false;
         byte level = 2; // CLEF omits @l for Information
         var hasException = false;
         var template = -1;
-        var request = -1;
         var trace = -1;
+        Span<int> correlation = stackalloc int[correlationNames.Length];
+        correlation.Fill(-1);
         byte[]? message = null;
 
         try
@@ -115,6 +116,7 @@ internal static class LineScanner
                     break;
 
                 var field = Classify(reader.ValueSpan, reader.ValueIsEscaped);
+                var column = field == Field.Other && !reader.ValueIsEscaped ? ColumnOf(correlationNames, reader.ValueSpan) : -1;
                 reader.Read();
 
                 switch (field)
@@ -151,8 +153,10 @@ internal static class LineScanner
                         trace = r.TraceTable.Intern(reader.ValueIsEscaped ? Encoding.UTF8.GetBytes(reader.GetString()!) : reader.ValueSpan);
                         break;
 
-                    case Field.Request when reader.TokenType == JsonTokenType.String:
-                        request = r.RequestTable.Intern(reader.ValueIsEscaped ? Encoding.UTF8.GetBytes(reader.GetString()!) : reader.ValueSpan);
+                    case Field.Other when column >= 0 && reader.TokenType is JsonTokenType.String or JsonTokenType.Number:
+                        // a correlation property: its own column and its own set of values, never merged with another property's
+                        correlation[column] = r.CorrelationTables[column].Intern(
+                            reader.TokenType == JsonTokenType.String && reader.ValueIsEscaped ? Encoding.UTF8.GetBytes(reader.GetString()!) : reader.ValueSpan);
                         break;
                 }
 
@@ -183,8 +187,9 @@ internal static class LineScanner
         r.Ticks.Add(ticks);
         r.Levels.Add((byte)(level | (hasException ? HasExceptionFlag : 0)));
         r.Templates.Add(template);
-        r.Requests.Add(request);
         r.Traces.Add(trace);
+        for (var i = 0; i < correlation.Length; i++)
+            r.Correlations[i].Add(correlation[i]);
     }
 
     /// <summary>A line with only @m has no template; Serilog turns the rendered text into a literal template by doubling braces.</summary>
@@ -202,8 +207,16 @@ internal static class LineScanner
         if (name.SequenceEqual("@m"u8)) return Field.Message;
         if (name.SequenceEqual("@x"u8)) return Field.Exception;
         if (name.SequenceEqual("@tr"u8)) return Field.Trace;
-        if (name.SequenceEqual("HttpRequestId"u8) || name.SequenceEqual("RequestId"u8)) return Field.Request;
         return Field.Other;
+    }
+
+    private static int ColumnOf(byte[][] names, ReadOnlySpan<byte> name)
+    {
+        for (var i = 0; i < names.Length; i++)
+            if (names[i].Length == name.Length && name.SequenceEqual(names[i]))
+                return i;
+
+        return -1;
     }
 
     private static byte ParseLevel(ReadOnlySpan<byte> value)
