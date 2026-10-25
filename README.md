@@ -20,7 +20,7 @@ For now I recommend you build it manually. In future I may do auto-updates via G
 
 You will need the following installed:
 - node/npm
-- .NET Core SDK 2.2+
+- .NET 10 SDK
 
 For OSX & Windows you can download the SDK here or install Visual Studio for Mac/Windows which includes the `dotnet` CLI tool<br/>
 https://dotnet.microsoft.com/download<br/>
@@ -37,6 +37,8 @@ https://visualstudio.microsoft.com/vs/
 - `tsc --watch` This will compile the TypeScript files & continue to watch them
 - Open a new terminal in `LogViewer.Client`
 - `npm run start` Will run the Electron app for development with Chrome DevTools open/launched
+
+>**Publishing:** the server is published **without trimming** (`PublishTrimmed` is off in `LogViewer.Server.csproj`). Trimming a .NET 10 MVC app removes the controllers or stops it starting, and neither is visible in `dotnet test`. After changing how the server is published, run the published binary and check that `api/Viewer/open` and `api/Viewer/search` respond.
 
 >**Note:** If you `npm run start` before you have compiled the TypeScript files then Electron will complain about not finding the entry point file. Additionally if you have also not run `dotnet publish` then the underlying WebAPI which we communicate with will not be running.
 

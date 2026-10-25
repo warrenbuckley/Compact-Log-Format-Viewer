@@ -25,11 +25,23 @@ jobs:
     - script: set
       displayName: 'Print ENV Variables'
 
+    - task: UseDotNet@2
+      displayName: 'Use .NET 10 SDK'
+      inputs:
+        packageType: sdk
+        version: '10.x'
+
     - task: DotNetCoreCLI@2
       displayName: 'dotnet test'
       inputs:
         command: test
         workingDirectory: LogViewer.Server.Tests
+
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet test (engine)'
+      inputs:
+        command: test
+        workingDirectory: LogViewer.Engine.Tests
 
 # Windows Build
 - job: WinBuild
@@ -38,6 +50,12 @@ jobs:
   pool:
     vmImage: 'windows-2019'
   steps:
+    - task: UseDotNet@2
+      displayName: 'Use .NET 10 SDK'
+      inputs:
+        packageType: sdk
+        version: '10.x'
+
     - task: DotNetCoreCLI@2
       displayName: 'dotnet publish - Create Self Contained WebAPI for Windows'
       inputs:

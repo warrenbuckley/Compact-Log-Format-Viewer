@@ -3,7 +3,10 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
-        <PublishTrimmed>true</PublishTrimmed>
+        <!-- Not trimmed. Since .NET 8 trimming defaults to "full" and also trims this assembly, so MVC finds no controllers and the published app
+             answers 404 to everything; with partial trimming ASP.NET Core 10 MVC then fails at startup (IsEnhancedModelMetadataSupported). Neither shows
+             up in `dotnet test`, only in the published binary, which is why the build is checked by running it. Cost: ~97 MB single file instead of ~34 MB. -->
+        <PublishTrimmed>false</PublishTrimmed>
         <NoWarn>NU1603</NoWarn>
         <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
     </PropertyGroup>
@@ -19,9 +22,10 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.13" />
-        <PackageReference Include="Serilog.Expressions" Version="4.0.0" />
-        <PackageReference Include="Serilog.Formatting.Compact.Reader" Version="3.0.0" />
-        <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+        <PackageReference Include="Serilog" Version="4.4.0" />
+        <PackageReference Include="Serilog.Expressions" Version="5.0.0" />
+        <PackageReference Include="Serilog.Formatting.Compact.Reader" Version="4.0.0" />
+        <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     </ItemGroup>
 
 </Project>

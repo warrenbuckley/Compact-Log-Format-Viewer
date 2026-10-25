@@ -50,6 +50,24 @@ parser comes from the faster line reader, parallel scanning, and the index narro
 | Current parser | 11.1 s | 50.7 s | 104.8 s |
 | Index now | 0.39 s | 0.6 s | 0.7 - 1.1 s |
 
+## .NET 10 and the latest Serilog packages
+
+Everything now targets net10.0 (the server was on net7.0, out of support) with Serilog 4.4.0, Serilog.Expressions 5.0.0 (was 4.0.0),
+Serilog.Formatting.Compact.Reader 4.0.0 (was 3.0.0) and Serilog.Sinks.File 7.0.0 (was 5.0.0). It was done in two steps so a change could be pinned on its cause:
+
+1. Runtime only (net10.0, old packages): all tests and the recorded results unchanged.
+2. Packages: no code change was needed, and all 182 recorded search results are identical (row counts, hashes of every row's time, level, template, rendered
+   message, exception and properties, and of the template list), as are the engine tests and the server's own tests.
+
+Performance is unchanged within noise (1 GB, warm file): `@l = 'Error'` 1.4 - 1.6 s, `Duration > 1000` 1.6 s, plain word 1.1 - 1.2 s, refresh 2 ms.
+Serilog's own reader got ~30% faster (10.4 -> 7.4 us per line) and the engine's reader is still ~3x faster than that (2.6 us).
+
+**Trimming had to be turned off.** `PublishTrimmed` was already on in the server project. Since .NET 8 its default mode is "full", which also trims the app's own assembly:
+the published server started, then answered 404 to every request because MVC could not find the controllers. Partial trimming got past that but ASP.NET Core 10 MVC then
+failed at startup (`IsEnhancedModelMetadataSupported`), and the documented feature switch did not take effect. Neither problem is visible in `dotnet test`; both were
+found by running the published binary. The server is now published untrimmed (97 MB single file instead of 34 MB), and the published build was checked over HTTP:
+`open`, `search` with `Has()`, `IsDefined()`, `like`, and numeric and string expressions, `totals` and `errors` all return the expected values.
+
 ## Exactness: the engine returns what the server returns
 
 Every search runs through Serilog.Expressions with the rules `LogParser` uses today (a plain word is `@m like '%word%' ci`, an expression that does not
@@ -117,6 +135,8 @@ ReadyToRun (~12% on its own, nothing on top of the delay setting).
 
 ## Caveats
 
-- Synthetic data, one 4-core VM. Open varies a lot run to run here: one 1 GB open took 2.1 s (cold page cache) against 0.7 - 1.1 s otherwise.
+- Synthetic data, one 4-core VM. **Cold files are disk-bound.** On this VM a file not read recently comes off disk at 40 - 82 MB/s (500 MB in 12.5 s with plain `dd`) and
+  a cached one at ~4,000 MB/s. Opens of 1 GB files that had gone cold took 22 - 25 s, which is the time to read the file, not engine time. With the file cached the open is
+  0.7 - 1.1 s. The numbers in this document are cached opens unless stated.
 - Filters that must parse lines now cost about 1.1 - 1.7 s per GB on 4 cores. They scale with file size; index-backed filters (level, time, template, request) do not.
 - `@m`-only lines and a few edge cases follow Serilog's reader exactly by falling back to it; they are slower but correct.
